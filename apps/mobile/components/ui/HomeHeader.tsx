@@ -4,9 +4,10 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
   onOpenMenu: () => void;
+  onOpenSimulation: () => void;
 }
 
-export function HomeHeader({ onOpenMenu }: Props) {
+export function HomeHeader({ onOpenMenu, onOpenSimulation }: Props) {
   return (
     <View style={styles.headerRow}>
       <TouchableOpacity
@@ -21,6 +22,14 @@ export function HomeHeader({ onOpenMenu }: Props) {
         <Text style={styles.screenTitle}>Budget</Text>
         <Text style={styles.screenSubtitle}>Personal finance overview</Text>
       </View>
+      {/* simulation icon*/}
+      <TouchableOpacity
+        onPress={onOpenSimulation}
+        style={styles.simButton}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="flask-outline" size={22} color="#a5b4fc" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -50,5 +59,9 @@ const styles = StyleSheet.create({
     color: "#9ca3af",
     fontSize: 14,
     marginTop: 4,
+  },
+  simButton: {
+    padding: 6,
+    borderRadius: 999,
   },
 });

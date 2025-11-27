@@ -126,11 +126,16 @@ export default function HomeScreen() {
     !!deleteTarget && deleteTarget.isFixed && deleteTarget.planId != null
       ? true
       : false;
-
+  const handleOpenSimulation = () => {
+    router.push("/simulation");
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <HomeHeader onOpenMenu={() => setSidebarOpen(true)} />
+        <HomeHeader
+          onOpenMenu={() => setSidebarOpen(true)}
+          onOpenSimulation={handleOpenSimulation}
+        />
 
         <DailyBalanceSection
           selectedDate={selectedDate}
