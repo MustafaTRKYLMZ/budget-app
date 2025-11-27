@@ -32,7 +32,7 @@ function QuickChip({ label, active, onPress }: QuickChipProps) {
 }
 
 interface Props {
-  selectedDate: string; // "YYYY-MM-DD"
+  selectedDate: string | undefined; // "YYYY-MM-DD"
   currentMonth: string; // "YYYY-MM"
   balance: number;
   onChangeDate: (dateStr: string) => void;
@@ -47,6 +47,8 @@ export function DailyBalanceSection({
   const [showPicker, setShowPicker] = useState(false);
 
   const todayStr = dayjs().format("YYYY-MM-DD");
+  const effectiveSelectedDate = selectedDate || todayStr;
+
   const endOfMonthStr = dayjs(`${currentMonth}-01`)
     .endOf("month")
     .format("YYYY-MM-DD");
@@ -76,7 +78,7 @@ export function DailyBalanceSection({
               style={{ marginRight: 6 }}
             />
             <Text style={styles.dailyDateText}>
-              {dayjs(selectedDate).format("DD MMM YYYY")}
+              {dayjs(effectiveSelectedDate).format("DD MMM YYYY")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -96,19 +98,19 @@ export function DailyBalanceSection({
       <View style={styles.quickRow}>
         <QuickChip
           label="Today"
-          active={selectedDate === todayStr}
+          active={effectiveSelectedDate === todayStr}
           onPress={() => onChangeDate(todayStr)}
         />
         <QuickChip
           label="End of month"
-          active={selectedDate === endOfMonthStr}
+          active={effectiveSelectedDate === endOfMonthStr}
           onPress={() => onChangeDate(endOfMonthStr)}
         />
       </View>
 
       {showPicker && (
         <DateTimePicker
-          value={dayjs(selectedDate).toDate()}
+          value={dayjs(effectiveSelectedDate).toDate()}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={onChangeInternal}

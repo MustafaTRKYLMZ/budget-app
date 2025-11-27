@@ -62,6 +62,9 @@ export default function HomeScreen() {
     if (viewTab === "income") {
       return filteredByMonth.filter((t) => t.type === "Income");
     }
+    if (viewTab === "expense") {
+      return filteredByMonth.filter((t) => t.type === "Expense");
+    }
     return filteredByMonth;
   }, [filteredByMonth, viewTab]);
 
@@ -84,7 +87,7 @@ export default function HomeScreen() {
 
   const closeDeleteSheet = () => setDeleteTarget(null);
 
-  // AYLIK ÖZET
+  // monthly calculations
   const income = filtered.reduce(
     (sum, t) => (t.type === "Income" ? sum + t.amount : sum),
     0
