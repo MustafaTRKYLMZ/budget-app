@@ -9,6 +9,8 @@ import SummaryCards from "./components/SummaryCards";
 import TransactionTable from "./components/TransactionTable";
 import Modal from "./components/Modal";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 function App() {
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     "budget_transactions",
@@ -27,11 +29,9 @@ function App() {
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
 
-  // Delete modal state (for fixed/plan-based items)
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
-  // Update-scope modal state (for fixed/plan-based items)
   const [isUpdateScopeModalOpen, setIsUpdateScopeModalOpen] =
     useState<boolean>(false);
   const [pendingUpdateOriginal, setPendingUpdateOriginal] =
@@ -40,11 +40,6 @@ function App() {
     null
   );
 
-  /**
-   * Given current transactions + fixedPlans and a target month,
-   * ensure that for each active FixedPlan we have exactly ONE
-   * transaction row for that month.
-   */
   const applyFixedPlansForMonth = (
     baseTransactions: Transaction[],
     plans: FixedPlan[],
@@ -55,14 +50,12 @@ function App() {
     const result = [...baseTransactions];
 
     for (const plan of plans) {
-      // Is this plan active in targetMonth?
       const isAfterStart = targetMonth >= plan.startMonth;
       const isBeforeEnd =
         plan.endMonth === null || targetMonth <= plan.endMonth;
 
       if (!isAfterStart || !isBeforeEnd) continue;
 
-      // Already have a transaction for this plan & month?
       const alreadyExists = result.some(
         (t) => t.planId === plan.id && t.month === targetMonth
       );
@@ -86,12 +79,7 @@ function App() {
     return result;
   };
 
-  /**
-   * Add transaction from form.
-   * If it is "fixed", create/use a FixedPlan and attach planId.
-   */
   const handleAddTransaction = (transaction: Transaction) => {
-    // Normalize month from date, just in case
     const monthFromDate =
       transaction.date && transaction.date.length >= 7
         ? transaction.date.slice(0, 7)
@@ -105,7 +93,6 @@ function App() {
     if (baseTx.isFixed) {
       const startMonth = baseTx.month;
 
-      // Try to find an existing plan with same item+type+amount+category
       const existingPlan = fixedPlans.find(
         (p) =>
           p.item === baseTx.item &&
@@ -124,7 +111,7 @@ function App() {
           category: baseTx.category,
           amount: baseTx.amount,
           startMonth,
-          endMonth: null, // "forever" for now
+          endMonth: null,
         };
 
         planId = newPlan.id;
@@ -148,27 +135,16 @@ function App() {
     }
   };
 
-  /**
-   * Simple "update by id" helper.
-   */
   const handleUpdateTransaction = (updated: Transaction) => {
     setTransactions((prev) =>
       prev.map((t) => (t.id === updated.id ? { ...updated } : t))
     );
   };
 
-  /**
-   * Non-fixed or old style transactions: just delete this one.
-   */
   const deleteSingleTransaction = (transaction: Transaction) => {
     setTransactions((prev) => prev.filter((t) => t.id !== transaction.id));
   };
 
-  /**
-   * User clicked "Delete" on a row.
-   * - If not plan-based: simple confirm & delete
-   * - If plan-based (fixed): open 3-option delete modal
-   */
   const handleRequestDelete = (transaction: Transaction) => {
     const isPlanBased = Boolean(transaction.planId);
 
@@ -215,51 +191,12 @@ function App() {
     return { income, expense };
   }, [filteredTransactions]);
 
-  // Load from JSON on startup (Electron only)
-  useEffect(() => {
-    if (!window.electronAPI) return;
-
-    (async () => {
-      const result = await window.electronAPI?.loadBudgetData();
-      if (result?.ok && result.data) {
-        setTransactions(result.data);
-      }
-    })();
-  }, []);
-
-  // Apply fixed plans whenever selectedMonth or fixedPlans change
   useEffect(() => {
     if (!selectedMonth) return;
     setTransactions((prev) =>
       applyFixedPlansForMonth(prev, fixedPlans, selectedMonth)
     );
-  }, [selectedMonth, fixedPlans]);
-
-  // Auto-save JSON + Excel on every change (Electron only)
-  useEffect(() => {
-    if (!window.electronAPI) return;
-
-    (async () => {
-      const result = await window.electronAPI?.saveBudgetData(transactions);
-      if (!result?.ok) {
-        console.error("Failed to save budget data:", result?.error);
-      }
-    })();
-  }, [transactions]);
-
-  const handleExportToExcel = async () => {
-    if (!window.electronAPI) {
-      alert("Excel export is only available in the desktop app (Electron).");
-      return;
-    }
-
-    const result = await window.electronAPI.saveBudgetData(transactions);
-    if (!result.ok) {
-      alert("Export failed: " + result.error);
-    } else {
-      alert("Exported to Excel:\n" + result.excelPath);
-    }
-  };
+  }, [selectedMonth, fixedPlans, setTransactions]);
 
   const openCreateModal = () => {
     setEditingTransaction(null);
@@ -276,15 +213,6 @@ function App() {
     setEditingTransaction(null);
   };
 
-  // ===========
-  // UPDATE FLOW
-  // ===========
-
-  /**
-   * Called when edit form is submitted.
-   * - If not fixed/plan-based => update only this row.
-   * - If plan-based & fixed => open "update scope" modal (3 options).
-   */
   const handleUpdateFromForm = (
     original: Transaction,
     updated: Transaction
@@ -292,13 +220,11 @@ function App() {
     const isPlanBased = Boolean(original.planId && original.isFixed);
 
     if (!isPlanBased) {
-      // simple row update
       handleUpdateTransaction(updated);
       handleCloseModal();
       return;
     }
 
-    // store pending update and open scope modal
     setPendingUpdateOriginal(original);
     setPendingUpdateNew(updated);
     handleCloseModal();
@@ -311,14 +237,12 @@ function App() {
     setPendingUpdateNew(null);
   };
 
-  // 1) Update this only
   const handleUpdateThisOnly = () => {
     if (!pendingUpdateNew) return;
     handleUpdateTransaction(pendingUpdateNew);
     closeUpdateScopeModal();
   };
 
-  // 2) Update this and future months
   const handleUpdateThisAndFuture = () => {
     if (!pendingUpdateOriginal || !pendingUpdateNew) return;
 
@@ -335,12 +259,10 @@ function App() {
 
     setTransactions((prev) =>
       prev.map((t) => {
-        // exact row being edited -> full update
         if (t.id === original.id) {
           return { ...updated };
         }
 
-        // same plan, future months -> propagate core fields
         if (t.planId === planId && t.month > originalMonth) {
           return {
             ...t,
@@ -356,7 +278,6 @@ function App() {
       })
     );
 
-    // update plan definition for future auto-generated months
     setFixedPlans((prev) =>
       prev.map((p) =>
         p.id === planId
@@ -374,7 +295,6 @@ function App() {
     closeUpdateScopeModal();
   };
 
-  // 3) Update all occurrences (all months for this plan)
   const handleUpdateAllOccurrences = () => {
     if (!pendingUpdateOriginal || !pendingUpdateNew) return;
 
@@ -392,12 +312,10 @@ function App() {
       prev.map((t) => {
         if (t.planId !== planId) return t;
 
-        // edited row -> full update
         if (t.id === original.id) {
           return { ...updated };
         }
 
-        // other occurrences -> propagate core fields but keep their own date/month
         return {
           ...t,
           type: updated.type,
@@ -409,7 +327,6 @@ function App() {
       })
     );
 
-    // update plan definition globally
     setFixedPlans((prev) =>
       prev.map((p) =>
         p.id === planId
@@ -427,36 +344,28 @@ function App() {
     closeUpdateScopeModal();
   };
 
-  // -------------
-  // DELETE LOGIC
-  // -------------
-
   const closeDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setDeleteTarget(null);
   };
 
-  // 1) Only this row / this month
   const handleDeleteCurrentOnly = () => {
     if (!deleteTarget) return;
     deleteSingleTransaction(deleteTarget);
     closeDeleteModal();
   };
 
-  // Helper to get previous month string
   const getPreviousMonth = (month: string): string => {
     const d = dayjs(`${month}-01`).subtract(1, "month");
     return d.format("YYYY-MM");
   };
 
-  // 2) This and future months (for this plan)
   const handleDeleteThisAndFuture = () => {
     if (!deleteTarget) return;
 
     const target = deleteTarget;
 
     if (!target.planId) {
-      // Fallback: just delete this row
       handleDeleteCurrentOnly();
       return;
     }
@@ -464,12 +373,10 @@ function App() {
     const planId = target.planId;
     const targetMonth = target.month;
 
-    // Remove all transactions for this plan from this month onwards
     setTransactions((prev) =>
       prev.filter((t) => !(t.planId === planId && t.month >= targetMonth))
     );
 
-    // Update plan endMonth so it stops producing future months
     setFixedPlans((prev) => {
       const updatedPlans: FixedPlan[] = [];
 
@@ -481,7 +388,6 @@ function App() {
 
         const newEnd = getPreviousMonth(targetMonth);
 
-        // If new end is before start, we can drop the plan entirely
         if (newEnd < plan.startMonth) {
           continue;
         }
@@ -498,24 +404,19 @@ function App() {
     closeDeleteModal();
   };
 
-  // 3) All occurrences (whole plan)
   const handleDeleteAllOccurrences = () => {
     if (!deleteTarget) return;
 
     const target = deleteTarget;
 
     if (!target.planId) {
-      // Fallback: just delete this row
       handleDeleteCurrentOnly();
       return;
     }
 
     const planId = target.planId;
 
-    // Remove all transactions tied to this plan
     setTransactions((prev) => prev.filter((t) => t.planId !== planId));
-
-    // Remove the plan itself
     setFixedPlans((prev) => prev.filter((p) => p.id !== planId));
 
     closeDeleteModal();
@@ -523,10 +424,37 @@ function App() {
 
   const isDeleteTargetPlanBased = Boolean(deleteTarget?.planId);
 
+  const [file, setFile] = useState<File | null>(null);
+  const [mode, setMode] = useState<"replace" | "merge">("replace");
+
+  const handleExcelImportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file || !apiUrl) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${apiUrl}/import/excel?mode=${mode}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      alert("Import failed");
+      return;
+    }
+
+    const json = await res.json();
+    console.log(json);
+    alert(`Imported ${json.count} rows (${json.mode})`);
+
+    // Optional: refresh from API after import in the future
+    // For now, local state is still source of truth.
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* HEADER */}
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -539,20 +467,45 @@ function App() {
           </div>
 
           <div className="flex gap-2 sm:gap-3">
+            <form
+              onSubmit={handleExcelImportSubmit}
+              className="flex gap-2 items-center"
+            >
+              <input
+                type="file"
+                accept=".xlsx"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                className="text-sm"
+              />
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as "replace" | "merge")}
+                className="border rounded px-2 py-1 text-sm bg-slate-900 border-slate-700 text-slate-100"
+              >
+                <option value="replace">Replace all</option>
+                <option value="merge">Merge</option>
+              </select>
+              <button
+                type="submit"
+                className="px-3 py-2 rounded bg-emerald-600 text-white text-sm"
+              >
+                Import Excel
+              </button>
+            </form>
+            {apiUrl && (
+              <a
+                href={`${apiUrl}/export/excel`}
+                className="px-3 py-2 rounded bg-sky-600 text-white text-sm"
+              >
+                Export to Excel
+              </a>
+            )}
             <button
               className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-red-700/70 text-xs sm:text-sm font-medium text-red-300 hover:bg-red-900/30 transition"
               type="button"
               onClick={handleClearAll}
             >
               🗑 Clear all
-            </button>
-
-            <button
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-slate-700 text-xs sm:text-sm font-medium text-slate-100 hover:bg-slate-800 transition"
-              type="button"
-              onClick={handleExportToExcel}
-            >
-              📊 Export to Excel
             </button>
 
             <button
@@ -566,9 +519,7 @@ function App() {
           </div>
         </header>
 
-        {/* MAIN GRID */}
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* LEFT: TABLE */}
           <section className="lg:col-span-2">
             <TransactionTable
               transactions={filteredTransactions}
@@ -577,7 +528,6 @@ function App() {
             />
           </section>
 
-          {/* RIGHT: FILTER + SUMMARY */}
           <section className="flex flex-col gap-4">
             <MonthFilter month={selectedMonth} onChange={handleChangeMonth} />
             <SummaryCards income={summary.income} expense={summary.expense} />
@@ -585,7 +535,6 @@ function App() {
         </main>
       </div>
 
-      {/* CREATE / EDIT MODAL */}
       <Modal
         isOpen={isModalOpen}
         title={editingTransaction ? "Edit transaction" : "Add transaction"}
@@ -596,7 +545,6 @@ function App() {
           initialTransaction={editingTransaction ?? undefined}
           onSubmit={(txn) => {
             if (editingTransaction) {
-              // New update flow with scope selection for fixed plan items
               handleUpdateFromForm(editingTransaction, txn);
             } else {
               handleAddTransaction(txn);
@@ -606,7 +554,6 @@ function App() {
         />
       </Modal>
 
-      {/* DELETE MODAL (for plan-based / fixed items) */}
       <Modal
         isOpen={isDeleteModalOpen}
         title={
@@ -678,7 +625,6 @@ function App() {
         )}
       </Modal>
 
-      {/* UPDATE SCOPE MODAL (for fixed / plan-based items) */}
       <Modal
         isOpen={isUpdateScopeModalOpen}
         title="Update fixed transaction"

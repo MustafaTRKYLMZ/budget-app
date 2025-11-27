@@ -1,7 +1,6 @@
-// src/components/TransactionForm.tsx
 import { type FormEvent, useState } from "react";
 import dayjs from "dayjs";
-import type { Transaction, TransactionType } from "../types";
+import type { Transaction, TransactionType } from "@budget/core";
 
 const today = dayjs().format("YYYY-MM-DD");
 

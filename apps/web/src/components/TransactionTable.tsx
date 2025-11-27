@@ -1,5 +1,5 @@
 // src/components/TransactionTable.tsx
-import type { Transaction } from "../types";
+import type { Transaction } from "@budget/core";
 
 interface TransactionTableProps {
   transactions: Transaction[];
