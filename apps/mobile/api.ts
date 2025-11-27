@@ -11,11 +11,9 @@ import {
 
   
     const API_URL =
-    process.env.EXPO_PUBLIC_API_URL || "http://192.168.2.33:3001";
+    process.env.EXPO_PUBLIC_API_URL || "3001";
   
-  console.log("API_URL (mobile)", API_URL);
   
-
   const config: ApiConfig = {
     baseUrl: API_URL,
   };

@@ -1,7 +1,9 @@
+// apps/mobile/app/(tabs)/index.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import type { Transaction } from "@budget/core";
 
@@ -93,7 +95,6 @@ export default function HomeScreen() {
   );
   const monthNet = income - expense;
 
-  // Günlük bakiye (opening + seçilen güne kadar)
   const dailySummary = getBalanceOnDate(selectedDate);
 
   const goPrevMonth = () => {
@@ -119,7 +120,9 @@ export default function HomeScreen() {
   };
 
   const isDeletePlanBased =
-    !!deleteTarget && deleteTarget.isFixed && deleteTarget.planId != null;
+    !!deleteTarget && deleteTarget.isFixed && deleteTarget.planId != null
+      ? true
+      : false;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -154,12 +157,13 @@ export default function HomeScreen() {
         <MonthlyBalanceBar income={income} expense={expense} net={monthNet} />
       </View>
 
+      {/* FLOATING + BUTTON */}
       <TouchableOpacity
         style={styles.fab}
         activeOpacity={0.8}
         onPress={() => router.push("/modal?mode=create")}
       >
-        {/* plus icon aynı kaldı */}
+        <Ionicons name="add" size={30} color="#020617" />
       </TouchableOpacity>
 
       <SidebarMenu
@@ -171,7 +175,7 @@ export default function HomeScreen() {
 
       <DeleteTransactionSheet
         target={deleteTarget}
-        isPlanBased={isDeletePlanBased ?? false}
+        isPlanBased={isDeletePlanBased}
         onConfirm={confirmDelete}
         onClose={closeDeleteSheet}
       />

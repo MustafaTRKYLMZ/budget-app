@@ -16,7 +16,7 @@ export type BalanceOnDate = {
 };
 
 const API_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? "http://192.168.2.33:3001";
+  process.env.EXPO_PUBLIC_API_URL ?? "3001";
 
 interface TransactionsStore {
   transactions: Transaction[];

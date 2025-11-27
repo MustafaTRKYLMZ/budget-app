@@ -352,127 +352,6 @@
     "planId": 1764237982176.4917
   },
   {
-    "id": 1764244330541,
-    "date": "2025-11-27",
-    "month": "2025-11",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.6738,
-    "date": "2025-12-27",
-    "month": "2025-12",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.628,
-    "date": "2026-02-27",
-    "month": "2026-02",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.8674,
-    "date": "2026-03-27",
-    "month": "2026-03",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.9092,
-    "date": "2026-04-27",
-    "month": "2026-04",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.078,
-    "date": "2026-05-27",
-    "month": "2026-05",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.851,
-    "date": "2026-06-27",
-    "month": "2026-06",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.918,
-    "date": "2026-07-27",
-    "month": "2026-07",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.6255,
-    "date": "2026-08-27",
-    "month": "2026-08",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.1006,
-    "date": "2026-09-27",
-    "month": "2026-09",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
-    "id": 1764244330729.5718,
-    "date": "2026-10-27",
-    "month": "2026-10",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
-  },
-  {
     "id": 1764244703801.7957,
     "date": "2026-11-01",
     "month": "2026-11",
@@ -515,17 +394,6 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917
-  },
-  {
-    "id": 1764244703801.3557,
-    "date": "2026-01-27",
-    "month": "2026-01",
-    "type": "Expense",
-    "item": "bir twsy edelim",
-    "category": "katwgpri olsin ",
-    "amount": 30,
-    "isFixed": true,
-    "planId": 1764244330728.0615
   },
   {
     "id": 1764245004492,
@@ -667,6 +535,148 @@
     "item": "gider",
     "category": "gider",
     "amount": 50,
+    "isFixed": false
+  },
+  {
+    "id": 1764259444684,
+    "date": "2025-11-27",
+    "month": "2025-11",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.6062,
+    "date": "2025-12-27",
+    "month": "2025-12",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.7092,
+    "date": "2026-01-27",
+    "month": "2026-01",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.301,
+    "date": "2026-02-27",
+    "month": "2026-02",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.4211,
+    "date": "2026-03-27",
+    "month": "2026-03",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.6218,
+    "date": "2026-04-27",
+    "month": "2026-04",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.0693,
+    "date": "2026-05-27",
+    "month": "2026-05",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.2559,
+    "date": "2026-06-27",
+    "month": "2026-06",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.3572,
+    "date": "2026-07-27",
+    "month": "2026-07",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.5334,
+    "date": "2026-08-27",
+    "month": "2026-08",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.1985,
+    "date": "2026-09-27",
+    "month": "2026-09",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764259444771.7036,
+    "date": "2026-10-27",
+    "month": "2026-10",
+    "type": "Income",
+    "item": "baba",
+    "category": "eymen futbol",
+    "amount": 10,
+    "isFixed": true,
+    "planId": 1764259444767.167
+  },
+  {
+    "id": 1764262023925,
+    "date": "2025-11-29",
+    "month": "2025-11",
+    "type": "Expense",
+    "item": "test",
+    "category": "test",
+    "amount": 25,
     "isFixed": false
   }
 ]

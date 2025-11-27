@@ -1,21 +1,40 @@
-// apps/mobile/components/TransactionList.tsx
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  SectionList,
   TouchableOpacity,
-  ListRenderItem,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import dayjs from "dayjs";
 import type { Transaction } from "@budget/core";
+
+import { TransactionItem } from "./TransactionItem";
+import { useTransactionsStore } from "../../store/useTransactionsStore";
 
 interface TransactionListProps {
   transactions: Transaction[];
   onDelete: (tx: Transaction) => void;
   onEdit: (tx: Transaction) => void;
   onPressRefresh?: () => void | Promise<void>;
+}
+
+type TxSection = {
+  title: string; // header label (formatlı tarih)
+  key: string; // normalize tarih: "YYYY-MM-DD" veya "other"
+  data: Transaction[];
+  cumulativeBalance: number; // o tarihe kadar olan toplam bakiye
+};
+
+function getTxDate(tx: Transaction): dayjs.Dayjs | null {
+  if (tx.date) {
+    return dayjs(tx.date);
+  }
+  if (tx.month) {
+    return dayjs(`${tx.month}-01`);
+  }
+  return null;
 }
 
 export default function TransactionList({
@@ -36,102 +55,80 @@ export default function TransactionList({
     }
   }, [onPressRefresh]);
 
-  const renderItem: ListRenderItem<Transaction> = ({ item }) => {
-    const isIncome = item.type === "Income";
-    const isExpense = item.type === "Expense";
+  const sections: TxSection[] = useMemo(() => {
+    if (!transactions.length) return [];
 
-    const amountColor = isIncome ? "#4ade80" : "#fb7185";
-    const typeLabelColor = isIncome ? "#bbf7d0" : "#fecaca";
-    const typePillBg = isIncome
-      ? "rgba(34,197,94,0.12)"
-      : "rgba(248,113,113,0.12)";
+    // Zustand store'daki global hesaplama fonksiyonu
+    const getBalanceOnDate = useTransactionsStore.getState().getBalanceOnDate;
 
-    const dateLabel = item.date || "";
-    const monthLabel = item.month || "";
+    // 1) Önce tüm transaction'ları tarihe göre sırala
+    const sorted = [...transactions].sort((a, b) => {
+      const da = getTxDate(a);
+      const db = getTxDate(b);
 
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => onEdit(item)}
-        style={styles.rowCard}
-      >
-        <View style={styles.rowLeft}>
-          <View style={styles.rowMainText}>
-            <Text style={styles.itemTitle} numberOfLines={1}>
-              {item.item}
-            </Text>
-            {item.category ? (
-              <Text style={styles.itemCategory} numberOfLines={1}>
-                {item.category}
-              </Text>
-            ) : null}
-          </View>
+      // tarih yoksa en alta at
+      if (!da && !db) return 0;
+      if (!da) return 1;
+      if (!db) return -1;
 
-          <View style={styles.rowMeta}>
-            <View style={[styles.typePill, { backgroundColor: typePillBg }]}>
-              <Text style={[styles.typePillText, { color: typeLabelColor }]}>
-                {item.type}
-              </Text>
-            </View>
+      // Şu an senin kodunda bu şekildeydi:
+      // küçük tarih önce, büyük tarih sonra (eski → yeni)
+      return da.valueOf() - db.valueOf();
+    });
 
-            {item.isFixed && (
-              <View style={styles.fixedPill}>
-                <Ionicons
-                  name="repeat"
-                  size={12}
-                  color="#bfdbfe"
-                  style={{ marginRight: 3 }}
-                />
-                <Text style={styles.fixedPillText}>Fixed</Text>
-              </View>
-            )}
+    // 2) Sıralı listeden grupları üret (order'ı koruyarak)
+    const groups: Record<string, Transaction[]> = {};
+    const order: string[] = [];
 
-            <View style={styles.dateBlock}>
-              <Ionicons
-                name="calendar-outline"
-                size={13}
-                color="#6b7280"
-                style={{ marginRight: 3 }}
-              />
-              <Text style={styles.dateText} numberOfLines={1}>
-                {dateLabel || monthLabel}
-              </Text>
-            </View>
-          </View>
-        </View>
+    for (const tx of sorted) {
+      const d = getTxDate(tx);
 
-        <View style={styles.rowRight}>
-          <Text style={[styles.amountText, { color: amountColor }]}>
-            {isExpense && "-"}
-            {Math.abs(item.amount).toFixed(2)} €
-          </Text>
+      let key = "other";
+      if (d) {
+        key = d.format("YYYY-MM-DD");
+      }
 
-          <View style={styles.actionRow}>
-            <TouchableOpacity
-              onPress={() => onEdit(item)}
-              style={styles.iconButton}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Ionicons name="pencil" size={18} color="#e5e7eb" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => onDelete(item)}
-              style={styles.iconButton}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Ionicons name="trash-outline" size={18} color="#fca5a5" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
+      if (!groups[key]) {
+        groups[key] = [];
+        order.push(key); // ilk defa gördüğümüz key → order listesine ekle
+      }
+      groups[key].push(tx);
+    }
+
+    // 3) Section array: key'leri order'a göre dön (bir daha sort YOK)
+    const result: TxSection[] = order.map((key) => {
+      const groupTxs = groups[key];
+      let title = "Other";
+      let cumulativeBalance = 0;
+
+      if (key !== "other") {
+        const d = dayjs(key);
+        title = d.format("DD MMM YYYY");
+
+        // 🔥 Asıl sihir burada: o tarihe kadar olan toplam bakiye
+        const balanceResult = getBalanceOnDate(key);
+        cumulativeBalance = balanceResult.balance;
+      }
+
+      return {
+        key,
+        title,
+        data: groupTxs,
+        cumulativeBalance,
+      };
+    });
+
+    return result;
+  }, [transactions]);
 
   if (!transactions.length) {
     return (
       <View style={styles.emptyState}>
         <Ionicons name="wallet-outline" size={40} color="#4b5563" />
         <Text style={styles.emptyTitle}>No transactions yet</Text>
+        <Text style={styles.emptySubtitle}>
+          Add a new one with the + button or refresh.
+        </Text>
 
         {onPressRefresh && (
           <TouchableOpacity
@@ -152,14 +149,39 @@ export default function TransactionList({
   }
 
   return (
-    <FlatList
-      data={transactions}
+    <SectionList
+      sections={sections}
       keyExtractor={(item) => String(item.id)}
-      renderItem={renderItem}
+      renderItem={({ item }) => (
+        <TransactionItem item={item} onEdit={onEdit} onDelete={onDelete} />
+      )}
+      renderSectionHeader={({ section }) =>
+        section.key === "other" ? null : (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <Text
+              style={[
+                styles.sectionBalance,
+                {
+                  color:
+                    section.cumulativeBalance > 0
+                      ? "#4ade80"
+                      : section.cumulativeBalance < 0
+                      ? "#fb7185"
+                      : "#9ca3af",
+                },
+              ]}
+            >
+              {section.cumulativeBalance.toFixed(2)} €
+            </Text>
+          </View>
+        )
+      }
       contentContainerStyle={styles.listContent}
       refreshing={refreshing}
       onRefresh={onPressRefresh ? handleRefresh : undefined}
       keyboardShouldPersistTaps="handled"
+      stickySectionHeadersEnabled={false}
     />
   );
 }
@@ -168,86 +190,23 @@ const styles = StyleSheet.create({
   listContent: {
     paddingVertical: 4,
   },
-  rowCard: {
+
+  sectionHeader: {
+    marginTop: 8,
+    marginBottom: 4,
+    paddingHorizontal: 4,
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 14,
-    backgroundColor: "#020617",
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    marginBottom: 8,
+    justifyContent: "space-between",
   },
-  rowLeft: {
-    flex: 1,
-    paddingRight: 8,
-  },
-  rowMainText: {
-    marginBottom: 6,
-  },
-  itemTitle: {
-    color: "#f9fafb",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  itemCategory: {
+  sectionTitle: {
     color: "#9ca3af",
     fontSize: 13,
-    marginTop: 2,
-  },
-  rowMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 6,
-  },
-  typePill: {
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  typePillText: {
-    fontSize: 11,
     fontWeight: "600",
   },
-  fixedPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    backgroundColor: "rgba(59,130,246,0.12)",
-  },
-  fixedPillText: {
-    fontSize: 11,
+  sectionBalance: {
+    fontSize: 13,
     fontWeight: "600",
-    color: "#bfdbfe",
-  },
-  dateBlock: {
-    flexDirection: "row",
-    alignItems: "center",
-    maxWidth: 140,
-  },
-  dateText: {
-    fontSize: 12,
-    color: "#9ca3af",
-  },
-  rowRight: {
-    alignItems: "flex-end",
-    justifyContent: "center",
-  },
-  amountText: {
-    fontSize: 17,
-    fontWeight: "700",
-    marginBottom: 6,
-  },
-  actionRow: {
-    flexDirection: "row",
-  },
-  iconButton: {
-    paddingHorizontal: 6,
-    paddingVertical: 4,
   },
 
   emptyState: {
