@@ -3,14 +3,18 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "budget-api" 
   ],
   "scripts": {
     "dev:web": "npm run dev --workspace web",
     "build:web": "npm run build --workspace web",
-  "build:core": "npm run build --workspace @budget/core",
-  "dev:mobile": "npm run start --workspace mobile",
-  "lint:web": "npm run lint --workspace web",
-  "lint:mobile": "eslint apps/mobile"
+    "build:core": "npm run build --workspace @budget/core",
+    "dev:mobile": "npm run start --workspace mobile",
+    "lint:web": "npm run lint --workspace web",
+    "lint:mobile": "eslint apps/mobile"
+  },
+  "devDependencies": {
+    "@types/babel__template": "^7.4.4"
   }
 }

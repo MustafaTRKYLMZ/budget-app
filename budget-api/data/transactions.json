@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1764233792111,
+    "date": "2025-11-27",
+    "month": "2025-11",
+    "type": "Income",
+    "item": "maas",
+    "category": "maas",
+    "amount": 100,
+    "isFixed": true
+  },
+  {
+    "id": 1764233826245,
+    "date": "2025-11-27",
+    "month": "2025-11",
+    "type": "Income",
+    "item": "yardim",
+    "category": "yardim",
+    "amount": 100,
+    "isFixed": true
+  }
+]
