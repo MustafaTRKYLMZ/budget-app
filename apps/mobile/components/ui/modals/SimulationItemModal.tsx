@@ -12,7 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
-import type { SimulationItemType } from "../../store/useSimulationStore";
+import type { SimulationItemType } from "../../../store/useSimulationStore";
 
 interface Props {
   visible: boolean;

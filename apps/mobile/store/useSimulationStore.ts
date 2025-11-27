@@ -27,6 +27,7 @@ export type SimulationScenario = {
   name: string;
   createdAt: string;
   items: SimulationItem[];
+  targetDate?: string; // 🔥 senaryoya özel hedef tarih (opsiyonel, eski datayla uyumlu)
 };
 
 interface SimulationStore {
@@ -40,7 +41,9 @@ interface SimulationStore {
   addScenario: (name: string) => void;
   renameScenario: (id: string, name: string) => void;
   deleteScenario: (id: string) => void;
+  duplicateScenario: (id: string) => void;
   setActiveScenario: (id: string | null) => void;
+  setScenarioTargetDate: (id: string, date: string) => void; // 🔥 yeni
 
   // helper
   getActiveScenario: () => SimulationScenario | null;
@@ -91,18 +94,21 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   addScenario(name) {
     const id = nanoid();
+    const todayStr = dayjs().format("YYYY-MM-DD");
+
     const scenario: SimulationScenario = {
       id,
       name,
       createdAt: dayjs().toISOString(),
       items: [],
+      targetDate: todayStr, // yeni senaryo için default hedef tarih
     };
 
     set((state) => {
       const next = {
         ...state,
         scenarios: [...state.scenarios, scenario],
-        activeScenarioId: state.activeScenarioId ?? id,
+        activeScenarioId: id, // yeni eklenen senaryoyu aktif yap
       };
       void persistState({
         scenarios: next.scenarios,
@@ -151,6 +157,47 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
   },
 
+  // Senaryoyu kopyala (Plan 1 -> Plan 1 copy)
+  duplicateScenario(id) {
+    set((state) => {
+      const original = state.scenarios.find((s) => s.id === id);
+      if (!original) return state;
+
+      const newId = nanoid();
+      const now = dayjs().toISOString();
+
+      const copyName = original.name.endsWith(" copy")
+        ? `${original.name} 2`
+        : `${original.name} copy`;
+
+      const clonedItems: SimulationItem[] = original.items.map((it) => ({
+        ...it,
+        id: nanoid(),
+      }));
+
+      const copyScenario: SimulationScenario = {
+        id: newId,
+        name: copyName,
+        createdAt: now,
+        items: clonedItems,
+        targetDate: original.targetDate ?? dayjs().format("YYYY-MM-DD"),
+      };
+
+      const next = {
+        ...state,
+        scenarios: [...state.scenarios, copyScenario],
+        activeScenarioId: newId,
+      };
+
+      void persistState({
+        scenarios: next.scenarios,
+        activeScenarioId: next.activeScenarioId,
+      });
+
+      return next;
+    });
+  },
+
   setActiveScenario(id) {
     set((state) => {
       const next = { ...state, activeScenarioId: id };
@@ -158,6 +205,27 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         scenarios: next.scenarios,
         activeScenarioId: next.activeScenarioId,
       });
+      return next;
+    });
+  },
+
+  // 🔥 Senaryonun hedef tarihini güncelle
+  setScenarioTargetDate(id, date) {
+    set((state) => {
+      const nextScenarios = state.scenarios.map((s) =>
+        s.id === id ? { ...s, targetDate: date } : s
+      );
+
+      const next = {
+        ...state,
+        scenarios: nextScenarios,
+      };
+
+      void persistState({
+        scenarios: next.scenarios,
+        activeScenarioId: next.activeScenarioId,
+      });
+
       return next;
     });
   },
@@ -174,12 +242,16 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     // hiç senaryo yoksa otomatik bir tane aç
     if (!activeScenarioId) {
       const id = nanoid();
+      const todayStr = dayjs().format("YYYY-MM-DD");
+
       const newScenario: SimulationScenario = {
         id,
         name: "New scenario",
         createdAt: dayjs().toISOString(),
         items: [],
+        targetDate: todayStr,
       };
+
       const newItem: SimulationItem = {
         id: nanoid(),
         ...payload,
