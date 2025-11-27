@@ -1,92 +1,60 @@
-// apps/mobile/store/useTransactionsStore.ts
 import { create } from "zustand";
 import type { Transaction } from "@budget/core";
-import {
-  fetchTransactions,
-  createTransaction,
-  updateTransaction,
-  deleteTransaction,
-} from "../api";
 
-type TransactionId = Transaction["id"] extends infer T
-  ? T
-  : string | number;
+export type DeleteScope = "this" | "thisAndFuture" | "all";
+export type UpdateScope = "this" | "thisAndFuture" | "all";
 
-interface TransactionsState {
+const API_URL =
+  process.env.EXPO_PUBLIC_API_URL ??
+  "http://192.168.2.33:3001";
+
+interface TransactionsStore {
   transactions: Transaction[];
-  loading: boolean;
-  error: string | null;
-
   loadFromApi: () => Promise<void>;
-  addTransaction: (tx: Transaction) => Promise<void>;
-  updateExisting: (tx: Transaction) => Promise<void>;
-  deleteById: (id: TransactionId) => Promise<void>;
-  getById: (id: string | number) => Transaction | undefined;
+  createTransaction: (tx: Transaction) => Promise<void>;
+  updateTransactionScoped: (
+    id: number | string,
+    body: Transaction,
+    scope: UpdateScope
+  ) => Promise<void>;
+  deleteTransactionScoped: (
+    id: number | string,
+    scope: DeleteScope
+  ) => Promise<void>;
 }
 
-export const useTransactionsStore = create<TransactionsState>((set, get) => ({
+export const useTransactionsStore = create<TransactionsStore>((set, get) => ({
   transactions: [],
-  loading: false,
-  error: null,
 
   async loadFromApi() {
-    try {
-      set({ loading: true, error: null });
-      const data = await fetchTransactions();
-      set({ transactions: data, loading: false });
-    } catch (err) {
-      console.error(err);
-      set({
-        loading: false,
-        error: "Failed to load transactions from API.",
-      });
-    }
+    const res = await fetch(`${API_URL}/transactions`);
+    if (!res.ok) return;
+    const data = (await res.json()) as Transaction[];
+    set({ transactions: data });
   },
 
-  async addTransaction(tx: Transaction) {
-    try {
-      const created = await createTransaction(tx);
-      set((state) => ({
-        transactions: [...state.transactions, created],
-      }));
-    } catch (err) {
-      console.error(err);
-      set({ error: "Failed to create transaction." });
-      throw err;
-    }
+  async createTransaction(tx) {
+    await fetch(`${API_URL}/transactions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tx),
+    });
+    await get().loadFromApi();
   },
 
-  async updateExisting(tx: Transaction) {
-    try {
-      const updated = await updateTransaction(tx);
-      set((state) => ({
-        transactions: state.transactions.map((t) =>
-          String(t.id) === String(updated.id) ? updated : t
-        ),
-      }));
-    } catch (err) {
-      console.error(err);
-      set({ error: "Failed to update transaction." });
-      throw err;
-    }
+  async updateTransactionScoped(id, body, scope) {
+    await fetch(`${API_URL}/transactions/${id}?scope=${scope}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    await get().loadFromApi();
   },
 
-  async deleteById(id: TransactionId) {
-    try {
-      await deleteTransaction(id);
-      set((state) => ({
-        transactions: state.transactions.filter(
-          (t) => String(t.id) !== String(id)
-        ),
-      }));
-    } catch (err) {
-      console.error(err);
-      set({ error: "Failed to delete transaction." });
-      throw err;
-    }
-  },
-
-  getById(id: string | number) {
-    return get().transactions.find((t) => String(t.id) === String(id));
+  async deleteTransactionScoped(id, scope) {
+    await fetch(`${API_URL}/transactions/${id}?scope=${scope}`, {
+      method: "DELETE",
+    });
+    await get().loadFromApi();
   },
 }));

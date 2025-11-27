@@ -4,7 +4,7 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "budget-api" 
+    "budget-api"
   ],
   "scripts": {
     "dev:web": "npm run dev --workspace web",

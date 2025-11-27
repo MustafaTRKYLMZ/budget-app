@@ -1,259 +1,286 @@
-// apps/mobile/src/components/TransactionList.tsx
-import React from "react";
+// apps/mobile/components/TransactionList.tsx
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
+  FlatList,
   TouchableOpacity,
+  ListRenderItem,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import type { Transaction } from "@budget/core";
 
 interface TransactionListProps {
   transactions: Transaction[];
-  onDelete: (transaction: Transaction) => void;
-  onEdit: (transaction: Transaction) => void;
+  onDelete: (tx: Transaction) => void;
+  onEdit: (tx: Transaction) => void;
+  onPressRefresh?: () => void | Promise<void>;
 }
 
 export default function TransactionList({
   transactions,
   onDelete,
   onEdit,
+  onPressRefresh,
 }: TransactionListProps) {
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <View>
-          <Text style={styles.title}>Transactions</Text>
-          <Text style={styles.subtitle}>
-            {transactions.length} record
-            {transactions.length === 1 ? "" : "s"}
-          </Text>
-        </View>
-      </View>
+  const [refreshing, setRefreshing] = useState(false);
 
-      {/* List */}
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No records.</Text>
+  const handleRefresh = useCallback(async () => {
+    if (!onPressRefresh) return;
+    try {
+      setRefreshing(true);
+      await onPressRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [onPressRefresh]);
+
+  const renderItem: ListRenderItem<Transaction> = ({ item }) => {
+    const isIncome = item.type === "Income";
+    const isExpense = item.type === "Expense";
+
+    const amountColor = isIncome ? "#4ade80" : "#fb7185";
+    const typeLabelColor = isIncome ? "#bbf7d0" : "#fecaca";
+    const typePillBg = isIncome
+      ? "rgba(34,197,94,0.12)"
+      : "rgba(248,113,113,0.12)";
+
+    const dateLabel = item.date || "";
+    const monthLabel = item.month || "";
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => onEdit(item)}
+        style={styles.rowCard}
+      >
+        <View style={styles.rowLeft}>
+          <View style={styles.rowMainText}>
+            <Text style={styles.itemTitle} numberOfLines={1}>
+              {item.item}
+            </Text>
+            {item.category ? (
+              <Text style={styles.itemCategory} numberOfLines={1}>
+                {item.category}
+              </Text>
+            ) : null}
           </View>
-        }
-        renderItem={({ item }) => {
-          const isIncome = item.type === "Income";
-          const amountColor = isIncome
-            ? styles.amountIncome
-            : styles.amountExpense;
-          const typeBadgeStyle = isIncome
-            ? [styles.typeBadge, styles.typeBadgeIncome]
-            : [styles.typeBadge, styles.typeBadgeExpense];
 
-          const fixedBadgeStyle = item.isFixed
-            ? [styles.fixedBadge, styles.fixedBadgeYes]
-            : [styles.fixedBadge, styles.fixedBadgeNo];
-
-          return (
-            <View style={styles.card}>
-              {/* Üst satır: tarih, ay, tip */}
-              <View style={styles.rowBetween}>
-                <View style={styles.leftBlock}>
-                  <Text style={styles.date}>{item.date}</Text>
-                  <Text style={styles.month}>{item.month}</Text>
-                </View>
-                <View style={styles.typeBlock}>
-                  <Text style={typeBadgeStyle as any}>{item.type}</Text>
-                </View>
-              </View>
-
-              {/* Orta satır: item, category, fixed */}
-              <View style={[styles.rowBetween, styles.middleRow]}>
-                <View style={styles.leftBlock}>
-                  <Text style={styles.itemText}>{item.item}</Text>
-                  {item.category ? (
-                    <Text style={styles.categoryText}>{item.category}</Text>
-                  ) : null}
-                </View>
-                <Text style={fixedBadgeStyle as any}>
-                  {item.isFixed ? "Yes" : "No"}
-                </Text>
-              </View>
-
-              {/* Alt satır: amount + actions */}
-              <View style={styles.rowBetween}>
-                <Text style={[styles.amount, amountColor]}>
-                  {item.amount.toFixed(2)} €
-                </Text>
-                <View style={styles.actionsRow}>
-                  <TouchableOpacity
-                    onPress={() => onEdit(item)}
-                    style={[styles.actionButton, styles.editButton]}
-                  >
-                    <Text style={styles.actionText}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => onDelete(item)}
-                    style={[styles.actionButton, styles.deleteButton]}
-                  >
-                    <Text style={styles.actionDeleteText}>Delete</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+          <View style={styles.rowMeta}>
+            <View style={[styles.typePill, { backgroundColor: typePillBg }]}>
+              <Text style={[styles.typePillText, { color: typeLabelColor }]}>
+                {item.type}
+              </Text>
             </View>
-          );
-        }}
-      />
-    </View>
+
+            {item.isFixed && (
+              <View style={styles.fixedPill}>
+                <Ionicons
+                  name="repeat"
+                  size={12}
+                  color="#bfdbfe"
+                  style={{ marginRight: 3 }}
+                />
+                <Text style={styles.fixedPillText}>Fixed</Text>
+              </View>
+            )}
+
+            <View style={styles.dateBlock}>
+              <Ionicons
+                name="calendar-outline"
+                size={13}
+                color="#6b7280"
+                style={{ marginRight: 3 }}
+              />
+              <Text style={styles.dateText} numberOfLines={1}>
+                {dateLabel || monthLabel}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.rowRight}>
+          <Text style={[styles.amountText, { color: amountColor }]}>
+            {isExpense && "-"}
+            {Math.abs(item.amount).toFixed(2)} €
+          </Text>
+
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              onPress={() => onEdit(item)}
+              style={styles.iconButton}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="pencil" size={18} color="#e5e7eb" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onDelete(item)}
+              style={styles.iconButton}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="trash-outline" size={18} color="#fca5a5" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  if (!transactions.length) {
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons name="wallet-outline" size={40} color="#4b5563" />
+        <Text style={styles.emptyTitle}>No transactions yet</Text>
+
+        {onPressRefresh && (
+          <TouchableOpacity
+            style={styles.emptyRefreshButton}
+            onPress={() => void handleRefresh()}
+          >
+            <Ionicons
+              name="refresh-outline"
+              size={16}
+              color="#e5e7eb"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.emptyRefreshText}>Refresh</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={transactions}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={renderItem}
+      contentContainerStyle={styles.listContent}
+      refreshing={refreshing}
+      onRefresh={onPressRefresh ? handleRefresh : undefined}
+      keyboardShouldPersistTaps="handled"
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#020617", // slate-950
-    padding: 16,
+  listContent: {
+    paddingVertical: 4,
   },
-  headerRow: {
+  rowCard: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    backgroundColor: "#020617",
+    borderWidth: 1,
+    borderColor: "#1f2937",
     marginBottom: 8,
   },
-  title: {
-    fontSize: 14,
+  rowLeft: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  rowMainText: {
+    marginBottom: 6,
+  },
+  itemTitle: {
+    color: "#f9fafb",
+    fontSize: 16,
     fontWeight: "600",
-    color: "#e5e7eb", // slate-100
-    letterSpacing: 0.7,
-    textTransform: "uppercase",
   },
-  subtitle: {
-    fontSize: 12,
-    color: "#94a3b8", // slate-400
-    marginTop: 2,
-  },
-  listContent: {
-    paddingTop: 8,
-    paddingBottom: 16,
-  },
-  emptyContainer: {
-    paddingVertical: 24,
-    alignItems: "center",
-  },
-  emptyText: {
-    fontSize: 13,
-    color: "#6b7280", // slate-500
-  },
-  card: {
-    backgroundColor: "rgba(15,23,42,0.9)", // slate-900/90
-    borderWidth: 1,
-    borderColor: "rgba(30,64,175,0.4)", // hafif mavi/slate karışımı
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 10,
-  },
-  rowBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  leftBlock: {
-    flexDirection: "column",
-  },
-  date: {
-    fontSize: 12,
-    color: "#e5e7eb",
-  },
-  month: {
-    fontSize: 11,
+  itemCategory: {
     color: "#9ca3af",
-  },
-  typeBlock: {},
-  typeBadge: {
-    fontSize: 11,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 999,
-    borderWidth: 1,
-    overflow: "hidden",
-  },
-  typeBadgeIncome: {
-    backgroundColor: "rgba(16,185,129,0.12)", // emerald-500/10
-    color: "#6ee7b7", // emerald-300
-    borderColor: "rgba(16,185,129,0.4)",
-  },
-  typeBadgeExpense: {
-    backgroundColor: "rgba(244,63,94,0.12)", // rose-500/10
-    color: "#fda4af", // rose-300
-    borderColor: "rgba(244,63,94,0.4)",
-  },
-  middleRow: {
-    marginTop: 8,
-  },
-  itemText: {
     fontSize: 13,
-    color: "#e5e7eb",
-    fontWeight: "500",
-  },
-  categoryText: {
-    fontSize: 12,
-    color: "#cbd5f5",
     marginTop: 2,
   },
-  fixedBadge: {
-    fontSize: 11,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 999,
-    borderWidth: 1,
-    overflow: "hidden",
-  },
-  fixedBadgeYes: {
-    backgroundColor: "rgba(245,158,11,0.14)", // amber-500/10
-    color: "#fbbf24", // amber-300
-    borderColor: "rgba(245,158,11,0.5)",
-  },
-  fixedBadgeNo: {
-    backgroundColor: "rgba(51,65,85,0.7)", // slate-700/60
-    color: "#e5e7eb",
-    borderColor: "#475569", // slate-600
-  },
-  amount: {
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  amountIncome: {
-    color: "#4ade80", // emerald-400
-  },
-  amountExpense: {
-    color: "#fb7185", // rose-400
-  },
-  actionsRow: {
+  rowMeta: {
     flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
     gap: 6,
   },
-  actionButton: {
+  typePill: {
+    borderRadius: 999,
     paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  typePillText: {
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  fixedPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: "rgba(59,130,246,0.12)",
+  },
+  fixedPillText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#bfdbfe",
+  },
+  dateBlock: {
+    flexDirection: "row",
+    alignItems: "center",
+    maxWidth: 140,
+  },
+  dateText: {
+    fontSize: 12,
+    color: "#9ca3af",
+  },
+  rowRight: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
+  amountText: {
+    fontSize: 17,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  actionRow: {
+    flexDirection: "row",
+  },
+  iconButton: {
+    paddingHorizontal: 6,
     paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
   },
-  editButton: {
-    borderColor: "#475569", // slate-700
-    backgroundColor: "rgba(15,23,42,0.7)",
+
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
   },
-  deleteButton: {
-    borderColor: "rgba(248,113,113,0.8)", // red-400-ish
-    backgroundColor: "rgba(127,29,29,0.3)", // dark red/rose
-  },
-  actionText: {
-    fontSize: 11,
+  emptyTitle: {
+    marginTop: 12,
     color: "#e5e7eb",
+    fontSize: 16,
+    fontWeight: "600",
   },
-  actionDeleteText: {
-    fontSize: 11,
-    color: "#fecaca", // red-200-ish
+  emptySubtitle: {
+    marginTop: 4,
+    color: "#9ca3af",
+    fontSize: 13,
+    textAlign: "center",
+  },
+  emptyRefreshButton: {
+    marginTop: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#374151",
+  },
+  emptyRefreshText: {
+    color: "#e5e7eb",
+    fontSize: 13,
+    fontWeight: "500",
   },
 });

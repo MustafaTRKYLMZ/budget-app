@@ -23,6 +23,63 @@ const upload = multer({
   dest: path.join(__dirname, "..", "uploads"),
 });
 
+
+function generateFutureFixedTransactions(
+    template: Transaction,
+    existing: Transaction[],
+    monthsAhead: number = 11
+  ): Transaction[] {
+    const result: Transaction[] = [];
+  
+    if (!template.date || !template.month) return result;
+  
+    const [yStr, mStr, dStr] = template.date.split("-");
+    const baseYear = Number(yStr);
+    const baseMonthIndex0 = Number(mStr) - 1; // 0-based
+    const baseDay = Number(dStr);
+  
+    for (let i = 1; i <= monthsAhead; i++) {
+      // hedef yıl + ay hesapla
+      const totalMonths = baseYear * 12 + baseMonthIndex0 + i;
+      const year = Math.floor(totalMonths / 12);
+      const monthIndex0 = totalMonths % 12;
+      const month = monthIndex0 + 1;
+  
+      // hedef ayın son gününü bul
+      const lastDayOfMonth = new Date(year, monthIndex0 + 1, 0).getDate();
+      const day = Math.min(baseDay, lastDayOfMonth);
+  
+      // timezone problemi yaşamamak için Date -> toISOString kullanmıyoruz
+      const yyyy = String(year);
+      const mm = String(month).padStart(2, "0");
+      const dd = String(day).padStart(2, "0");
+  
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      const monthStr = `${yyyy}-${mm}`;
+  
+      const exists = existing.some(
+        (t) =>
+          t.isFixed &&
+          t.planId === template.planId &&
+          t.month === monthStr
+      );
+  
+      if (exists) continue;
+  
+      result.push({
+        ...template,
+        id: Date.now() + Math.random(),
+        date: dateStr,
+        month: monthStr,
+      });
+    }
+  
+    return result;
+  }
+  
+  
+  
+
 app.post("/import/excel", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -133,94 +190,302 @@ app.get("/transactions/:id", async (req, res) => {
   }
 });
 
+
 // POST /transactions
 app.post("/transactions", async (req, res) => {
-  try {
-    const body = req.body as Partial<Transaction>;
-
-    if (!body.item || typeof body.amount !== "number") {
-      return res
-        .status(400)
-        .json({ error: "item and amount are required" });
+    try {
+      const body = req.body as Partial<Transaction>;
+  
+      if (!body.item || typeof body.amount !== "number") {
+        return res
+          .status(400)
+          .json({ error: "item and amount are required" });
+      }
+  
+      const all = await readTransactions();
+  
+      const isFixed = body.isFixed ?? false;
+      const planId =
+        isFixed && body.planId == null
+          ? Date.now() + Math.random()
+          : body.planId;
+  
+      const newTx: Transaction = {
+        id: (body.id as any) ?? Date.now(),
+        date: body.date ?? new Date().toISOString().slice(0, 10),
+        month:
+          body.month ??
+          (body.date
+            ? body.date.slice(0, 7)
+            : new Date().toISOString().slice(0, 7)),
+        type: body.type ?? "Expense",
+        item: body.item,
+        category: body.category,
+        amount: body.amount,
+        isFixed,
+        planId,
+      };
+  
+      const next: Transaction[] = [...all, newTx];
+  
+      if (newTx.isFixed && newTx.planId != null) {
+        const clones = generateFutureFixedTransactions(newTx, all, 11);
+        next.push(...clones);
+      }
+  
+      await writeTransactions(next);
+      res.status(201).json(newTx);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to create transaction" });
     }
+  });
+  
+  type UpdateScope = "this" | "thisAndFuture" | "all";
 
-    const all = await readTransactions();
 
-    const newTx: Transaction = {
-      id: (body.id as any) ?? Date.now(),
-      date: body.date ?? new Date().toISOString().slice(0, 10),
-      month:
-        body.month ??
-        (body.date
-          ? body.date.slice(0, 7)
-          : new Date().toISOString().slice(0, 7)),
-      type: body.type ?? "Expense",
-      item: body.item,
-      category: body.category,
-      amount: body.amount,
-      isFixed: body.isFixed ?? false,
-      planId: body.planId,
-    };
-
-    all.push(newTx);
-    await writeTransactions(all);
-    res.status(201).json(newTx);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to create transaction" });
-  }
-});
-
-// PUT /transactions/:id
-app.put("/transactions/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const body = req.body as Partial<Transaction>;
-    const all = await readTransactions();
-    const index = all.findIndex((t) => String(t.id) === id);
-
-    if (index === -1) {
-      return res.status(404).json({ error: "Not found" });
+  app.put("/transactions/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const scopeRaw = (req.query.scope as string) || "this";
+      const scope: UpdateScope =
+        scopeRaw === "thisAndFuture" || scopeRaw === "all"
+          ? (scopeRaw as UpdateScope)
+          : "this";
+  
+      const body = req.body as Partial<Transaction>;
+      const all = await readTransactions();
+      const index = all.findIndex((t) => String(t.id) === id);
+  
+      if (index === -1) {
+        return res.status(404).json({ error: "Not found" });
+      }
+  
+      const target = all[index];
+  
+      const applyCoreFields = (original: Transaction): Transaction => {
+        const base: Transaction = {
+          ...original,
+          ...body,
+        };
+  
+        base.id = original.id;
+        base.month =
+          body.month ??
+          (body.date
+            ? body.date.slice(0, 7)
+            : original.month);
+  
+        return base;
+      };
+  
+      // Non-fixed or no planId → always behave as "this"
+      if (!target.isFixed || target.planId == null || scope === "this") {
+        const updated = applyCoreFields(target);
+        all[index] = updated;
+        await writeTransactions(all);
+        return res.json(updated);
+      }
+  
+      const planId = target.planId;
+      const targetMonth = target.month;
+  
+      // thisAndFuture
+      if (scope === "thisAndFuture") {
+        const updatedRows: Transaction[] = [];
+  
+        for (const tx of all) {
+          if (tx.id === target.id) {
+            updatedRows.push(applyCoreFields(tx));
+            continue;
+          }
+  
+          if (tx.planId === planId && tx.month > targetMonth) {
+            const merged: Transaction = {
+              ...tx,
+              type: body.type ?? tx.type,
+              item: body.item ?? tx.item,
+              category: body.category ?? tx.category,
+              amount:
+                typeof body.amount === "number"
+                  ? body.amount
+                  : tx.amount,
+              isFixed:
+                typeof body.isFixed === "boolean"
+                  ? body.isFixed
+                  : tx.isFixed,
+              planId,
+            };
+            updatedRows.push(merged);
+          } else {
+            updatedRows.push(tx);
+          }
+        }
+  
+        await writeTransactions(updatedRows);
+        const updatedTarget = updatedRows.find((t) => t.id === target.id)!;
+        return res.json(updatedTarget);
+      }
+  
+      // all
+      if (scope === "all") {
+        const updatedRows: Transaction[] = [];
+  
+        for (const tx of all) {
+          if (tx.planId === planId) {
+            const merged: Transaction = {
+              ...tx,
+              type: body.type ?? tx.type,
+              item: body.item ?? tx.item,
+              category: body.category ?? tx.category,
+              amount:
+                typeof body.amount === "number"
+                  ? body.amount
+                  : tx.amount,
+              isFixed:
+                typeof body.isFixed === "boolean"
+                  ? body.isFixed
+                  : tx.isFixed,
+              planId,
+            };
+            updatedRows.push(merged);
+          } else {
+            updatedRows.push(tx);
+          }
+        }
+  
+        await writeTransactions(updatedRows);
+        const updatedTarget = updatedRows.find((t) => t.id === target.id)!;
+        return res.json(updatedTarget);
+      }
+  
+      // Fallback
+      const updated = applyCoreFields(target);
+      all[index] = updated;
+      await writeTransactions(all);
+      return res.json(updated);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to update transaction" });
     }
+  });
+  
+  
 
-    const existing = all[index];
+  type DeleteScope = "this" | "thisAndFuture" | "all";
 
-    const updated: Transaction = {
-      ...existing,
-      ...body,
-      id: existing.id,
-      month:
-        body.month ??
-        (body.date
-          ? body.date.slice(0, 7)
-          : existing.month),
-    };
-
-    all[index] = updated;
-    await writeTransactions(all);
-    res.json(updated);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to update transaction" });
-  }
-});
-
-// DELETE /transactions/:id
-app.delete("/transactions/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const all = await readTransactions();
-    const next = all.filter((t) => String(t.id) !== id);
-    if (next.length === all.length) {
-      return res.status(404).json({ error: "Not found" });
+  app.delete("/transactions/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const scopeRaw = (req.query.scope as string) || "this";
+      const scope: DeleteScope =
+        scopeRaw === "thisAndFuture" || scopeRaw === "all"
+          ? (scopeRaw as DeleteScope)
+          : "this";
+  
+      const all = await readTransactions();
+      const target = all.find((t) => String(t.id) === id);
+  
+      if (!target) {
+        return res.status(404).json({ error: "Not found" });
+      }
+  
+      if (!target.isFixed || target.planId == null || scope === "this") {
+        const next = all.filter((t) => String(t.id) !== id);
+        await writeTransactions(next);
+        return res.status(204).send();
+      }
+  
+      const planId = target.planId;
+      const targetMonth = target.month;
+  
+      let next: Transaction[];
+  
+      if (scope === "thisAndFuture") {
+        next = all.filter(
+          (t) =>
+            !(
+              t.planId === planId &&
+              t.month >= targetMonth
+            )
+        );
+      } else {
+        next = all.filter((t) => t.planId !== planId);
+      }
+  
+      await writeTransactions(next);
+      return res.status(204).send();
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to delete transaction" });
     }
-    await writeTransactions(next);
-    res.status(204).send();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to delete transaction" });
+  });
+  
+
+async function bootstrapFixedTransactions() {
+    try {
+      const all = await readTransactions();
+      let updated = false;
+  
+      const byPlan: Record<string, Transaction[]> = {};
+  
+      for (const tx of all) {
+        if (!tx.isFixed) continue;
+  
+        let planKey: string;
+  
+        if (tx.planId != null) {
+          planKey = String(tx.planId);
+        } else {
+          planKey = [
+            tx.type,
+            tx.item,
+            tx.category ?? "",
+            tx.amount,
+          ].join("|");
+        }
+  
+        if (!byPlan[planKey]) {
+          byPlan[planKey] = [];
+        }
+        byPlan[planKey].push(tx);
+      }
+  
+      const result = [...all];
+  
+      for (const [planKey, list] of Object.entries(byPlan)) {
+        const sorted = [...list].sort((a, b) =>
+          a.month.localeCompare(b.month)
+        );
+        const base = { ...sorted[0] };
+  
+        if (base.planId == null) {
+          base.planId = Date.now() + Math.random();
+          for (const tx of list) {
+            tx.planId = base.planId;
+          }
+          updated = true;
+        }
+  
+        const clones = generateFutureFixedTransactions(base, result, 11);
+        if (clones.length > 0) {
+          result.push(...clones);
+          updated = true;
+        }
+      }
+  
+      if (updated) {
+        await writeTransactions(result);
+        console.log(
+          "[bootstrapFixedTransactions] updated fixed transactions"
+        );
+      }
+    } catch (err) {
+      console.error("[bootstrapFixedTransactions] failed:", err);
+    }
   }
-});
+  bootstrapFixedTransactions();  
+
 
 app.listen(PORT, () => {
   console.log(`Budget API running on http://localhost:${PORT}`);
