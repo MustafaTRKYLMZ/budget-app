@@ -10,6 +10,7 @@ import {
 import XLSX from "xlsx";
 import multer from "multer";
 import path from "path";
+import settingsRoutes from './routes/settingsRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,7 +19,8 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 
 app.use(express.json());
-
+  app.use('/settings', settingsRoutes);
+  
 const upload = multer({
   dest: path.join(__dirname, "..", "uploads"),
 });
@@ -78,7 +80,8 @@ function generateFutureFixedTransactions(
   }
   
   
-  
+
+
 
 app.post("/import/excel", upload.single("file"), async (req, res) => {
   try {

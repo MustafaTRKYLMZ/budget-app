@@ -1,10 +1,17 @@
 // apps/mobile/app/(tabs)/index.tsx
 import React, { useEffect, useState, useMemo } from "react";
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import type { Transaction } from "@budget/core";
 
 import TransactionList from "../../components/TransactionList";
@@ -12,6 +19,7 @@ import {
   useTransactionsStore,
   type DeleteScope,
 } from "../../store/useTransactionsStore";
+import { useSettingsStore } from "../../store/useSettingsStore";
 
 const getCurrentMonth = () => dayjs().format("YYYY-MM");
 
@@ -21,15 +29,24 @@ export default function HomeScreen() {
   const transactions = useTransactionsStore((s) => s.transactions);
   const loadFromApi = useTransactionsStore((s) => s.loadFromApi);
   const deleteScoped = useTransactionsStore((s) => s.deleteTransactionScoped);
+  const getBalanceOnDate = useTransactionsStore((s) => s.getBalanceOnDate);
+
+  const loadInitialBalance = useSettingsStore((s) => s.loadInitialBalance);
 
   const [month, setMonth] = useState(getCurrentMonth);
   const [viewTab, setViewTab] = useState<ViewTab>("all");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
 
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs().format("YYYY-MM-DD")
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   useEffect(() => {
+    void loadInitialBalance();
     void loadFromApi();
-  }, [loadFromApi]);
+  }, [loadInitialBalance, loadFromApi]);
 
   const currentDate = dayjs(`${month}-01`);
   const monthName = currentDate.format("MMMM");
@@ -71,6 +88,7 @@ export default function HomeScreen() {
     setDeleteTarget(null);
   };
 
+  // AYLIK ÖZET (sadece o ayın gelir/gider toplamı)
   const income = filtered.reduce(
     (sum, t) => (t.type === "Income" ? sum + t.amount : sum),
     0
@@ -79,20 +97,10 @@ export default function HomeScreen() {
     (sum, t) => (t.type === "Expense" ? sum + t.amount : sum),
     0
   );
-  const balance = income - expense;
-
-  const goPrevMonth = () => {
-    const prev = currentDate.subtract(1, "month").format("YYYY-MM");
-    setMonth(prev);
-  };
-
-  const goNextMonth = () => {
-    const next = currentDate.add(1, "month").format("YYYY-MM");
-    setMonth(next);
-  };
+  const monthNet = income - expense;
 
   const balanceColor =
-    balance > 0 ? "#4ade80" : balance < 0 ? "#fb7185" : "#e5e7eb";
+    monthNet > 0 ? "#4ade80" : monthNet < 0 ? "#fb7185" : "#e5e7eb";
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -108,6 +116,43 @@ export default function HomeScreen() {
 
   const isDeletePlanBased =
     deleteTarget && deleteTarget.isFixed && deleteTarget.planId != null;
+
+  // Opening balance + seçilen güne kadar tüm işlemler
+  const dailySummary = getBalanceOnDate(selectedDate);
+
+  const goPrevMonth = () => {
+    const prevMoment = currentDate.subtract(1, "month");
+    setMonth(prevMoment.format("YYYY-MM"));
+    // Ay değişince o ayın son gününe atla
+    setSelectedDate(prevMoment.endOf("month").format("YYYY-MM-DD"));
+  };
+
+  const goNextMonth = () => {
+    const nextMoment = currentDate.add(1, "month");
+    setMonth(nextMoment.format("YYYY-MM"));
+    // Ay değişince o ayın son gününe atla
+    setSelectedDate(nextMoment.endOf("month").format("YYYY-MM-DD"));
+  };
+
+  const onChangeDate = (event: any, selected?: Date) => {
+    if (Platform.OS !== "ios") {
+      setShowDatePicker(false);
+    }
+    if (selected) {
+      setSelectedDate(dayjs(selected).format("YYYY-MM-DD"));
+    }
+  };
+
+  const handleJumpToday = () => {
+    setSelectedDate(dayjs().format("YYYY-MM-DD"));
+  };
+
+  const handleJumpEndOfMonth = () => {
+    setSelectedDate(currentDate.endOf("month").format("YYYY-MM-DD"));
+  };
+
+  const todayStr = dayjs().format("YYYY-MM-DD");
+  const endOfMonthStr = currentDate.endOf("month").format("YYYY-MM-DD");
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,6 +172,65 @@ export default function HomeScreen() {
             <Text style={styles.screenSubtitle}>Personal finance overview</Text>
           </View>
         </View>
+
+        {/* DAILY BALANCE (OPENING + ALL UNTIL SELECTED DATE) */}
+        <View style={styles.dailyRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.dailyLabel}>Balance as of</Text>
+            <TouchableOpacity
+              style={styles.dailyDateButton}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Ionicons
+                name="calendar-outline"
+                size={16}
+                color="#9ca3af"
+                style={{ marginRight: 6 }}
+              />
+              <Text style={styles.dailyDateText}>
+                {dayjs(selectedDate).format("DD MMM YYYY")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <Text
+            style={[
+              styles.dailyAmount,
+              {
+                color:
+                  dailySummary.balance > 0
+                    ? "#4ade80"
+                    : dailySummary.balance < 0
+                    ? "#fb7185"
+                    : "#e5e7eb",
+              },
+            ]}
+          >
+            {dailySummary.balance.toFixed(2)} €
+          </Text>
+        </View>
+
+        {/* QUICK DATE SHORTCUTS */}
+        <View style={styles.quickRow}>
+          <QuickChip
+            label="Today"
+            active={selectedDate === todayStr}
+            onPress={handleJumpToday}
+          />
+          <QuickChip
+            label="End of month"
+            active={selectedDate === endOfMonthStr}
+            onPress={handleJumpEndOfMonth}
+          />
+        </View>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={dayjs(selectedDate).toDate()}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={onChangeDate}
+          />
+        )}
 
         {/* VIEW TABS */}
         <View style={styles.tabsRow}>
@@ -181,7 +285,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* CURRENT BALANCE BAR */}
+        {/* CURRENT BALANCE BAR (AYLIK) */}
         <View style={styles.balanceBar}>
           <View style={styles.balanceColumn}>
             <Text style={styles.balanceLabel}>Income</Text>
@@ -198,9 +302,9 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.balanceColumn}>
-            <Text style={styles.balanceLabel}>Current balance</Text>
+            <Text style={styles.balanceLabel}>Balance end of month</Text>
             <Text style={[styles.balanceValue, { color: balanceColor }]}>
-              {balance.toFixed(2)} €
+              {monthNet} €
             </Text>
           </View>
         </View>
@@ -354,6 +458,27 @@ function TabChip({ label, active, onPress }: TabChipProps) {
   );
 }
 
+interface QuickChipProps {
+  label: string;
+  onPress: () => void;
+  active: boolean;
+}
+
+function QuickChip({ label, onPress, active }: QuickChipProps) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.quickChip, active && styles.quickChipActive]}
+    >
+      <Text
+        style={[styles.quickChipText, active && styles.quickChipTextActive]}
+      >
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -362,13 +487,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 24, // header biraz aşağı
+    paddingTop: 24,
     paddingBottom: 12,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12, // altındaki tablara boşluk
+    marginBottom: 12,
   },
   menuButton: {
     padding: 6,
@@ -390,6 +515,57 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
+
+  dailyRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  dailyLabel: {
+    color: "#9ca3af",
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  dailyDateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  dailyDateText: {
+    color: "#e5e7eb",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  dailyAmount: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+
+  quickRow: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  quickChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+    marginRight: 8,
+  },
+  quickChipActive: {
+    backgroundColor: "#22c55e",
+    borderColor: "#22c55e",
+  },
+  quickChipText: {
+    color: "#9ca3af",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  quickChipTextActive: {
+    color: "#0f172a",
+    fontWeight: "600",
+  },
+
   tabsRow: {
     flexDirection: "row",
     backgroundColor: "#020617",
@@ -419,7 +595,6 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     fontWeight: "700",
   },
-
   monthHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -448,7 +623,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#1f2937",
   },
-
   listWrapper: {
     flex: 1,
     marginBottom: 12,
@@ -480,7 +654,7 @@ const styles = StyleSheet.create({
   fab: {
     position: "absolute",
     right: 24,
-    bottom: 130, // balance bar’ın üstünde kalacak
+    bottom: 130,
     width: 60,
     height: 60,
     borderRadius: 30,
@@ -493,7 +667,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-
   sidebarOverlay: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
@@ -503,7 +676,7 @@ const styles = StyleSheet.create({
     width: 260,
     backgroundColor: "#020617",
     paddingHorizontal: 16,
-    paddingTop: 56, // menu başlığını biraz aşağı aldık
+    paddingTop: 56,
     paddingBottom: 32,
     borderRightWidth: 1,
     borderRightColor: "#1f2937",
@@ -542,7 +715,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "500",
   },
-
   deleteOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "flex-end",
