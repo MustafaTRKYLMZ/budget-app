@@ -11,6 +11,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTransactionsStore } from "../store/useTransactionsStore";
 import { useSettingsStore } from "../store/useSettingsStore";
 import { useEffect } from "react";
+
 export const unstable_settings = {
   anchor: "(tabs)",
 };
@@ -19,13 +20,13 @@ export default function RootLayout() {
   "use no memo";
   const colorScheme = useColorScheme();
 
-  const loadFromApi = useTransactionsStore((s) => s.loadFromApi);
+  const loadFromStorage = useTransactionsStore((s) => s.loadFromStorage);
   const loadInitialBalance = useSettingsStore((s) => s.loadInitialBalance);
 
   useEffect(() => {
     loadInitialBalance();
-    loadFromApi();
-  }, [loadInitialBalance, loadFromApi]);
+    loadFromStorage();
+  }, [loadInitialBalance, loadFromStorage]);
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>

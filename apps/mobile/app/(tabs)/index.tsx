@@ -21,12 +21,14 @@ import { MonthNavigator } from "../../components/ui/MonthNavigator";
 import { MonthlyBalanceBar } from "../../components/ui/MonthlyBalanceBar";
 import { SidebarMenu } from "../../components/ui/SidebarMenu";
 import { DeleteTransactionSheet } from "../../components/ui/DeleteTransactionSheet";
+import { syncTransactions } from "../../services/syncTransactions";
 
 const getCurrentMonth = () => dayjs().format("YYYY-MM");
 
 export default function HomeScreen() {
-  const transactions = useTransactionsStore((s) => s.transactions);
-  const loadFromApi = useTransactionsStore((s) => s.loadFromApi);
+  // raw local transactions (with deleted flag)
+  const allTransactions = useTransactionsStore((s) => s.transactions);
+  const loadFromStorage = useTransactionsStore((s) => s.loadFromStorage);
   const deleteScoped = useTransactionsStore((s) => s.deleteTransactionScoped);
   const getBalanceOnDate = useTransactionsStore((s) => s.getBalanceOnDate);
 
@@ -43,8 +45,14 @@ export default function HomeScreen() {
 
   useEffect(() => {
     void loadInitialBalance();
-    void loadFromApi();
-  }, [loadInitialBalance, loadFromApi]);
+    void loadFromStorage();
+  }, [loadInitialBalance, loadFromStorage]);
+
+  // Only non-deleted transactions are visible in UI
+  const transactions = useMemo(
+    () => allTransactions.filter((t) => !t.deleted),
+    [allTransactions]
+  );
 
   const currentDate = dayjs(`${month}-01`);
   const monthName = currentDate.format("MMMM");
@@ -87,7 +95,7 @@ export default function HomeScreen() {
 
   const closeDeleteSheet = () => setDeleteTarget(null);
 
-  // monthly calculations
+  // monthly calculations (use filtered list which excludes deleted)
   const income = filtered.reduce(
     (sum, t) => (t.type === "Income" ? sum + t.amount : sum),
     0
@@ -122,13 +130,18 @@ export default function HomeScreen() {
     router.push("/about");
   };
 
-  const isDeletePlanBased =
-    !!deleteTarget && deleteTarget.isFixed && deleteTarget.planId != null
-      ? true
-      : false;
   const handleOpenSimulation = () => {
     router.push("/simulation");
   };
+
+  const isDeletePlanBased =
+    !!deleteTarget && deleteTarget.isFixed && deleteTarget.planId != null;
+
+  const handleRefresh = () => {
+    // For a "refresh" action, it makes sense to sync with backend
+    void syncTransactions();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -158,7 +171,7 @@ export default function HomeScreen() {
             transactions={filtered}
             onDelete={handleDelete}
             onEdit={handleEdit}
-            onPressRefresh={() => void loadFromApi()}
+            onPressRefresh={handleRefresh}
           />
         </View>
 

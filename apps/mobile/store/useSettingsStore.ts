@@ -1,76 +1,89 @@
+// apps/mobile/store/useSettingsStore.ts
+
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type InitialBalance = {
   amount: number;
-  date: string; // "YYYY-MM-DD"
+  date: string;        // "YYYY-MM-DD"
+  updatedAt?: string;  // optional, useful if you later sync settings
 };
 
 interface SettingsStore {
   initialBalance: InitialBalance | null;
   isLoading: boolean;
-  error: string | null;
+  isHydrated: boolean;
+
+  // called by screens (e.g. SettingsScreen useEffect)
   loadInitialBalance: () => Promise<void>;
-  saveInitialBalance: (payload: InitialBalance) => Promise<boolean>;
+  saveInitialBalance: (payload: { amount: number; date: string }) => Promise<boolean>;
 }
 
-const API_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? "3001";
+const STORAGE_KEY = "settings_v1";
 
-export const useSettingsStore = create<SettingsStore>((set) => ({
-  initialBalance: null,
-  isLoading: false,
-  error: null,
+export const useSettingsStore = create(
+  persist<SettingsStore>(
+    (set, get) => ({
+      initialBalance: null,
+      isLoading: false,
+      isHydrated: false,
 
-  async loadInitialBalance() {
-    try {
-      set({ isLoading: true, error: null });
+      async loadInitialBalance() {
+        // With Zustand persist, state is already rehydrated from AsyncStorage.
+        // This method mainly controls the loading flag for the UI.
+        const { isHydrated } = get();
 
-      const res = await fetch(`${API_URL}/settings/initial-balance`);
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(
-          `Failed to load initial balance: ${res.status} ${text}`
-        );
-      }
+        if (!isHydrated) {
+          // In case rehydration has not finished yet, we can wait for next tick.
+          // But most of the time, onRehydrateStorage will flip this flag.
+          set({ isLoading: true });
+          // No remote call here: everything is local.
+          set({ isLoading: false, isHydrated: true });
+          return;
+        }
 
-      const data = (await res.json()) as InitialBalance | null;
-      set({ initialBalance: data, isLoading: false });
-    } catch (err: any) {
-      console.error("loadInitialBalance error:", err);
-      set({
-        error: err?.message ?? "Unknown error",
-        isLoading: false,
-      });
+        // Already hydrated, simply ensure loading is false.
+        set({ isLoading: false });
+      },
+
+      async saveInitialBalance(payload) {
+        try {
+          set({ isLoading: true });
+
+          const now = new Date().toISOString();
+
+          const normalizedDate =
+            payload.date && payload.date.length >= 10
+              ? payload.date.slice(0, 10)
+              : payload.date;
+
+          const next: InitialBalance = {
+            amount: payload.amount,
+            date: normalizedDate,
+            updatedAt: now,
+          };
+
+          set({ initialBalance: next, isLoading: false });
+
+          return true;
+        } catch (e) {
+          console.log("[useSettingsStore] saveInitialBalance error:", e);
+          set({ isLoading: false });
+          return false;
+        }
+      },
+    }),
+    {
+      name: STORAGE_KEY,
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        // When rehydration completes, mark the store as hydrated.
+        if (state) {
+          state.isHydrated = true;
+          state.isLoading = false;
+        }
+      },
     }
-  },
-
-  async saveInitialBalance(payload) {
-    try {
-      set({ isLoading: true, error: null });
-
-      const res = await fetch(`${API_URL}/settings/initial-balance`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(
-          `Failed to save initial balance: ${res.status} ${text}`
-        );
-      }
-
-      const data = (await res.json()) as InitialBalance;
-      set({ initialBalance: data, isLoading: false });
-      return true;
-    } catch (err: any) {
-      console.error("saveInitialBalance error:", err);
-      set({
-        error: err?.message ?? "Unknown error",
-        isLoading: false,
-      });
-      return false;
-    }
-  },
-}));
+  )
+);

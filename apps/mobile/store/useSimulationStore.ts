@@ -27,37 +27,38 @@ export type SimulationScenario = {
   name: string;
   createdAt: string;
   items: SimulationItem[];
-  targetDate?: string; // 🔥 senaryoya özel hedef tarih (opsiyonel, eski datayla uyumlu)
+  // Optional scenario-specific target date (kept for backward compatibility)
+  targetDate?: string;
 };
 
 interface SimulationStore {
   scenarios: SimulationScenario[];
   activeScenarioId: string | null;
 
-  // kalıcılık
+  // persistence
   loadFromStorage: () => Promise<void>;
 
-  // scenario yönetimi
+  // scenario management
   addScenario: (name: string) => void;
   renameScenario: (id: string, name: string) => void;
   deleteScenario: (id: string) => void;
   duplicateScenario: (id: string) => void;
   setActiveScenario: (id: string | null) => void;
-  setScenarioTargetDate: (id: string, date: string) => void; // 🔥 yeni
+  setScenarioTargetDate: (id: string, date: string) => void;
 
-  // helper
+  // helpers
   getActiveScenario: () => SimulationScenario | null;
 
-  // item yönetimi (aktif senaryo)
+  // item management for the active scenario
   addItemToActive: (payload: Omit<SimulationItem, "id">) => void;
   removeItemFromActive: (itemId: string) => void;
   clearActiveItems: () => void;
 
-  // hesaplama
+  // calculation
   getBalanceOnDateWithSimulation: (date: string) => BalanceOnDate;
 }
 
-// sadece scenarios + activeScenarioId'yi saklayacağız
+// Only scenarios + activeScenarioId are persisted
 async function persistState(partial: {
   scenarios: SimulationScenario[];
   activeScenarioId: string | null;
@@ -78,6 +79,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
       if (!raw) return;
+
       const parsed = JSON.parse(raw) as {
         scenarios?: SimulationScenario[];
         activeScenarioId?: string | null;
@@ -101,14 +103,15 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       name,
       createdAt: dayjs().toISOString(),
       items: [],
-      targetDate: todayStr, // yeni senaryo için default hedef tarih
+      targetDate: todayStr, // default target date for new scenario
     };
 
     set((state) => {
       const next = {
         ...state,
         scenarios: [...state.scenarios, scenario],
-        activeScenarioId: id, // yeni eklenen senaryoyu aktif yap
+        // make the newly created scenario active
+        activeScenarioId: id,
       };
       void persistState({
         scenarios: next.scenarios,
@@ -157,7 +160,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
   },
 
-  // Senaryoyu kopyala (Plan 1 -> Plan 1 copy)
+  // Duplicate a scenario (e.g. "Plan 1" -> "Plan 1 copy")
   duplicateScenario(id) {
     set((state) => {
       const original = state.scenarios.find((s) => s.id === id);
@@ -209,7 +212,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
   },
 
-  // 🔥 Senaryonun hedef tarihini güncelle
+  // Update the scenario target date
   setScenarioTargetDate(id, date) {
     set((state) => {
       const nextScenarios = state.scenarios.map((s) =>
@@ -239,7 +242,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   addItemToActive(payload) {
     const { activeScenarioId, scenarios } = get();
 
-    // hiç senaryo yoksa otomatik bir tane aç
+    // If there is no scenario yet, create one implicitly
     if (!activeScenarioId) {
       const id = nanoid();
       const todayStr = dayjs().format("YYYY-MM-DD");
