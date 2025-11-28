@@ -1,3 +1,5 @@
+// apps/mobile/app/(tabs)/settings.tsx
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -16,6 +18,8 @@ import dayjs from "dayjs";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useSettingsStore } from "../../store/useSettingsStore";
+import { useTransactionsStore } from "../../store/useTransactionsStore";
+import { syncTransactions } from "../../services/syncTransactions";
 
 export default function SettingsScreen() {
   const handleClose = () => router.back();
@@ -23,14 +27,17 @@ export default function SettingsScreen() {
   const { initialBalance, loadInitialBalance, saveInitialBalance, isLoading } =
     useSettingsStore();
 
+  const { lastSyncAt } = useTransactionsStore();
+
   const [amount, setAmount] = useState<string>("0");
   const [date, setDate] = useState<string>(dayjs().format("YYYY-MM-DD"));
-
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     loadInitialBalance();
-  }, []);
+  }, [loadInitialBalance]);
 
   useEffect(() => {
     if (initialBalance) {
@@ -58,8 +65,6 @@ export default function SettingsScreen() {
     }
 
     Alert.alert("Saved", "Initial balance updated");
-
-    // router.back();
   };
 
   const onChangeDate = (event: any, selected?: Date) => {
@@ -68,6 +73,22 @@ export default function SettingsScreen() {
       setDate(dayjs(selected).format("YYYY-MM-DD"));
     }
   };
+
+  const handleSyncNow = async () => {
+    try {
+      setIsSyncing(true);
+      await syncTransactions();
+      setIsSyncing(false);
+      Alert.alert("Sync", "Sync completed successfully.");
+    } catch (e) {
+      setIsSyncing(false);
+      Alert.alert("Sync", "Sync failed. Please try again.");
+    }
+  };
+
+  const lastSyncLabel = lastSyncAt
+    ? dayjs(lastSyncAt).format("DD MMM YYYY HH:mm")
+    : "Never";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,6 +149,34 @@ export default function SettingsScreen() {
         >
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
+
+        {/* SECTION: Sync */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Sync</Text>
+
+        <View style={styles.syncInfoBox}>
+          <View>
+            <Text style={styles.syncLabel}>Last sync</Text>
+            <Text style={styles.syncValue}>{lastSyncLabel}</Text>
+          </View>
+          <TouchableOpacity
+            style={[
+              styles.syncButton,
+              (isSyncing || isLoading) && { opacity: 0.6 },
+            ]}
+            onPress={handleSyncNow}
+            disabled={isSyncing || isLoading}
+          >
+            <Ionicons
+              name={isSyncing ? "sync" : "cloud-upload-outline"}
+              size={16}
+              color="#f9fafb"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.syncButtonText}>
+              {isSyncing ? "Syncing..." : "Sync now"}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -220,6 +269,42 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "#f9fafb",
     fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // sync section
+  syncInfoBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#020819",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#1f2937",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  syncLabel: {
+    color: "#9ca3af",
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  syncValue: {
+    color: "#e5e7eb",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  syncButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#22c55e",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+  syncButtonText: {
+    color: "#020617",
+    fontSize: 14,
     fontWeight: "600",
   },
 });

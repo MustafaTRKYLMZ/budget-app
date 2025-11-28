@@ -20,64 +20,66 @@ app.use(cors());
 
 app.use(express.json());
   app.use('/settings', settingsRoutes);
-  
+
 const upload = multer({
   dest: path.join(__dirname, "..", "uploads"),
 });
 
 
 function generateFutureFixedTransactions(
-    template: Transaction,
-    existing: Transaction[],
-    monthsAhead: number = 11
-  ): Transaction[] {
-    const result: Transaction[] = [];
-  
-    if (!template.date || !template.month) return result;
-  
-    const [yStr, mStr, dStr] = template.date.split("-");
-    const baseYear = Number(yStr);
-    const baseMonthIndex0 = Number(mStr) - 1; // 0-based
-    const baseDay = Number(dStr);
-  
-    for (let i = 1; i <= monthsAhead; i++) {
-      // hedef yıl + ay hesapla
-      const totalMonths = baseYear * 12 + baseMonthIndex0 + i;
-      const year = Math.floor(totalMonths / 12);
-      const monthIndex0 = totalMonths % 12;
-      const month = monthIndex0 + 1;
-  
-      // hedef ayın son gününü bul
-      const lastDayOfMonth = new Date(year, monthIndex0 + 1, 0).getDate();
-      const day = Math.min(baseDay, lastDayOfMonth);
-  
-      // timezone problemi yaşamamak için Date -> toISOString kullanmıyoruz
-      const yyyy = String(year);
-      const mm = String(month).padStart(2, "0");
-      const dd = String(day).padStart(2, "0");
-  
-      const dateStr = `${yyyy}-${mm}-${dd}`;
-      const monthStr = `${yyyy}-${mm}`;
-  
-      const exists = existing.some(
-        (t) =>
-          t.isFixed &&
-          t.planId === template.planId &&
-          t.month === monthStr
-      );
-  
-      if (exists) continue;
-  
-      result.push({
-        ...template,
-        id: Date.now() + Math.random(),
-        date: dateStr,
-        month: monthStr,
-      });
-    }
-  
-    return result;
+  template: Transaction,
+  existing: Transaction[],
+  monthsAhead: number = 11
+): Transaction[] {
+  const result: Transaction[] = [];
+
+  if (!template.date || !template.month) return result;
+
+  const [yStr, mStr, dStr] = template.date.split("-");
+  const baseYear = Number(yStr);
+  const baseMonthIndex0 = Number(mStr) - 1; // 0-based
+  const baseDay = Number(dStr);
+
+  const nowIso = new Date().toISOString();
+
+  for (let i = 1; i <= monthsAhead; i++) {
+    const totalMonths = baseYear * 12 + baseMonthIndex0 + i;
+    const year = Math.floor(totalMonths / 12);
+    const monthIndex0 = totalMonths % 12;
+    const month = monthIndex0 + 1;
+
+    const lastDayOfMonth = new Date(year, monthIndex0 + 1, 0).getDate();
+    const day = Math.min(baseDay, lastDayOfMonth);
+
+    const yyyy = String(year);
+    const mm = String(month).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+    const monthStr = `${yyyy}-${mm}`;
+
+    const exists = existing.some(
+      (t) =>
+        t.isFixed &&
+        t.planId === template.planId &&
+        t.month === monthStr
+    );
+
+    if (exists) continue;
+
+    result.push({
+      ...template,
+      id: Date.now() + Math.random(),
+      date: dateStr,
+      month: monthStr,
+      updatedAt: nowIso,
+      deleted: false,
+    });
   }
+
+  return result;
+}
+
   
   
 
@@ -97,11 +99,18 @@ app.post("/import/excel", upload.single("file"), async (req, res) => {
 
     const rows = XLSX.utils.sheet_to_json<any>(worksheet, { defval: "" });
 
+    const nowIso = new Date().toISOString();
+
     const imported = rows.map((raw) => {
+      const dateStr = String(raw.date ?? "").slice(0, 10);
+      const monthStr =
+        String(raw.month ?? "").slice(0, 7) ||
+        (dateStr ? dateStr.slice(0, 7) : "");
+    
       return {
         id: raw.id ?? Date.now(),
-        date: String(raw.date ?? "").slice(0, 10),
-        month: String(raw.month ?? "").slice(0, 7),
+        date: dateStr,
+        month: monthStr,
         type: raw.type === "Income" ? "Income" : "Expense",
         item: String(raw.item ?? ""),
         category:
@@ -113,8 +122,11 @@ app.post("/import/excel", upload.single("file"), async (req, res) => {
         isFixed: Boolean(raw.isFixed),
         amount: Number(raw.amount ?? 0),
         planId: raw.planId,
-      } as any;
+        updatedAt: raw.updatedAt ?? nowIso,
+        deleted: Boolean(raw.deleted) ?? false,
+      } as Transaction;
     });
+    
 
     if (mode === "replace") {
       await writeTransactions(imported);
@@ -170,14 +182,36 @@ app.get("/health", (_req, res) => {
 
 // GET /transactions
 app.get("/transactions", async (_req, res) => {
-  try {
-    const transactions = await readTransactions();
-    res.json(transactions);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to read transactions" });
-  }
-});
+    try {
+      const all = await readTransactions();
+      const transactions = all.filter((t) => !t.deleted);
+      res.json(transactions);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to read transactions" });
+    }
+  });
+  
+  // GET /transactions/changes?since=ISO_STRING
+// Returns all transactions changed after the given timestamp.
+app.get("/transactions/changes", async (req, res) => {
+    try {
+      const since = req.query.since as string | undefined;
+      const all = await readTransactions();
+  
+      if (!since) {
+        // First sync: return everything
+        return res.json(all);
+      }
+  
+      const changes = all.filter((t) => t.updatedAt > since);
+      res.json(changes);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to get transaction changes" });
+    }
+  });
+  
 
 // GET /transactions/:id
 app.get("/transactions/:id", async (req, res) => {
@@ -213,21 +247,27 @@ app.post("/transactions", async (req, res) => {
           ? Date.now() + Math.random()
           : body.planId;
   
-      const newTx: Transaction = {
-        id: (body.id as any) ?? Date.now(),
-        date: body.date ?? new Date().toISOString().slice(0, 10),
-        month:
-          body.month ??
-          (body.date
-            ? body.date.slice(0, 7)
-            : new Date().toISOString().slice(0, 7)),
-        type: body.type ?? "Expense",
-        item: body.item,
-        category: body.category,
-        amount: body.amount,
-        isFixed,
-        planId,
-      };
+          const nowIso = new Date().toISOString();
+
+const newTx: Transaction = {
+  id: (body.id as any) ?? Date.now(),
+  date: body.date ?? new Date().toISOString().slice(0, 10),
+  month:
+    body.month ??
+    (body.date
+      ? body.date.slice(0, 7)
+      : new Date().toISOString().slice(0, 7)),
+  type: body.type ?? "Expense",
+  item: body.item!,
+  category: body.category,
+  amount: body.amount!,
+  isFixed,
+  planId,
+  updatedAt: nowIso,
+  deleted: false,
+};
+
+          
   
       const next: Transaction[] = [...all, newTx];
   
@@ -267,20 +307,25 @@ app.post("/transactions", async (req, res) => {
       const target = all[index];
   
       const applyCoreFields = (original: Transaction): Transaction => {
+        const nowIso = new Date().toISOString();
+      
         const base: Transaction = {
           ...original,
           ...body,
         };
-  
+      
         base.id = original.id;
         base.month =
           body.month ??
           (body.date
             ? body.date.slice(0, 7)
             : original.month);
-  
+      
+        base.updatedAt = nowIso;
+      
         return base;
       };
+      
   
       // Non-fixed or no planId → always behave as "this"
       if (!target.isFixed || target.planId == null || scope === "this") {
@@ -302,7 +347,7 @@ app.post("/transactions", async (req, res) => {
             updatedRows.push(applyCoreFields(tx));
             continue;
           }
-  
+          const nowIso = new Date().toISOString();
           if (tx.planId === planId && tx.month > targetMonth) {
             const merged: Transaction = {
               ...tx,
@@ -318,6 +363,7 @@ app.post("/transactions", async (req, res) => {
                   ? body.isFixed
                   : tx.isFixed,
               planId,
+              updatedAt: nowIso,
             };
             updatedRows.push(merged);
           } else {
@@ -333,9 +379,10 @@ app.post("/transactions", async (req, res) => {
       // all
       if (scope === "all") {
         const updatedRows: Transaction[] = [];
-  
+         const nowIso = new Date().toISOString();
         for (const tx of all) {
           if (tx.planId === planId) {
+           
             const merged: Transaction = {
               ...tx,
               type: body.type ?? tx.type,
@@ -350,6 +397,7 @@ app.post("/transactions", async (req, res) => {
                   ? body.isFixed
                   : tx.isFixed,
               planId,
+              updatedAt: nowIso
             };
             updatedRows.push(merged);
           } else {
@@ -393,8 +441,15 @@ app.post("/transactions", async (req, res) => {
         return res.status(404).json({ error: "Not found" });
       }
   
+      const nowIso = new Date().toISOString();
+  
+      // For non-fixed or scope "this", mark only this row as deleted
       if (!target.isFixed || target.planId == null || scope === "this") {
-        const next = all.filter((t) => String(t.id) !== id);
+        const next = all.map((t) =>
+          String(t.id) === id
+            ? { ...t, deleted: true, updatedAt: nowIso }
+            : t
+        );
         await writeTransactions(next);
         return res.status(204).send();
       }
@@ -405,15 +460,19 @@ app.post("/transactions", async (req, res) => {
       let next: Transaction[];
   
       if (scope === "thisAndFuture") {
-        next = all.filter(
-          (t) =>
-            !(
-              t.planId === planId &&
-              t.month >= targetMonth
-            )
+        // Mark this transaction and all future ones in the same plan as deleted
+        next = all.map((t) =>
+          t.planId === planId && t.month >= targetMonth
+            ? { ...t, deleted: true, updatedAt: nowIso }
+            : t
         );
       } else {
-        next = all.filter((t) => t.planId !== planId);
+        // scope === "all": mark all rows of this plan as deleted
+        next = all.map((t) =>
+          t.planId === planId
+            ? { ...t, deleted: true, updatedAt: nowIso }
+            : t
+        );
       }
   
       await writeTransactions(next);
@@ -424,12 +483,32 @@ app.post("/transactions", async (req, res) => {
     }
   });
   
+  
 
 async function bootstrapFixedTransactions() {
     try {
       const all = await readTransactions();
       let updated = false;
   
+
+      // Patch missing updatedAt / deleted on older data
+    const patched = all.map((tx) => {
+        let changed = false;
+        const copy = { ...tx };
+  
+        if (!copy.updatedAt) {
+          copy.updatedAt = new Date().toISOString();
+          changed = true;
+        }
+        if (copy.deleted === undefined) {
+          copy.deleted = false;
+          changed = true;
+        }
+  
+        if (changed) updated = true;
+        return copy;
+      });
+      
       const byPlan: Record<string, Transaction[]> = {};
   
       for (const tx of all) {
