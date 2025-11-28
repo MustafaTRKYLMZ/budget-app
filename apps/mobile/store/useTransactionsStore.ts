@@ -1,12 +1,22 @@
 import { create } from "zustand";
+import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(isSameOrBefore);
 import type { Transaction } from "@budget/core";
+import { useSettingsStore } from "./useSettingsStore";
 
 export type DeleteScope = "this" | "thisAndFuture" | "all";
 export type UpdateScope = "this" | "thisAndFuture" | "all";
 
+export type BalanceOnDate = {
+  income: number;
+  expense: number;
+  balance: number;
+};
+
 const API_URL =
-  process.env.EXPO_PUBLIC_API_URL ??
-  "http://192.168.2.33:3001";
+  process.env.EXPO_PUBLIC_API_URL ?? "3001";
 
 interface TransactionsStore {
   transactions: Transaction[];
@@ -21,6 +31,9 @@ interface TransactionsStore {
     id: number | string,
     scope: DeleteScope
   ) => Promise<void>;
+
+  // 🔥 yeni ekledik
+  getBalanceOnDate: (date: string) => BalanceOnDate;
 }
 
 export const useTransactionsStore = create<TransactionsStore>((set, get) => ({
@@ -56,5 +69,45 @@ export const useTransactionsStore = create<TransactionsStore>((set, get) => ({
       method: "DELETE",
     });
     await get().loadFromApi();
+  },
+
+  // 🔥 asıl sihir burada
+  getBalanceOnDate(date) {
+    const target = dayjs(date);
+    const { transactions } = get();
+    const { initialBalance } = useSettingsStore.getState();
+
+    let base = 0;
+    let originDate: dayjs.Dayjs | null = null;
+
+    if (initialBalance) {
+      base = initialBalance.amount;
+      originDate = dayjs(initialBalance.date);
+    }
+
+    const filtered = transactions.filter((tx) => {
+      const d = dayjs((tx as any).date);
+
+      // opening date'ten önceki işlemler dahil olmasın
+      if (originDate && d.isBefore(originDate, "day")) {
+        return false;
+      }
+
+      return d.isSameOrBefore(target, "day");
+    });
+
+    const income = filtered
+    .filter((tx) => (tx as any).type === "Income")
+    .reduce((sum, tx) => sum + (tx as any).amount, 0);
+  
+  const expense = filtered
+    .filter((tx) => (tx as any).type === "Expense")
+    .reduce((sum, tx) => sum + (tx as any).amount, 0);
+
+    return {
+      income,
+      expense,
+      balance: base + income - expense,
+    };
   },
 }));
