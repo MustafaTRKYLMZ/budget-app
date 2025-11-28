@@ -187,12 +187,7 @@ export default function HomeScreen() {
         <Ionicons name="add" size={30} color="#020617" />
       </TouchableOpacity>
 
-      <SidebarMenu
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        onOpenSettings={handleOpenSettings}
-        onOpenAbout={handleOpenAbout}
-      />
+      <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <DeleteTransactionSheet
         target={deleteTarget}
