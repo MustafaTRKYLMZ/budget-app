@@ -7,7 +7,7 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 
 interface QuickChipProps {
@@ -109,11 +109,12 @@ export function DailyBalanceSection({
       </View>
 
       {showPicker && (
-        <DateTimePicker
-          value={dayjs(effectiveSelectedDate).toDate()}
+        <DateTimePickerModal
+          isVisible={showPicker}
+          date={dayjs(effectiveSelectedDate).toDate()}
           mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={onChangeInternal}
+          onConfirm={onChangeInternal}
+          onCancel={() => setShowPicker(false)}
         />
       )}
     </>

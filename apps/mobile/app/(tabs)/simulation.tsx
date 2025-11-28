@@ -6,14 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Platform,
-  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import dayjs from "dayjs";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import {
   useSimulationStore,
@@ -118,17 +116,14 @@ export default function SimulationScreen() {
 
   const withSimulationBalance = baseBalance.balance + simNetTotalForDate;
 
-  const onChangeTargetDate = (event: any, selected?: Date) => {
-    if (Platform.OS !== "ios") {
-      setShowTargetDatePicker(false);
+  // 🔹 Date picker confirm handler (modal)
+  const onChangeTargetDate = (selected: Date) => {
+    const next = dayjs(selected).format("YYYY-MM-DD");
+    setTargetDate(next);
+    if (activeScenario) {
+      setScenarioTargetDate(activeScenario.id, next);
     }
-    if (selected) {
-      const next = dayjs(selected).format("YYYY-MM-DD");
-      setTargetDate(next);
-      if (activeScenario) {
-        setScenarioTargetDate(activeScenario.id, next);
-      }
-    }
+    setShowTargetDatePicker(false);
   };
 
   const openRename = (scenario: SimulationScenario) => {
@@ -247,15 +242,14 @@ export default function SimulationScreen() {
           </Text>
         </View>
 
-        {/* Date picker */}
-        {showTargetDatePicker && (
-          <DateTimePicker
-            value={dayjs(targetDate).toDate()}
-            mode="date"
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            onChange={onChangeTargetDate}
-          />
-        )}
+        {/* Date picker (modal) */}
+        <DateTimePickerModal
+          isVisible={showTargetDatePicker}
+          mode="date"
+          date={dayjs(targetDate).toDate()}
+          onConfirm={onChangeTargetDate}
+          onCancel={() => setShowTargetDatePicker(false)}
+        />
 
         {/* Items list */}
         <View style={styles.section}>

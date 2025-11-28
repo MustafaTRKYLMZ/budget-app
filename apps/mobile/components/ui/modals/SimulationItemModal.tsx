@@ -10,13 +10,13 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 import type { SimulationItemType } from "../../../store/useSimulationStore";
 
 interface Props {
   visible: boolean;
-  initialDate: string; // "YYYY-MM-DD" - dışarıdan (target date)
+  initialDate: string; // "YYYY-MM-DD"
   onClose: () => void;
   onSubmit: (payload: {
     type: SimulationItemType;
@@ -159,11 +159,12 @@ export function SimulationItemModal({
           </TouchableOpacity>
 
           {showDatePicker && (
-            <DateTimePicker
-              value={dayjs(date).toDate()}
+            <DateTimePickerModal
+              isVisible={showDatePicker}
+              date={dayjs(date).toDate()}
               mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={onChangeDate}
+              onCancel={() => setShowDatePicker(false)}
+              onConfirm={onChangeDate}
             />
           )}
         </View>

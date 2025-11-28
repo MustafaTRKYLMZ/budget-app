@@ -1,4 +1,3 @@
-// apps/mobile/app/(tabs)/_layout.tsx
 import React from "react";
 import { Tabs } from "expo-router";
 
@@ -7,7 +6,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        // hide tab bar completely
         tabBarStyle: {
           display: "none",
           height: 0,

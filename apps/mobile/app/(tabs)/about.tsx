@@ -1,4 +1,3 @@
-// apps/mobile/app/(tabs)/settings.tsx
 import React from "react";
 import {
   View,

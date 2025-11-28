@@ -1,4 +1,3 @@
-// apps/mobile/app/(tabs)/index.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -118,16 +117,6 @@ export default function HomeScreen() {
     const nextMoment = currentDate.add(1, "month");
     setMonth(nextMoment.format("YYYY-MM"));
     setSelectedDate(nextMoment.endOf("month").format("YYYY-MM-DD"));
-  };
-
-  const handleOpenSettings = () => {
-    setSidebarOpen(false);
-    router.push("/settings");
-  };
-
-  const handleOpenAbout = () => {
-    setSidebarOpen(false);
-    router.push("/about");
   };
 
   const handleOpenSimulation = () => {
