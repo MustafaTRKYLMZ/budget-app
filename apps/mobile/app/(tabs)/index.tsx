@@ -196,7 +196,7 @@ export default function HomeScreen() {
 
       <DeleteTransactionSheet
         target={deleteTarget}
-        isPlanBased={isDeletePlanBased}
+        isPlanBased={isDeletePlanBased ?? false}
         onConfirm={confirmDelete}
         onClose={closeDeleteSheet}
       />
