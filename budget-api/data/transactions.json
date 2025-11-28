@@ -8,7 +8,9 @@
     "category": "eden",
     "amount": 220,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:01.738Z"
   },
   {
     "id": 1764236395814.5613,
@@ -19,7 +21,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:49:36.293Z"
   },
   {
     "id": 1764236395814.8513,
@@ -103,33 +107,36 @@
     "date": "2026-01-31",
     "month": "2026-01",
     "type": "Income",
-    "item": "devamli giden",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:01.874Z"
   },
   {
     "id": 1764237132843.7283,
     "date": "2026-02-28",
     "month": "2026-02",
     "type": "Income",
-    "item": "devamli giden",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:01.939Z"
   },
   {
     "id": 1764237132843.9468,
     "date": "2026-03-31",
     "month": "2026-03",
     "type": "Income",
-    "item": "devamli giden",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:01.992Z"
   },
   {
     "id": 1764237132843.9475,
@@ -140,84 +147,93 @@
     "category": "eden",
     "amount": 220,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.049Z"
   },
   {
     "id": 1764237132843.6575,
     "date": "2026-05-31",
     "month": "2026-05",
     "type": "Income",
-    "item": "devamli ",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:02.101Z"
   },
   {
     "id": 1764237132843.6907,
     "date": "2026-06-30",
     "month": "2026-06",
     "type": "Income",
-    "item": "devamli ",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:02.143Z"
   },
   {
     "id": 1764237132843.4792,
     "date": "2026-07-31",
     "month": "2026-07",
     "type": "Income",
-    "item": "devamli ",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:02.201Z"
   },
   {
     "id": 1764237132843.9797,
     "date": "2026-08-31",
     "month": "2026-08",
     "type": "Income",
-    "item": "devamli ",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:02.256Z"
   },
   {
     "id": 1764237132843.2126,
     "date": "2026-09-30",
     "month": "2026-09",
     "type": "Income",
-    "item": "devamli ",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:02.320Z"
   },
   {
     "id": 1764237132843.7712,
     "date": "2026-10-31",
     "month": "2026-10",
     "type": "Income",
-    "item": "devamli ",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:02.368Z"
   },
   {
     "id": 1764237132843.499,
     "date": "2026-11-30",
     "month": "2026-11",
     "type": "Income",
-    "item": "devamli ",
+    "item": "devamli sizzzz",
     "category": "eden",
-    "amount": 220,
+    "amount": 2200,
     "isFixed": true,
-    "planId": 1764235900268.5854
+    "planId": 1764235900268.5854,
+    "updatedAt": "2025-11-28T17:57:02.505Z"
   },
   {
     "id": 1764237132854.95,
@@ -404,7 +420,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.545Z"
   },
   {
     "id": 1764245004766.8723,
@@ -415,7 +433,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.589Z"
   },
   {
     "id": 1764245004766.095,
@@ -426,7 +446,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.626Z"
   },
   {
     "id": 1764245004766.2793,
@@ -437,7 +459,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.665Z"
   },
   {
     "id": 1764245004766.5288,
@@ -448,7 +472,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.706Z"
   },
   {
     "id": 1764245004766.0674,
@@ -459,7 +485,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.743Z"
   },
   {
     "id": 1764245004766.8408,
@@ -470,7 +498,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.794Z"
   },
   {
     "id": 1764245004766.2957,
@@ -481,7 +511,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.839Z"
   },
   {
     "id": 1764245004766.6877,
@@ -492,7 +524,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.870Z"
   },
   {
     "id": 1764245004766.0264,
@@ -503,7 +537,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.907Z"
   },
   {
     "id": 1764245004766.902,
@@ -514,7 +550,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:02.962Z"
   },
   {
     "id": 1764251653868.503,
@@ -525,7 +563,9 @@
     "category": "Toeslag",
     "amount": 20,
     "isFixed": true,
-    "planId": 1764245004766.996
+    "planId": 1764245004766.996,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:57:03.011Z"
   },
   {
     "id": 1764257468655,
@@ -535,139 +575,9 @@
     "item": "gider",
     "category": "gider",
     "amount": 50,
-    "isFixed": false
-  },
-  {
-    "id": 1764259444684,
-    "date": "2025-11-27",
-    "month": "2025-11",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.6062,
-    "date": "2025-12-27",
-    "month": "2025-12",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.7092,
-    "date": "2026-01-27",
-    "month": "2026-01",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.301,
-    "date": "2026-02-27",
-    "month": "2026-02",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.4211,
-    "date": "2026-03-27",
-    "month": "2026-03",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.6218,
-    "date": "2026-04-27",
-    "month": "2026-04",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.0693,
-    "date": "2026-05-27",
-    "month": "2026-05",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.2559,
-    "date": "2026-06-27",
-    "month": "2026-06",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.3572,
-    "date": "2026-07-27",
-    "month": "2026-07",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.5334,
-    "date": "2026-08-27",
-    "month": "2026-08",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.1985,
-    "date": "2026-09-27",
-    "month": "2026-09",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
-  },
-  {
-    "id": 1764259444771.7036,
-    "date": "2026-10-27",
-    "month": "2026-10",
-    "type": "Income",
-    "item": "baba",
-    "category": "eymen futbol",
-    "amount": 10,
-    "isFixed": true,
-    "planId": 1764259444767.167
+    "isFixed": false,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:50:57.371Z"
   },
   {
     "id": 1764262023925,
@@ -677,6 +587,20 @@
     "item": "test",
     "category": "test",
     "amount": 25,
-    "isFixed": false
+    "isFixed": false,
+    "deleted": true,
+    "updatedAt": "2025-11-28T17:45:33.624Z"
+  },
+  {
+    "id": 1764351977588,
+    "date": "2025-11-28",
+    "month": "2025-11",
+    "type": "Expense",
+    "item": "bugun",
+    "category": "nugun",
+    "amount": 40,
+    "isFixed": false,
+    "updatedAt": "2025-11-28T17:50:57.404Z",
+    "deleted": true
   }
 ]
