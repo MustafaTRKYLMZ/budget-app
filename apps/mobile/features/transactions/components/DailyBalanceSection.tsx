@@ -1,45 +1,23 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 import { styles } from "../styles";
-
-interface QuickChipProps {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}
-
-function QuickChip({ label, active, onPress }: QuickChipProps) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.quickChip, active && styles.quickChipActive]}
-    >
-      <Text
-        style={[styles.quickChipText, active && styles.quickChipTextActive]}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-}
+import { QuickChip } from "./QuickChip";
 
 interface Props {
   selectedDate: string | undefined; // "YYYY-MM-DD"
   currentMonth: string; // "YYYY-MM"
   balance: number;
   onChangeDate: (dateStr: string) => void;
+  title: string;
+  isTransaction?: boolean;
 }
 
 export function DailyBalanceSection({
+  isTransaction = true,
+  title,
   selectedDate,
   currentMonth,
   balance,
@@ -54,20 +32,11 @@ export function DailyBalanceSection({
     .endOf("month")
     .format("YYYY-MM-DD");
 
-  const onChangeInternal = (event: any, selected?: Date) => {
-    if (Platform.OS !== "ios") {
-      setShowPicker(false);
-    }
-    if (selected) {
-      onChangeDate(dayjs(selected).format("YYYY-MM-DD"));
-    }
-  };
-
   return (
     <>
       <View style={styles.dailyRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.dailyLabel}>Balance as of</Text>
+          <Text style={styles.dailyLabel}>{title}</Text>
           <TouchableOpacity
             style={styles.dailyDateButton}
             onPress={() => setShowPicker(true)}
@@ -95,19 +64,20 @@ export function DailyBalanceSection({
           {balance.toFixed(2)} €
         </Text>
       </View>
-
-      <View style={styles.quickRow}>
-        <QuickChip
-          label="Today"
-          active={effectiveSelectedDate === todayStr}
-          onPress={() => onChangeDate(todayStr)}
-        />
-        <QuickChip
-          label="End of month"
-          active={effectiveSelectedDate === endOfMonthStr}
-          onPress={() => onChangeDate(endOfMonthStr)}
-        />
-      </View>
+      {isTransaction && (
+        <View style={styles.quickRow}>
+          <QuickChip
+            label="Today"
+            active={effectiveSelectedDate === todayStr}
+            onPress={() => onChangeDate(todayStr)}
+          />
+          <QuickChip
+            label="End of month"
+            active={effectiveSelectedDate === endOfMonthStr}
+            onPress={() => onChangeDate(endOfMonthStr)}
+          />
+        </View>
+      )}
 
       {showPicker && (
         <DateTimePickerModal

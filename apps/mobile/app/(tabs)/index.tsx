@@ -140,6 +140,7 @@ export default function HomeScreen() {
         />
 
         <DailyBalanceSection
+          title="Balance as of"
           selectedDate={selectedDate}
           currentMonth={month}
           balance={dailySummary.balance}
@@ -203,6 +204,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 12,
   },
+
   fab: {
     position: "absolute",
     right: 24,

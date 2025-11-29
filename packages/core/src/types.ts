@@ -158,3 +158,13 @@ export interface ProductConsumptionSample {
   quantity: number;              // How much was purchased
   unit?: string;                 // "pcs", "kg", "L"
 }
+
+
+export type CashflowLike = {
+  id: string | number;
+  type: TransactionType; // "Income" | "Expense"
+  item: string;
+  category?: string;
+  amount: number;
+  date: string; // "YYYY-MM-DD"
+};

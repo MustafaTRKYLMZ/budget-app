@@ -20,6 +20,8 @@ export type SimulationItem = {
   category?: string;
   amount: number;
   date: string; // "YYYY-MM-DD"
+  isFixed?: boolean;          
+  planId?: string | number; 
 };
 
 export type SimulationScenario = {

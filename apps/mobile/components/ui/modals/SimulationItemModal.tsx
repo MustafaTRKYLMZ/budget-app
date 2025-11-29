@@ -23,6 +23,7 @@ interface Props {
     item: string;
     amount: number;
     date: string; // "YYYY-MM-DD"
+    isFixed: boolean;
   }) => void;
 }
 
@@ -37,8 +38,8 @@ export function SimulationItemModal({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isFixed, setIsFixed] = useState<boolean>(false);
 
-  // Modal her açıldığında formu resetle
   useEffect(() => {
     if (visible) {
       setType("Expense");
@@ -53,7 +54,6 @@ export function SimulationItemModal({
     const numericAmount = Number(amount);
 
     if (!item.trim() || !numericAmount || !date) {
-      // burada istersen toast / uyarı da ekleyebiliriz
       return;
     }
 
@@ -62,6 +62,7 @@ export function SimulationItemModal({
       item: item.trim(),
       amount: numericAmount,
       date,
+      isFixed,
     });
 
     onClose();
@@ -112,6 +113,41 @@ export function SimulationItemModal({
               active={type === "Income"}
               onPress={() => setType("Income")}
             />
+          </View>
+          {/* FIXED? */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Fixed?</Text>
+            <View style={styles.segmentRow}>
+              <TouchableOpacity
+                style={[
+                  styles.segment,
+                  !isFixed && styles.segmentActiveNeutral,
+                ]}
+                onPress={() => setIsFixed(false)}
+              >
+                <Text
+                  style={[
+                    styles.segmentText,
+                    !isFixed && styles.segmentTextActive,
+                  ]}
+                >
+                  No
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
+                onPress={() => setIsFixed(true)}
+              >
+                <Text
+                  style={[
+                    styles.segmentText,
+                    isFixed && styles.segmentTextActive,
+                  ]}
+                >
+                  Yes (recurring)
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <Text style={styles.smallLabel}>Item</Text>
@@ -204,6 +240,39 @@ function TypeChip({ label, active, onPress }: TypeChipProps) {
 }
 
 const styles = StyleSheet.create({
+  segmentRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  label: {
+    color: "#e5e7eb",
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  segment: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#374151",
+    paddingVertical: 6,
+    alignItems: "center",
+    backgroundColor: "#020617",
+  },
+  segmentActiveNeutral: {
+    borderColor: "#0ea5e9",
+    backgroundColor: "#082f49",
+  },
+  segmentText: {
+    color: "#9ca3af",
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  segmentTextActive: {
+    color: "#f9fafb",
+  },
+  field: {
+    gap: 4,
+  },
   backdrop: {
     flex: 1,
     backgroundColor: "rgba(15,23,42,0.7)",

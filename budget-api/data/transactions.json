@@ -758,5 +758,17 @@
     "planId": 1764375731006.9336,
     "updatedAt": "2025-11-29T00:22:45.528Z",
     "deleted": false
+  },
+  {
+    "id": 1764384951920,
+    "date": "2025-11-29",
+    "month": "2025-11",
+    "type": "Expense",
+    "item": "iki",
+    "category": "son",
+    "amount": 50,
+    "isFixed": false,
+    "updatedAt": "2025-11-29T03:01:09.254Z",
+    "deleted": false
   }
 ]

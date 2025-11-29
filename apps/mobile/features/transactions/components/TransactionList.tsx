@@ -10,9 +10,9 @@ import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import type { Transaction } from "@budget/core";
 
-import { TransactionRow } from "./TransactionRow";
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { styles } from "../styles";
+import { CashflowRow } from "@/components/ui/CashflowRow";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -22,8 +22,8 @@ interface TransactionListProps {
 }
 
 type TxSection = {
-  title: string; // header label (formatlı tarih)
-  key: string; // normalize tarih: "YYYY-MM-DD" veya "other"
+  title: string;
+  key: string;
   data: Transaction[];
   cumulativeBalance: number;
 };
@@ -59,15 +59,12 @@ export default function TransactionList({
   const sections: TxSection[] = useMemo(() => {
     if (!transactions.length) return [];
 
-    // Zustand store'daki global hesaplama fonksiyonu
     const getBalanceOnDate = useTransactionsStore.getState().getBalanceOnDate;
 
-    // 1) Önce tüm transaction'ları tarihe göre sırala
     const sorted = [...transactions].sort((a, b) => {
       const da = getTxDate(a);
       const db = getTxDate(b);
 
-      // tarih yoksa en alta at
       if (!da && !db) return 0;
       if (!da) return 1;
       if (!db) return -1;
@@ -80,7 +77,6 @@ export default function TransactionList({
 
     for (const tx of sorted) {
       const d = getTxDate(tx);
-
       let key = "other";
       if (d) {
         key = d.format("YYYY-MM-DD");
@@ -148,16 +144,13 @@ export default function TransactionList({
     <SectionList
       sections={sections}
       keyExtractor={(item) => String(item.id)}
-      renderItem={({ item }) => (
-        <TransactionRow item={item} onEdit={onEdit} onDelete={onDelete} />
-      )}
       renderSectionHeader={({ section }) =>
         section.key === "other" ? null : (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
+          <View style={localStyles.dateHeader}>
+            <Text style={localStyles.dateHeaderTitle}>{section.title}</Text>
             <Text
               style={[
-                styles.sectionBalance,
+                localStyles.dateHeaderBalance,
                 {
                   color:
                     section.cumulativeBalance > 0
@@ -173,11 +166,76 @@ export default function TransactionList({
           </View>
         )
       }
+      renderItem={({ item, index, section }) => {
+        const isFirst = index === 0;
+        const isLast = index === section.data.length - 1;
+
+        return (
+          <View
+            style={[
+              localStyles.cardRow,
+              isFirst && localStyles.cardFirst,
+              isLast && localStyles.cardLast,
+            ]}
+          >
+            <CashflowRow
+              title={item.item}
+              type={item.type}
+              amount={item.amount}
+              date={item.date}
+              category={item.category}
+              isFixed={item.isFixed}
+              onPress={() => onEdit(item)}
+              onDelete={() => onDelete(item)}
+            />
+          </View>
+        );
+      }}
       contentContainerStyle={styles.listContent}
       refreshing={refreshing}
       onRefresh={onPressRefresh ? handleRefresh : undefined}
-      keyboardShouldPersistTaps="handled"
       stickySectionHeadersEnabled={false}
     />
   );
 }
+
+const localStyles = StyleSheet.create({
+  dateHeader: {
+    marginTop: 16,
+    marginBottom: 4,
+    paddingHorizontal: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  dateHeaderTitle: {
+    color: "#f3f4f6",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  dateHeaderBalance: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+
+  cardRow: {
+    backgroundColor: "#020819",
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: "#1f2937",
+    paddingHorizontal: 12,
+  },
+
+  cardFirst: {
+    borderTopWidth: 1,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+  },
+
+  cardLast: {
+    borderBottomWidth: 1,
+    borderBottomLeftRadius: 14,
+    borderBottomRightRadius: 14,
+    marginBottom: 14,
+  },
+});
