@@ -1,13 +1,32 @@
 import { LocalTransaction } from "../types";
 
+type GenerateFutureOptions =
+  | number
+  | {
+      monthsAhead?: number;
+      endMonth?: string | null; // "YYYY-MM", inclusive
+    };
+
 export const generateFutureFixedTransactions = (
   template: LocalTransaction,
   existing: LocalTransaction[],
-  monthsAhead: number = 11
+  options: GenerateFutureOptions = 11
 ): LocalTransaction[] => {
   const result: LocalTransaction[] = [];
 
   if (!template.date || !template.month) return result;
+
+  // Normalize options
+  let monthsAhead: number;
+  let endMonth: string | null | undefined;
+
+  if (typeof options === "number") {
+    monthsAhead = options;
+    endMonth = null;
+  } else {
+    monthsAhead = options.monthsAhead ?? 11;
+    endMonth = options.endMonth ?? null;
+  }
 
   const [yStr, mStr, dStr] = template.date.split("-");
   const baseYear = Number(yStr);
@@ -31,6 +50,11 @@ export const generateFutureFixedTransactions = (
 
     const dateStr = `${yyyy}-${mm}-${dd}`;
     const monthStr = `${yyyy}-${mm}`;
+
+    // Check endMonth limit
+    if (endMonth && monthStr > endMonth) {
+      break;
+    }
 
     const exists = existing.some(
       (t) => t.isFixed && t.planId === template.planId && t.month === monthStr

@@ -1,4 +1,5 @@
 // apps/mobile/app/modal.tsx
+
 import React, { useMemo, useState } from "react";
 import {
   View,
@@ -31,6 +32,10 @@ export default function TransactionModal() {
     (s) => s.updateTransactionScoped
   );
 
+  const [draftUpdateOptions, setDraftUpdateOptions] = useState<
+    { fixedEndMonth?: string | null } | undefined
+  >(undefined);
+
   const [scopeSheetOpen, setScopeSheetOpen] = useState(false);
   const [draftUpdate, setDraftUpdate] = useState<LocalTransaction | null>(null);
 
@@ -42,21 +47,39 @@ export default function TransactionModal() {
     [mode, id, transactions]
   );
 
+  const planEndMonth: string | null = useMemo(() => {
+    if (!existing || !existing.isFixed || !existing.planId) return null;
+
+    const planTxs = transactions.filter(
+      (t) => t.planId === existing.planId && !t.deleted
+    );
+
+    if (planTxs.length === 0) return null;
+
+    const sortedMonths = planTxs
+      .map((t) => t.month)
+      .filter(Boolean)
+      .sort();
+
+    return sortedMonths[sortedMonths.length - 1] ?? null;
+  }, [existing, transactions]);
+
   const title = existing ? "Edit transaction" : "Add transaction";
 
   const handleClose = () => {
     router.back();
   };
 
-  const handleSubmit = async (tx: LocalTransaction) => {
-    // CREATE
+  const handleSubmit = async (
+    tx: LocalTransaction,
+    options?: { fixedEndMonth?: string | null }
+  ) => {
     if (!existing) {
-      await createTransaction(tx);
+      await createTransaction(tx, options);
       router.back();
       return;
     }
 
-    // EDIT
     const isPlanBased = Boolean(existing.isFixed && existing.planId);
 
     if (!isPlanBased) {
@@ -65,8 +88,8 @@ export default function TransactionModal() {
       return;
     }
 
-    // Fixed + planId → scope sheet
     setDraftUpdate(tx);
+    setDraftUpdateOptions(options);
     setScopeSheetOpen(true);
   };
 
@@ -77,7 +100,14 @@ export default function TransactionModal() {
 
   const applyScope = async (scope: UpdateScope) => {
     if (!existing || !draftUpdate) return;
-    await updateTransactionScoped(existing.id as any, draftUpdate, scope);
+
+    await updateTransactionScoped(
+      existing.id as any,
+      draftUpdate,
+      scope,
+      draftUpdateOptions
+    );
+
     closeScopeSheet();
     router.back();
   };
@@ -109,6 +139,7 @@ export default function TransactionModal() {
               <TransactionForm
                 mode={existing ? "edit" : "create"}
                 initialTransaction={existing}
+                initialFixedEndMonth={planEndMonth}
                 onSubmit={handleSubmit}
               />
             </View>
@@ -116,10 +147,8 @@ export default function TransactionModal() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* UPDATE SCOPE BOTTOM SHEET */}
       {scopeSheetOpen && existing && draftUpdate && (
         <View style={styles.scopeOverlay}>
-          {/* backdrop  */}
           <TouchableOpacity
             style={styles.scopeBackdrop}
             activeOpacity={1}
@@ -215,8 +244,6 @@ const styles = StyleSheet.create({
   body: {
     marginTop: 4,
   },
-
-  // bottom sheet
   scopeOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "flex-end",

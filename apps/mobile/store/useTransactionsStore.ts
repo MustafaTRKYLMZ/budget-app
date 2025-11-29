@@ -1,4 +1,3 @@
-// apps/mobile/store/useTransactionsStore.ts
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
@@ -31,7 +30,7 @@ type TransactionDraft = Omit<
   "id" | "month" | "updatedAt" | "deleted" | "syncStatus"
 > & {
   id?: string | number;
-  date?: string; // form bazen boş gönderebilir, biz default veriyoruz
+  date?: string;
 };
 
 interface TransactionsStore {
@@ -41,11 +40,15 @@ interface TransactionsStore {
 
   loadFromStorage: () => Promise<void>;
 
-  createTransaction: (tx: TransactionDraft) => Promise<void>;
+  createTransaction: (
+    tx: TransactionDraft,
+    options?: { fixedEndMonth?: string | null }
+  ) => Promise<void>;
   updateTransactionScoped: (
     id: number | string,
     body: Partial<Transaction>,
-    scope: UpdateScope
+    scope: UpdateScope,
+    options?: { fixedEndMonth?: string | null }
   ) => Promise<void>;
   deleteTransactionScoped: (
     id: number | string,
@@ -57,7 +60,6 @@ interface TransactionsStore {
 
 const STORAGE_KEY = "transactions_v1";
 
-// ---- Node ortamında AsyncStorage yüzünden crash olmaması için helper ----
 const isServer = typeof window === "undefined";
 
 const createMemoryStorage = () => {
@@ -75,9 +77,7 @@ const createMemoryStorage = () => {
     },
   };
 };
-// ------------------------------------------------------------------------
 
-// asıl store
 export const useTransactionsStore = create(
   persist<TransactionsStore>(
     (set, get) => ({
@@ -91,7 +91,7 @@ export const useTransactionsStore = create(
         }
       },
 
-      async createTransaction(tx) {
+      async createTransaction(tx, options) {
         const now = new Date().toISOString();
 
         const date =
@@ -101,10 +101,8 @@ export const useTransactionsStore = create(
 
         const month = date.slice(0, 7) ?? dayjs().format("YYYY-MM");
 
-        // 🔥 isFixed'i garanti boolean'a çevir
         const isFixed = !!(tx as any).isFixed;
 
-        // 🔥 sabit işlemse planId üret / koru
         const planId =
           isFixed ? (tx as any).planId ?? nanoid() : undefined;
 
@@ -120,18 +118,25 @@ export const useTransactionsStore = create(
           syncStatus: "dirty",
         };
 
-
         set((state) => {
           const existing = state.transactions;
 
           let next: LocalTransaction[] = [...existing, baseTx];
 
           if (baseTx.isFixed && baseTx.planId != null) {
-          
-            const clones = generateFutureFixedTransactions(baseTx, existing);
+            const clones = generateFutureFixedTransactions(
+              baseTx,
+              existing,
+              options?.fixedEndMonth
+                ? {
+                    endMonth: options.fixedEndMonth,
+                    monthsAhead: 60,
+                  }
+                : 11
+            );
 
             const clonesWithSyncStatus: LocalTransaction[] = clones.map(
-              (c) => ({
+              (c): LocalTransaction => ({
                 ...c,
                 syncStatus: "dirty",
               })
@@ -144,7 +149,12 @@ export const useTransactionsStore = create(
         });
       },
 
-      async updateTransactionScoped(id, body, scope) {
+      async updateTransactionScoped(
+        id: number | string,
+        body: Partial<Transaction>,
+        scope: UpdateScope,
+        options?: { fixedEndMonth?: string | null }
+      ) {
         const now = new Date().toISOString();
         const all = get().transactions;
 
@@ -155,7 +165,9 @@ export const useTransactionsStore = create(
 
         const target = all[idx];
 
-        const applyCoreFields = (original: LocalTransaction): LocalTransaction => {
+        const applyCoreFields = (
+          original: LocalTransaction
+        ): LocalTransaction => {
           const nextDate = body.date ?? original.date;
           const nextMonth =
             body.month ??
@@ -171,7 +183,37 @@ export const useTransactionsStore = create(
           };
         };
 
-        // Non-fixed or no planId or scope === "this" → only update this row
+        const newDayFromBody =
+          body.date != null ? Number(body.date.split("-")[2]) : null;
+
+        const computeSeriesDate = (
+          tx: LocalTransaction
+        ): { date: string; month: string } => {
+          if (!newDayFromBody || !tx.month) {
+            return { date: tx.date, month: tx.month };
+          }
+
+          const [yStr, mStr] = tx.month.split("-");
+          const year = Number(yStr);
+          const monthIndex0 = Number(mStr) - 1;
+
+          const lastDayOfMonth = new Date(
+            year,
+            monthIndex0 + 1,
+            0
+          ).getDate();
+          const day = Math.min(newDayFromBody, lastDayOfMonth);
+
+          const yyyy = String(year);
+          const mm = String(monthIndex0 + 1).padStart(2, "0");
+          const dd = String(day).padStart(2, "0");
+
+          return {
+            date: `${yyyy}-${mm}-${dd}`,
+            month: `${yyyy}-${mm}`,
+          };
+        };
+
         if (!target.isFixed || target.planId == null || scope === "this") {
           const updated = applyCoreFields(target);
           const nextAll = [...all];
@@ -183,15 +225,15 @@ export const useTransactionsStore = create(
         const planId = target.planId;
         const targetMonth = target.month;
 
-        const updatedRows: LocalTransaction[] = all.map((tx) => {
-          // Always update the target itself with full body
+        let updatedRows: LocalTransaction[] = all.map((tx) => {
           if (tx.id === target.id) {
             return applyCoreFields(tx);
           }
 
           if (scope === "thisAndFuture") {
-            // Same plan and strictly after target month
             if (tx.planId === planId && tx.month > targetMonth) {
+              const seriesDate = computeSeriesDate(tx);
+
               return {
                 ...tx,
                 type: body.type ?? tx.type,
@@ -205,6 +247,8 @@ export const useTransactionsStore = create(
                   typeof body.isFixed === "boolean"
                     ? body.isFixed
                     : tx.isFixed,
+                date: seriesDate.date,
+                month: seriesDate.month,
                 updatedAt: now,
                 syncStatus: "dirty",
               };
@@ -212,8 +256,9 @@ export const useTransactionsStore = create(
             return tx;
           }
 
-          // scope === "all"
           if (scope === "all" && tx.planId === planId) {
+            const seriesDate = computeSeriesDate(tx);
+
             return {
               ...tx,
               type: body.type ?? tx.type,
@@ -227,6 +272,8 @@ export const useTransactionsStore = create(
                 typeof body.isFixed === "boolean"
                   ? body.isFixed
                   : tx.isFixed,
+              date: seriesDate.date,
+              month: seriesDate.month,
               updatedAt: now,
               syncStatus: "dirty",
             };
@@ -234,6 +281,57 @@ export const useTransactionsStore = create(
 
           return tx;
         });
+
+        const newEndMonth = options?.fixedEndMonth ?? null;
+
+        if (newEndMonth && target.isFixed && target.planId != null) {
+          const planTxs = updatedRows.filter(
+            (tx) => tx.planId === planId && !tx.deleted
+          );
+
+          if (planTxs.length > 0) {
+            const currentMaxMonth = planTxs
+              .map((tx) => tx.month)
+              .sort()
+              .at(-1)!;
+
+            if (newEndMonth < currentMaxMonth) {
+              updatedRows = updatedRows.map((tx) =>
+                tx.planId === planId && tx.month > newEndMonth
+                  ? {
+                      ...tx,
+                      deleted: true,
+                      updatedAt: now,
+                      syncStatus: "dirty",
+                    }
+                  : tx
+              );
+            }
+
+            if (newEndMonth > currentMaxMonth) {
+              const template = planTxs.find(
+                (tx) => tx.month === currentMaxMonth
+              ) as LocalTransaction;
+
+              const clones: LocalTransaction[] =
+                generateFutureFixedTransactions(
+                  template,
+                  updatedRows,
+                  {
+                    endMonth: newEndMonth,
+                    monthsAhead: 120,
+                  }
+                ).map(
+                  (c): LocalTransaction => ({
+                    ...c,
+                    syncStatus: "dirty",
+                  })
+                );
+
+              updatedRows = [...updatedRows, ...clones];
+            }
+          }
+        }
 
         set({ transactions: updatedRows });
       },
@@ -245,7 +343,6 @@ export const useTransactionsStore = create(
         const target = all.find((t) => String(t.id) === String(id));
         if (!target) return;
 
-        // Non-fixed or no planId or scope === "this" → mark only this row as deleted
         if (!target.isFixed || target.planId == null || scope === "this") {
           const next = all.map((tx) =>
             String(tx.id) === String(id)
@@ -267,7 +364,6 @@ export const useTransactionsStore = create(
         let next: LocalTransaction[];
 
         if (scope === "thisAndFuture") {
-          // Mark this and all future months in the same plan as deleted
           next = all.map((tx) =>
             tx.planId === planId && tx.month >= targetMonth
               ? {
@@ -279,7 +375,6 @@ export const useTransactionsStore = create(
               : tx
           );
         } else {
-          // scope === "all": mark all rows in this plan as deleted
           next = all.map((tx) =>
             tx.planId === planId
               ? {
@@ -308,7 +403,6 @@ export const useTransactionsStore = create(
           originDate = dayjs(initialBalance.date);
         }
 
-        // ignore deleted in calculations
         const active = transactions.filter((tx) => !tx.deleted);
 
         const filtered = active.filter((tx) => {
