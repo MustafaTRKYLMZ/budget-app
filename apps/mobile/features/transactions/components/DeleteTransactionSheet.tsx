@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import type { Transaction } from "@budget/core";
+import { styles } from "../styles";
 
 interface Props {
   target: Transaction | null;
@@ -75,78 +76,3 @@ export function DeleteTransactionSheet({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  deleteOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "flex-end",
-    zIndex: 40,
-  },
-  deleteBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(15,23,42,0.6)",
-  },
-  deleteSheet: {
-    backgroundColor: "#020617",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderTopWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 24,
-  },
-  deleteHandle: {
-    alignSelf: "center",
-    width: 40,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "#4b5563",
-    marginBottom: 8,
-  },
-  deleteTitle: {
-    color: "#f9fafb",
-    fontSize: 16,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  deleteSubtitle: {
-    color: "#9ca3af",
-    fontSize: 13,
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 12,
-  },
-  deleteButton: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#4b5563",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginTop: 8,
-    alignItems: "center",
-  },
-  deleteButtonText: {
-    color: "#e5e7eb",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  deleteDanger: {
-    borderColor: "#b91c1c",
-  },
-  deleteDangerText: {
-    color: "#fecaca",
-  },
-  cancelButton: {
-    marginTop: 12,
-    borderRadius: 12,
-    backgroundColor: "#111827",
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  cancelButtonText: {
-    color: "#e5e7eb",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-});

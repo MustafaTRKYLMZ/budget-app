@@ -8,14 +8,13 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  Platform,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import dayjs from "dayjs";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import { useSettingsStore } from "../../store/useSettingsStore";
 import { useTransactionsStore } from "../../store/useTransactionsStore";
@@ -133,11 +132,12 @@ export default function SettingsScreen() {
         </TouchableOpacity>
 
         {showDatePicker && (
-          <DateTimePicker
-            value={dayjs(date).toDate()}
+          <DateTimePickerModal
+            isVisible={showDatePicker}
+            date={dayjs(date).toDate()}
             mode="date"
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            onChange={onChangeDate}
+            onConfirm={onChangeDate}
+            onCancel={() => setShowDatePicker(false)}
           />
         )}
 

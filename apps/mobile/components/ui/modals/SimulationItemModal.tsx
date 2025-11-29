@@ -10,19 +10,20 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 import type { SimulationItemType } from "../../../store/useSimulationStore";
 
 interface Props {
   visible: boolean;
-  initialDate: string; // "YYYY-MM-DD" - dışarıdan (target date)
+  initialDate: string; // "YYYY-MM-DD"
   onClose: () => void;
   onSubmit: (payload: {
     type: SimulationItemType;
     item: string;
     amount: number;
     date: string; // "YYYY-MM-DD"
+    isFixed: boolean;
   }) => void;
 }
 
@@ -37,8 +38,8 @@ export function SimulationItemModal({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isFixed, setIsFixed] = useState<boolean>(false);
 
-  // Modal her açıldığında formu resetle
   useEffect(() => {
     if (visible) {
       setType("Expense");
@@ -53,7 +54,6 @@ export function SimulationItemModal({
     const numericAmount = Number(amount);
 
     if (!item.trim() || !numericAmount || !date) {
-      // burada istersen toast / uyarı da ekleyebiliriz
       return;
     }
 
@@ -62,18 +62,10 @@ export function SimulationItemModal({
       item: item.trim(),
       amount: numericAmount,
       date,
+      isFixed,
     });
 
     onClose();
-  };
-
-  const onChangeDate = (event: any, selected?: Date) => {
-    if (Platform.OS !== "ios") {
-      setShowDatePicker(false);
-    }
-    if (selected) {
-      setDate(dayjs(selected).format("YYYY-MM-DD"));
-    }
   };
 
   return (
@@ -122,6 +114,41 @@ export function SimulationItemModal({
               onPress={() => setType("Income")}
             />
           </View>
+          {/* FIXED? */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Fixed?</Text>
+            <View style={styles.segmentRow}>
+              <TouchableOpacity
+                style={[
+                  styles.segment,
+                  !isFixed && styles.segmentActiveNeutral,
+                ]}
+                onPress={() => setIsFixed(false)}
+              >
+                <Text
+                  style={[
+                    styles.segmentText,
+                    !isFixed && styles.segmentTextActive,
+                  ]}
+                >
+                  No
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
+                onPress={() => setIsFixed(true)}
+              >
+                <Text
+                  style={[
+                    styles.segmentText,
+                    isFixed && styles.segmentTextActive,
+                  ]}
+                >
+                  Yes (recurring)
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
           <Text style={styles.smallLabel}>Item</Text>
           <TextInput
@@ -159,11 +186,15 @@ export function SimulationItemModal({
           </TouchableOpacity>
 
           {showDatePicker && (
-            <DateTimePicker
-              value={dayjs(date).toDate()}
+            <DateTimePickerModal
+              isVisible={showDatePicker}
+              date={dayjs(date).toDate()}
               mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={onChangeDate}
+              onCancel={() => setShowDatePicker(false)}
+              onConfirm={(selectedDate) => {
+                setDate(dayjs(selectedDate).format("YYYY-MM-DD"));
+                setShowDatePicker(false);
+              }}
             />
           )}
         </View>
@@ -209,6 +240,39 @@ function TypeChip({ label, active, onPress }: TypeChipProps) {
 }
 
 const styles = StyleSheet.create({
+  segmentRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  label: {
+    color: "#e5e7eb",
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  segment: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#374151",
+    paddingVertical: 6,
+    alignItems: "center",
+    backgroundColor: "#020617",
+  },
+  segmentActiveNeutral: {
+    borderColor: "#0ea5e9",
+    backgroundColor: "#082f49",
+  },
+  segmentText: {
+    color: "#9ca3af",
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  segmentTextActive: {
+    color: "#f9fafb",
+  },
+  field: {
+    gap: 4,
+  },
   backdrop: {
     flex: 1,
     backgroundColor: "rgba(15,23,42,0.7)",
@@ -258,12 +322,7 @@ const styles = StyleSheet.create({
   content: {
     marginTop: 4,
   },
-  smallLabel: {
-    color: "#9ca3af",
-    fontSize: 12,
-    marginBottom: 4,
-    marginTop: 6,
-  },
+
   typeRow: {
     flexDirection: "row",
     marginBottom: 4,
@@ -297,6 +356,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     color: "#e5e7eb",
     fontSize: 14,
+  },
+  smallLabel: {
+    color: "#9ca3af",
+    fontSize: 12,
+    marginBottom: 4,
+    marginTop: 6,
   },
   dateButton: {
     flexDirection: "row",

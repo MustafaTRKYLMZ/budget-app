@@ -10,8 +10,9 @@ import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import type { Transaction } from "@budget/core";
 
-import { TransactionItem } from "./TransactionItem";
-import { useTransactionsStore } from "../../store/useTransactionsStore";
+import { useTransactionsStore } from "../../../store/useTransactionsStore";
+import { styles } from "../styles";
+import { CashflowRow } from "@/components/ui/CashflowRow";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -21,10 +22,10 @@ interface TransactionListProps {
 }
 
 type TxSection = {
-  title: string; // header label (formatlı tarih)
-  key: string; // normalize tarih: "YYYY-MM-DD" veya "other"
+  title: string;
+  key: string;
   data: Transaction[];
-  cumulativeBalance: number; // o tarihe kadar olan toplam bakiye
+  cumulativeBalance: number;
 };
 
 function getTxDate(tx: Transaction): dayjs.Dayjs | null {
@@ -58,31 +59,24 @@ export default function TransactionList({
   const sections: TxSection[] = useMemo(() => {
     if (!transactions.length) return [];
 
-    // Zustand store'daki global hesaplama fonksiyonu
     const getBalanceOnDate = useTransactionsStore.getState().getBalanceOnDate;
 
-    // 1) Önce tüm transaction'ları tarihe göre sırala
     const sorted = [...transactions].sort((a, b) => {
       const da = getTxDate(a);
       const db = getTxDate(b);
 
-      // tarih yoksa en alta at
       if (!da && !db) return 0;
       if (!da) return 1;
       if (!db) return -1;
 
-      // Şu an senin kodunda bu şekildeydi:
-      // küçük tarih önce, büyük tarih sonra (eski → yeni)
       return da.valueOf() - db.valueOf();
     });
 
-    // 2) Sıralı listeden grupları üret (order'ı koruyarak)
     const groups: Record<string, Transaction[]> = {};
     const order: string[] = [];
 
     for (const tx of sorted) {
       const d = getTxDate(tx);
-
       let key = "other";
       if (d) {
         key = d.format("YYYY-MM-DD");
@@ -90,12 +84,11 @@ export default function TransactionList({
 
       if (!groups[key]) {
         groups[key] = [];
-        order.push(key); // ilk defa gördüğümüz key → order listesine ekle
+        order.push(key);
       }
       groups[key].push(tx);
     }
 
-    // 3) Section array: key'leri order'a göre dön (bir daha sort YOK)
     const result: TxSection[] = order.map((key) => {
       const groupTxs = groups[key];
       let title = "Other";
@@ -105,7 +98,6 @@ export default function TransactionList({
         const d = dayjs(key);
         title = d.format("DD MMM YYYY");
 
-        // 🔥 Asıl sihir burada: o tarihe kadar olan toplam bakiye
         const balanceResult = getBalanceOnDate(key);
         cumulativeBalance = balanceResult.balance;
       }
@@ -152,16 +144,13 @@ export default function TransactionList({
     <SectionList
       sections={sections}
       keyExtractor={(item) => String(item.id)}
-      renderItem={({ item }) => (
-        <TransactionItem item={item} onEdit={onEdit} onDelete={onDelete} />
-      )}
       renderSectionHeader={({ section }) =>
         section.key === "other" ? null : (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
+          <View style={localStyles.dateHeader}>
+            <Text style={localStyles.dateHeaderTitle}>{section.title}</Text>
             <Text
               style={[
-                styles.sectionBalance,
+                localStyles.dateHeaderBalance,
                 {
                   color:
                     section.cumulativeBalance > 0
@@ -177,69 +166,76 @@ export default function TransactionList({
           </View>
         )
       }
+      renderItem={({ item, index, section }) => {
+        const isFirst = index === 0;
+        const isLast = index === section.data.length - 1;
+
+        return (
+          <View
+            style={[
+              localStyles.cardRow,
+              isFirst && localStyles.cardFirst,
+              isLast && localStyles.cardLast,
+            ]}
+          >
+            <CashflowRow
+              title={item.item}
+              type={item.type}
+              amount={item.amount}
+              date={item.date}
+              category={item.category}
+              isFixed={item.isFixed}
+              onPress={() => onEdit(item)}
+              onDelete={() => onDelete(item)}
+            />
+          </View>
+        );
+      }}
       contentContainerStyle={styles.listContent}
       refreshing={refreshing}
       onRefresh={onPressRefresh ? handleRefresh : undefined}
-      keyboardShouldPersistTaps="handled"
       stickySectionHeadersEnabled={false}
     />
   );
 }
 
-const styles = StyleSheet.create({
-  listContent: {
-    paddingVertical: 4,
-  },
-
-  sectionHeader: {
-    marginTop: 8,
+const localStyles = StyleSheet.create({
+  dateHeader: {
+    marginTop: 16,
     marginBottom: 4,
     paddingHorizontal: 4,
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
   },
-  sectionTitle: {
-    color: "#9ca3af",
-    fontSize: 13,
-    fontWeight: "600",
+  dateHeaderTitle: {
+    color: "#f3f4f6",
+    fontSize: 15,
+    fontWeight: "700",
   },
-  sectionBalance: {
-    fontSize: 13,
+  dateHeaderBalance: {
+    fontSize: 15,
     fontWeight: "600",
   },
 
-  emptyState: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
-  },
-  emptyTitle: {
-    marginTop: 12,
-    color: "#e5e7eb",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  emptySubtitle: {
-    marginTop: 4,
-    color: "#9ca3af",
-    fontSize: 13,
-    textAlign: "center",
-  },
-  emptyRefreshButton: {
-    marginTop: 14,
-    flexDirection: "row",
-    alignItems: "center",
+  cardRow: {
+    backgroundColor: "#020819",
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: "#1f2937",
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#374151",
   },
-  emptyRefreshText: {
-    color: "#e5e7eb",
-    fontSize: 13,
-    fontWeight: "500",
+
+  cardFirst: {
+    borderTopWidth: 1,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+  },
+
+  cardLast: {
+    borderBottomWidth: 1,
+    borderBottomLeftRadius: 14,
+    borderBottomRightRadius: 14,
+    marginBottom: 14,
   },
 });

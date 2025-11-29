@@ -8,7 +8,10 @@ import {
   StyleSheet,
 } from "react-native";
 import dayjs from "dayjs";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import type { Transaction } from "@budget/core";
+import { styles } from "../styles";
+import { Ionicons } from "@expo/vector-icons";
 
 type TransactionType = "Income" | "Expense";
 
@@ -26,6 +29,8 @@ export default function TransactionForm({
   onSubmit,
 }: TransactionFormProps) {
   const [date, setDate] = useState(initialTransaction?.date ?? today);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [type, setType] = useState<TransactionType>(
     (initialTransaction?.type as TransactionType) ?? "Expense"
   );
@@ -70,16 +75,33 @@ export default function TransactionForm({
   return (
     <View style={styles.form}>
       {/* DATE */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Date</Text>
-        <TextInput
-          value={date}
-          onChangeText={setDate}
-          placeholder="YYYY-MM-DD"
-          placeholderTextColor="#6b7280"
-          style={styles.input}
+      <Text style={styles.smallLabel}>Date</Text>
+      <TouchableOpacity
+        style={styles.dateButton}
+        onPress={() => setShowDatePicker(true)}
+      >
+        <Ionicons
+          name="calendar-outline"
+          size={16}
+          color="#9ca3af"
+          style={{ marginRight: 6 }}
         />
-      </View>
+        <Text style={styles.dateButtonText}>
+          {dayjs(date).format("DD MMM YYYY")}
+        </Text>
+      </TouchableOpacity>
+      {showDatePicker && (
+        <DateTimePickerModal
+          isVisible={showDatePicker}
+          date={dayjs(date).toDate()}
+          mode="date"
+          onCancel={() => setShowDatePicker(false)}
+          onConfirm={(selectedDate) => {
+            setDate(dayjs(selectedDate).format("YYYY-MM-DD"));
+            setShowDatePicker(false);
+          }}
+        />
+      )}
 
       {/* TYPE */}
       <View style={styles.field}>
@@ -190,72 +212,3 @@ export default function TransactionForm({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  form: {
-    gap: 12,
-  },
-  field: {
-    gap: 4,
-  },
-  label: {
-    color: "#e5e7eb",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  input: {
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#374151",
-    backgroundColor: "#020617",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    color: "#f9fafb",
-    fontSize: 14,
-  },
-  segmentRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  segment: {
-    flex: 1,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#374151",
-    paddingVertical: 6,
-    alignItems: "center",
-    backgroundColor: "#020617",
-  },
-  segmentActiveIncome: {
-    borderColor: "#16a34a",
-    backgroundColor: "#022c22",
-  },
-  segmentActiveExpense: {
-    borderColor: "#dc2626",
-    backgroundColor: "#450a0a",
-  },
-  segmentActiveNeutral: {
-    borderColor: "#0ea5e9",
-    backgroundColor: "#082f49",
-  },
-  segmentText: {
-    color: "#9ca3af",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  segmentTextActive: {
-    color: "#f9fafb",
-  },
-  submitButton: {
-    marginTop: 8,
-    borderRadius: 999,
-    backgroundColor: "#0ea5e9",
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  submitText: {
-    color: "#f9fafb",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-});

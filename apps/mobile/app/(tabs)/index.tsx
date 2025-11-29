@@ -1,4 +1,3 @@
-// apps/mobile/app/(tabs)/index.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import type { Transaction } from "@budget/core";
 
-import TransactionList from "../../components/ui/TransactionList";
+import TransactionList from "../../features/transactions/components/TransactionList";
 import {
   useTransactionsStore,
   type DeleteScope,
@@ -15,12 +14,12 @@ import {
 import { useSettingsStore } from "../../store/useSettingsStore";
 
 import { HomeHeader } from "../../components/ui/HomeHeader";
-import { DailyBalanceSection } from "../../components/ui/DailyBalanceSection";
+import { DailyBalanceSection } from "../../features/transactions/components/DailyBalanceSection";
 import { ViewTabs, type ViewTab } from "../../components/ui/ViewTabs";
-import { MonthNavigator } from "../../components/ui/MonthNavigator";
-import { MonthlyBalanceBar } from "../../components/ui/MonthlyBalanceBar";
+import { MonthNavigator } from "../../features/transactions/components/MonthNavigator";
+import { MonthlyBalanceBar } from "../../features/transactions/components/MonthlyBalanceBar";
 import { SidebarMenu } from "../../components/ui/SidebarMenu";
-import { DeleteTransactionSheet } from "../../components/ui/DeleteTransactionSheet";
+import { DeleteTransactionSheet } from "../../features/transactions/components/DeleteTransactionSheet";
 import { syncTransactions } from "../../services/syncTransactions";
 
 const getCurrentMonth = () => dayjs().format("YYYY-MM");
@@ -120,16 +119,6 @@ export default function HomeScreen() {
     setSelectedDate(nextMoment.endOf("month").format("YYYY-MM-DD"));
   };
 
-  const handleOpenSettings = () => {
-    setSidebarOpen(false);
-    router.push("/settings");
-  };
-
-  const handleOpenAbout = () => {
-    setSidebarOpen(false);
-    router.push("/about");
-  };
-
   const handleOpenSimulation = () => {
     router.push("/simulation");
   };
@@ -151,6 +140,7 @@ export default function HomeScreen() {
         />
 
         <DailyBalanceSection
+          title="Balance as of"
           selectedDate={selectedDate}
           currentMonth={month}
           balance={dailySummary.balance}
@@ -214,6 +204,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 12,
   },
+
   fab: {
     position: "absolute",
     right: 24,
