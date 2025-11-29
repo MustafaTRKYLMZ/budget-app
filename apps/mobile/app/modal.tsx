@@ -16,7 +16,7 @@ import {
   useTransactionsStore,
   type UpdateScope,
 } from "../store/useTransactionsStore";
-import TransactionForm from "../components/ui/TransactionForm";
+import TransactionForm from "../features/transactions/components/TransactionForm";
 
 export default function TransactionModal() {
   const router = useRouter();
@@ -119,7 +119,7 @@ export default function TransactionModal() {
       {/* UPDATE SCOPE BOTTOM SHEET */}
       {scopeSheetOpen && existing && draftUpdate && (
         <View style={styles.scopeOverlay}>
-          {/* backdrop – dışa tıklayınca iptal */}
+          {/* backdrop  */}
           <TouchableOpacity
             style={styles.scopeBackdrop}
             activeOpacity={1}

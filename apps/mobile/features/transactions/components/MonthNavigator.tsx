@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { styles } from "../styles";
 
 interface Props {
   monthName: string;
@@ -35,34 +36,3 @@ export function MonthNavigator({ monthName, year, onPrev, onNext }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  monthHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-    paddingHorizontal: 4,
-  },
-  monthTitleBlock: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  monthTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#f3f4f6",
-  },
-  monthYear: {
-    marginTop: 2,
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#9ca3af",
-  },
-  monthNavIcon: {
-    padding: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-  },
-});
