@@ -67,15 +67,6 @@ export function SimulationItemModal({
     onClose();
   };
 
-  const onChangeDate = (event: any, selected?: Date) => {
-    if (Platform.OS !== "ios") {
-      setShowDatePicker(false);
-    }
-    if (selected) {
-      setDate(dayjs(selected).format("YYYY-MM-DD"));
-    }
-  };
-
   return (
     <Modal
       visible={visible}
@@ -164,7 +155,10 @@ export function SimulationItemModal({
               date={dayjs(date).toDate()}
               mode="date"
               onCancel={() => setShowDatePicker(false)}
-              onConfirm={onChangeDate}
+              onConfirm={(selectedDate) => {
+                setDate(dayjs(selectedDate).format("YYYY-MM-DD"));
+                setShowDatePicker(false);
+              }}
             />
           )}
         </View>
@@ -259,12 +253,7 @@ const styles = StyleSheet.create({
   content: {
     marginTop: 4,
   },
-  smallLabel: {
-    color: "#9ca3af",
-    fontSize: 12,
-    marginBottom: 4,
-    marginTop: 6,
-  },
+
   typeRow: {
     flexDirection: "row",
     marginBottom: 4,
@@ -298,6 +287,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     color: "#e5e7eb",
     fontSize: 14,
+  },
+  smallLabel: {
+    color: "#9ca3af",
+    fontSize: 12,
+    marginBottom: 4,
+    marginTop: 6,
   },
   dateButton: {
     flexDirection: "row",

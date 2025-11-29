@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { Transaction } from "@budget/core";
+import { styles } from "../styles";
 
 interface Props {
   item: Transaction;
@@ -16,7 +17,7 @@ interface Props {
   onDelete: (tx: Transaction) => void;
 }
 
-export function TransactionItem({ item, onEdit, onDelete }: Props) {
+export const TransactionRow = ({ item, onEdit, onDelete }: Props) => {
   const isIncome = item.type === "Income";
   const isExpense = item.type === "Expense";
 
@@ -28,10 +29,9 @@ export function TransactionItem({ item, onEdit, onDelete }: Props) {
     ? "arrow-down"
     : null;
 
-  // 🔁 sabit vs tek seferlik işlemler için ikon
   const statusIconName: keyof typeof Ionicons.glyphMap = item.isFixed
-    ? "repeat" // sabit
-    : "ellipse-outline"; // tek seferlik
+    ? "repeat"
+    : "ellipse-outline";
 
   const statusIconColor = item.isFixed ? "#bfdbfe" : "#6b7280";
 
@@ -51,7 +51,6 @@ export function TransactionItem({ item, onEdit, onDelete }: Props) {
         </Text>
 
         <View style={styles.metaRow}>
-          {/* sabit / tek seferlik durum ikonu */}
           <Ionicons
             name={statusIconName}
             size={13}
@@ -97,68 +96,4 @@ export function TransactionItem({ item, onEdit, onDelete }: Props) {
       </View>
     </Pressable>
   );
-}
-
-const styles = StyleSheet.create({
-  rowCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 14,
-    backgroundColor: "#020617",
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    marginBottom: 8,
-  },
-  rowCardPressed: {
-    borderColor: "#22c55e33",
-    backgroundColor: "#020819",
-  },
-
-  leftCol: {
-    flex: 1,
-    paddingRight: 8,
-  },
-  rightCol: {
-    alignItems: "flex-end",
-    justifyContent: "center",
-  },
-
-  itemTitle: {
-    color: "#f9fafb",
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
-  categoryText: {
-    color: "#9ca3af",
-    fontSize: 13,
-    maxWidth: 160,
-  },
-
-  amountRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 6,
-  },
-  amountText: {
-    fontSize: 17,
-    fontWeight: "700",
-  },
-
-  actionRow: {
-    flexDirection: "row",
-  },
-  iconButton: {
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-});
+};

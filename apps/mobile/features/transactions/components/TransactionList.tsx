@@ -10,8 +10,9 @@ import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import type { Transaction } from "@budget/core";
 
-import { TransactionItem } from "./TransactionItem";
-import { useTransactionsStore } from "../../store/useTransactionsStore";
+import { TransactionRow } from "./TransactionRow";
+import { useTransactionsStore } from "../../../store/useTransactionsStore";
+import { styles } from "../styles";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -24,7 +25,7 @@ type TxSection = {
   title: string; // header label (formatlı tarih)
   key: string; // normalize tarih: "YYYY-MM-DD" veya "other"
   data: Transaction[];
-  cumulativeBalance: number; // o tarihe kadar olan toplam bakiye
+  cumulativeBalance: number;
 };
 
 function getTxDate(tx: Transaction): dayjs.Dayjs | null {
@@ -71,12 +72,9 @@ export default function TransactionList({
       if (!da) return 1;
       if (!db) return -1;
 
-      // Şu an senin kodunda bu şekildeydi:
-      // küçük tarih önce, büyük tarih sonra (eski → yeni)
       return da.valueOf() - db.valueOf();
     });
 
-    // 2) Sıralı listeden grupları üret (order'ı koruyarak)
     const groups: Record<string, Transaction[]> = {};
     const order: string[] = [];
 
@@ -90,12 +88,11 @@ export default function TransactionList({
 
       if (!groups[key]) {
         groups[key] = [];
-        order.push(key); // ilk defa gördüğümüz key → order listesine ekle
+        order.push(key);
       }
       groups[key].push(tx);
     }
 
-    // 3) Section array: key'leri order'a göre dön (bir daha sort YOK)
     const result: TxSection[] = order.map((key) => {
       const groupTxs = groups[key];
       let title = "Other";
@@ -105,7 +102,6 @@ export default function TransactionList({
         const d = dayjs(key);
         title = d.format("DD MMM YYYY");
 
-        // 🔥 Asıl sihir burada: o tarihe kadar olan toplam bakiye
         const balanceResult = getBalanceOnDate(key);
         cumulativeBalance = balanceResult.balance;
       }
@@ -153,7 +149,7 @@ export default function TransactionList({
       sections={sections}
       keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => (
-        <TransactionItem item={item} onEdit={onEdit} onDelete={onDelete} />
+        <TransactionRow item={item} onEdit={onEdit} onDelete={onDelete} />
       )}
       renderSectionHeader={({ section }) =>
         section.key === "other" ? null : (
@@ -185,61 +181,3 @@ export default function TransactionList({
     />
   );
 }
-
-const styles = StyleSheet.create({
-  listContent: {
-    paddingVertical: 4,
-  },
-
-  sectionHeader: {
-    marginTop: 8,
-    marginBottom: 4,
-    paddingHorizontal: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  sectionTitle: {
-    color: "#9ca3af",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  sectionBalance: {
-    fontSize: 13,
-    fontWeight: "600",
-  },
-
-  emptyState: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
-  },
-  emptyTitle: {
-    marginTop: 12,
-    color: "#e5e7eb",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  emptySubtitle: {
-    marginTop: 4,
-    color: "#9ca3af",
-    fontSize: 13,
-    textAlign: "center",
-  },
-  emptyRefreshButton: {
-    marginTop: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#374151",
-  },
-  emptyRefreshText: {
-    color: "#e5e7eb",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-});

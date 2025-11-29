@@ -96,20 +96,12 @@ export default function SimulationScreen() {
   // targetDate SONRASINDAKİ simülasyon kalemleri (plan ufku)
   const simIncomeTotalForDate =
     activeScenario?.items
-      .filter(
-        (it) =>
-          it.type === "Income" &&
-          dayjs(it.date).valueOf() >= dayjs(targetDate).valueOf()
-      )
+      .filter((it) => it.type === "Income")
       .reduce((sum, it) => sum + it.amount, 0) ?? 0;
 
   const simExpenseTotalForDate =
     activeScenario?.items
-      .filter(
-        (it) =>
-          it.type === "Expense" &&
-          dayjs(it.date).valueOf() >= dayjs(targetDate).valueOf()
-      )
+      .filter((it) => it.type === "Expense")
       .reduce((sum, it) => sum + it.amount, 0) ?? 0;
 
   const simNetTotalForDate = simIncomeTotalForDate - simExpenseTotalForDate;

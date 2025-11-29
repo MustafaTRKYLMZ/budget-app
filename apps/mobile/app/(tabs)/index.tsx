@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import type { Transaction } from "@budget/core";
 
-import TransactionList from "../../components/ui/TransactionList";
+import TransactionList from "../../features/transactions/components/TransactionList";
 import {
   useTransactionsStore,
   type DeleteScope,
@@ -14,12 +14,12 @@ import {
 import { useSettingsStore } from "../../store/useSettingsStore";
 
 import { HomeHeader } from "../../components/ui/HomeHeader";
-import { DailyBalanceSection } from "../../components/ui/DailyBalanceSection";
+import { DailyBalanceSection } from "../../features/transactions/components/DailyBalanceSection";
 import { ViewTabs, type ViewTab } from "../../components/ui/ViewTabs";
-import { MonthNavigator } from "../../components/ui/MonthNavigator";
-import { MonthlyBalanceBar } from "../../components/ui/MonthlyBalanceBar";
+import { MonthNavigator } from "../../features/transactions/components/MonthNavigator";
+import { MonthlyBalanceBar } from "../../features/transactions/components/MonthlyBalanceBar";
 import { SidebarMenu } from "../../components/ui/SidebarMenu";
-import { DeleteTransactionSheet } from "../../components/ui/DeleteTransactionSheet";
+import { DeleteTransactionSheet } from "../../features/transactions/components/DeleteTransactionSheet";
 import { syncTransactions } from "../../services/syncTransactions";
 
 const getCurrentMonth = () => dayjs().format("YYYY-MM");

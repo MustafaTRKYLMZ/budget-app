@@ -16,7 +16,7 @@ import {
   useTransactionsStore,
   type UpdateScope,
 } from "../store/useTransactionsStore";
-import TransactionForm from "../components/ui/TransactionForm";
+import TransactionForm from "../features/transactions/components/TransactionForm";
 
 export default function TransactionModal() {
   const router = useRouter();

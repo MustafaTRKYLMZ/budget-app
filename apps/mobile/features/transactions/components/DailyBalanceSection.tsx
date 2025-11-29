@@ -9,6 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
+import { styles } from "../styles";
 
 interface QuickChipProps {
   label: string;
@@ -113,61 +114,13 @@ export function DailyBalanceSection({
           isVisible={showPicker}
           date={dayjs(effectiveSelectedDate).toDate()}
           mode="date"
-          onConfirm={onChangeInternal}
+          onConfirm={(date) => {
+            onChangeDate(dayjs(date).format("YYYY-MM-DD"));
+            setShowPicker(false);
+          }}
           onCancel={() => setShowPicker(false)}
         />
       )}
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  dailyRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  dailyLabel: {
-    color: "#9ca3af",
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  dailyDateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  dailyDateText: {
-    color: "#e5e7eb",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  dailyAmount: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  quickRow: {
-    flexDirection: "row",
-    marginBottom: 8,
-  },
-  quickChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#1e293b",
-    marginRight: 8,
-  },
-  quickChipActive: {
-    backgroundColor: "#22c55e",
-    borderColor: "#22c55e",
-  },
-  quickChipText: {
-    color: "#9ca3af",
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  quickChipTextActive: {
-    color: "#0f172a",
-    fontWeight: "600",
-  },
-});

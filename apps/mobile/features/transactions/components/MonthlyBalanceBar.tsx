@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { styles } from "../styles";
 
 interface Props {
   income: number;
@@ -35,30 +36,3 @@ export function MonthlyBalanceBar({ income, expense, net }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  balanceBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderRadius: 18,
-    backgroundColor: "#020617",
-    borderWidth: 1,
-    borderColor: "#1e293b",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  balanceColumn: {
-    flex: 1,
-  },
-  balanceLabel: {
-    color: "#9ca3af",
-    fontSize: 13,
-    marginBottom: 2,
-  },
-  balanceValue: {
-    color: "#e5e7eb",
-    fontSize: 17,
-    fontWeight: "700",
-  },
-});
