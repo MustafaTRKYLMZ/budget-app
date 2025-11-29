@@ -1,19 +1,16 @@
 // apps/mobile/components/TransactionForm.tsx
+
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import dayjs from "dayjs";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import type { Transaction } from "@budget/core";
+import type { LocalTransaction } from "@budget/core";
 import { styles } from "../styles";
 import { Ionicons } from "@expo/vector-icons";
 
 type TransactionType = "Income" | "Expense";
+
+type Transaction = LocalTransaction;
 
 interface TransactionFormProps {
   mode?: "create" | "edit";
@@ -63,10 +60,9 @@ export default function TransactionForm({
       category: category || undefined,
       amount: parsed,
       isFixed,
-      // keep planId if editing a fixed plan row
       planId: initialTransaction?.planId,
+      updatedAt: initialTransaction?.updatedAt ?? new Date().toISOString(),
     };
-
     void onSubmit(tx);
   };
 

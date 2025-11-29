@@ -126,8 +126,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:01.874Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:12.774Z",
+    "deleted": true
   },
   {
     "id": 1764237132843.7283,
@@ -295,8 +295,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:12.850Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.4502,
@@ -308,8 +308,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:12.896Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.1023,
@@ -321,8 +321,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:12.926Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.7239,
@@ -334,8 +334,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:12.965Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.4788,
@@ -347,8 +347,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.062Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.8616,
@@ -360,8 +360,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.125Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.1,
@@ -373,8 +373,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.171Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.3757,
@@ -386,8 +386,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.220Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.411,
@@ -399,8 +399,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.306Z",
+    "deleted": true
   },
   {
     "id": 1764237982176.5647,
@@ -412,8 +412,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.415Z",
+    "deleted": true
   },
   {
     "id": 1764244703801.7957,
@@ -451,8 +451,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.513Z",
+    "deleted": true
   },
   {
     "id": 1764244703801.662,
@@ -464,8 +464,8 @@
     "amount": 100,
     "isFixed": true,
     "planId": 1764237982176.4917,
-    "updatedAt": "2025-11-29T13:06:27.022Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.639Z",
+    "deleted": true
   },
   {
     "id": 1764245004492,
@@ -669,8 +669,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:44.820Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.680Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.483,
@@ -682,8 +682,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:44.864Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.713Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.024,
@@ -695,8 +695,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:44.922Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.763Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.6895,
@@ -708,8 +708,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:44.970Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.812Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.4375,
@@ -721,8 +721,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.075Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.901Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.444,
@@ -734,8 +734,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.140Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:13.978Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.5095,
@@ -747,8 +747,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.183Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:14.028Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.329,
@@ -760,8 +760,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.280Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:14.094Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.0642,
@@ -773,8 +773,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.332Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:14.223Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.611,
@@ -786,8 +786,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.396Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:14.272Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.9968,
@@ -799,8 +799,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.458Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:14.310Z",
+    "deleted": true
   },
   {
     "id": 1764375731006.9683,
@@ -812,8 +812,8 @@
     "amount": 500,
     "isFixed": true,
     "planId": 1764375731006.9336,
-    "updatedAt": "2025-11-29T00:22:45.528Z",
-    "deleted": false
+    "updatedAt": "2025-11-29T17:48:14.342Z",
+    "deleted": true
   },
   {
     "id": 1764384951920,
@@ -825,6 +825,19 @@
     "amount": 50,
     "isFixed": false,
     "updatedAt": "2025-11-29T03:01:09.254Z",
+    "deleted": false
+  },
+  {
+    "id": 1764438480953,
+    "date": "2025-11-29",
+    "month": "2025-11",
+    "type": "Expense",
+    "item": "test",
+    "category": "test",
+    "amount": 20,
+    "isFixed": true,
+    "planId": 1764438494495.8354,
+    "updatedAt": "2025-11-29T17:48:29.162Z",
     "deleted": false
   }
 ]

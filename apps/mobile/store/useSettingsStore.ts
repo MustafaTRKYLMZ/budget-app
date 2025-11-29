@@ -6,8 +6,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type InitialBalance = {
   amount: number;
-  date: string;        // "YYYY-MM-DD"
-  updatedAt?: string;  // optional, useful if you later sync settings
+  date: string; // "YYYY-MM-DD"
+  updatedAt?: string; // optional, useful if you later sync settings
 };
 
 interface SettingsStore {
@@ -17,10 +17,33 @@ interface SettingsStore {
 
   // called by screens (e.g. SettingsScreen useEffect)
   loadInitialBalance: () => Promise<void>;
-  saveInitialBalance: (payload: { amount: number; date: string }) => Promise<boolean>;
+  saveInitialBalance: (payload: {
+    amount: number;
+    date: string;
+  }) => Promise<boolean>;
 }
 
 const STORAGE_KEY = "settings_v1";
+
+// ---- Node ortamında AsyncStorage yüzünden crash olmaması için helper ----
+const isServer = typeof window === "undefined";
+
+const createMemoryStorage = () => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: async (name: string) => {
+      return store[name] ?? null;
+    },
+    setItem: async (name: string, value: string) => {
+      store[name] = value;
+    },
+    removeItem: async (name: string) => {
+      delete store[name];
+    },
+  };
+};
+// ------------------------------------------------------------------------
 
 export const useSettingsStore = create(
   persist<SettingsStore>(
@@ -30,15 +53,12 @@ export const useSettingsStore = create(
       isHydrated: false,
 
       async loadInitialBalance() {
-        // With Zustand persist, state is already rehydrated from AsyncStorage.
-        // This method mainly controls the loading flag for the UI.
+        // With Zustand persist, state is already rehydrated from storage.
         const { isHydrated } = get();
 
         if (!isHydrated) {
-          // In case rehydration has not finished yet, we can wait for next tick.
-          // But most of the time, onRehydrateStorage will flip this flag.
           set({ isLoading: true });
-          // No remote call here: everything is local.
+          // Rehydration bittikten sonra onRehydrateStorage flag'i set edecek.
           set({ isLoading: false, isHydrated: true });
           return;
         }
@@ -76,7 +96,9 @@ export const useSettingsStore = create(
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() =>
+        isServer ? createMemoryStorage() : AsyncStorage
+      ),
       onRehydrateStorage: () => (state) => {
         // When rehydration completes, mark the store as hydrated.
         if (state) {

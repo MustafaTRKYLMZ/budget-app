@@ -5,10 +5,14 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { nanoid } from "nanoid/non-secure";
 
 dayjs.extend(isSameOrBefore);
 
-import { generateFutureFixedTransactions, type LocalTransaction } from "@budget/core";
+import {
+  generateFutureFixedTransactions,
+  type LocalTransaction,
+} from "@budget/core";
 
 import { useSettingsStore } from "./useSettingsStore";
 
@@ -21,6 +25,7 @@ export type BalanceOnDate = {
   expense: number;
   balance: number;
 };
+
 type TransactionDraft = Omit<
   Transaction,
   "id" | "month" | "updatedAt" | "deleted" | "syncStatus"
@@ -28,6 +33,7 @@ type TransactionDraft = Omit<
   id?: string | number;
   date?: string; // form bazen boş gönderebilir, biz default veriyoruz
 };
+
 interface TransactionsStore {
   transactions: LocalTransaction[];
   lastSyncAt: string | null;
@@ -51,6 +57,27 @@ interface TransactionsStore {
 
 const STORAGE_KEY = "transactions_v1";
 
+// ---- Node ortamında AsyncStorage yüzünden crash olmaması için helper ----
+const isServer = typeof window === "undefined";
+
+const createMemoryStorage = () => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: async (name: string) => {
+      return store[name] ?? null;
+    },
+    setItem: async (name: string, value: string) => {
+      store[name] = value;
+    },
+    removeItem: async (name: string) => {
+      delete store[name];
+    },
+  };
+};
+// ------------------------------------------------------------------------
+
+// asıl store
 export const useTransactionsStore = create(
   persist<TransactionsStore>(
     (set, get) => ({
@@ -74,28 +101,41 @@ export const useTransactionsStore = create(
 
         const month = date.slice(0, 7) ?? dayjs().format("YYYY-MM");
 
+        // 🔥 isFixed'i garanti boolean'a çevir
+        const isFixed = !!(tx as any).isFixed;
+
+        // 🔥 sabit işlemse planId üret / koru
+        const planId =
+          isFixed ? (tx as any).planId ?? nanoid() : undefined;
+
         const baseTx: LocalTransaction = {
           ...(tx as any),
           id: tx.id ?? Date.now().toString(),
           date,
           month,
+          isFixed,
+          planId,
           updatedAt: now,
           deleted: false,
           syncStatus: "dirty",
         };
-      
+
 
         set((state) => {
           const existing = state.transactions;
 
           let next: LocalTransaction[] = [...existing, baseTx];
+
           if (baseTx.isFixed && baseTx.planId != null) {
+          
             const clones = generateFutureFixedTransactions(baseTx, existing);
 
-            const clonesWithSyncStatus: LocalTransaction[] = clones.map((c) => ({
-              ...c,
-              syncStatus: "dirty",
-            }));
+            const clonesWithSyncStatus: LocalTransaction[] = clones.map(
+              (c) => ({
+                ...c,
+                syncStatus: "dirty",
+              })
+            );
 
             next = [...next, ...clonesWithSyncStatus];
           }
@@ -119,9 +159,7 @@ export const useTransactionsStore = create(
           const nextDate = body.date ?? original.date;
           const nextMonth =
             body.month ??
-            (body.date
-              ? body.date.slice(0, 7)
-              : original.month);
+            (body.date ? body.date.slice(0, 7) : original.month);
 
           return {
             ...original,
@@ -300,7 +338,9 @@ export const useTransactionsStore = create(
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() =>
+        isServer ? createMemoryStorage() : AsyncStorage
+      ),
       onRehydrateStorage: () => () => {
         useTransactionsStore.setState({ isHydrated: true });
       },
