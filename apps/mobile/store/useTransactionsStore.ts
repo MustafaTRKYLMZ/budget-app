@@ -8,7 +8,7 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
 dayjs.extend(isSameOrBefore);
 
-import type { LocalTransaction } from "@budget/core";
+import { generateFutureFixedTransactions, type LocalTransaction } from "@budget/core";
 
 import { useSettingsStore } from "./useSettingsStore";
 
@@ -74,19 +74,34 @@ export const useTransactionsStore = create(
 
         const month = date.slice(0, 7) ?? dayjs().format("YYYY-MM");
 
-        const newTx: LocalTransaction = {
+        const baseTx: LocalTransaction = {
           ...(tx as any),
           id: tx.id ?? Date.now().toString(),
           date,
           month,
           updatedAt: now,
           deleted: false,
-          syncStatus: "dirty" as "dirty",
+          syncStatus: "dirty",
         };
+      
 
-        set((state) => ({
-          transactions: [...state.transactions, newTx],
-        }));
+        set((state) => {
+          const existing = state.transactions;
+
+          let next: LocalTransaction[] = [...existing, baseTx];
+          if (baseTx.isFixed && baseTx.planId != null) {
+            const clones = generateFutureFixedTransactions(baseTx, existing);
+
+            const clonesWithSyncStatus: LocalTransaction[] = clones.map((c) => ({
+              ...c,
+              syncStatus: "dirty",
+            }));
+
+            next = [...next, ...clonesWithSyncStatus];
+          }
+
+          return { ...state, transactions: next };
+        });
       },
 
       async updateTransactionScoped(id, body, scope) {

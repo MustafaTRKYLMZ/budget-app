@@ -34,7 +34,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764236395814.3533,
@@ -45,7 +47,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764236395814.5564,
@@ -56,7 +60,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764236395814.1675,
@@ -67,7 +73,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764236395814.3398,
@@ -78,7 +86,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764236395814.0815,
@@ -89,7 +99,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764236395814.4893,
@@ -100,7 +112,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.6836,
@@ -112,7 +126,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:01.874Z"
+    "updatedAt": "2025-11-28T17:57:01.874Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.7283,
@@ -124,7 +139,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:01.939Z"
+    "updatedAt": "2025-11-28T17:57:01.939Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.9468,
@@ -136,7 +152,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:01.992Z"
+    "updatedAt": "2025-11-28T17:57:01.992Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.9475,
@@ -161,7 +178,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:02.101Z"
+    "updatedAt": "2025-11-28T17:57:02.101Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.6907,
@@ -173,7 +191,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:02.143Z"
+    "updatedAt": "2025-11-28T17:57:02.143Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.4792,
@@ -185,7 +204,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:02.201Z"
+    "updatedAt": "2025-11-28T17:57:02.201Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.9797,
@@ -197,7 +217,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:02.256Z"
+    "updatedAt": "2025-11-28T17:57:02.256Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.2126,
@@ -209,7 +230,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:02.320Z"
+    "updatedAt": "2025-11-28T17:57:02.320Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.7712,
@@ -221,7 +243,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:02.368Z"
+    "updatedAt": "2025-11-28T17:57:02.368Z",
+    "deleted": false
   },
   {
     "id": 1764237132843.499,
@@ -233,7 +256,8 @@
     "amount": 2200,
     "isFixed": true,
     "planId": 1764235900268.5854,
-    "updatedAt": "2025-11-28T17:57:02.505Z"
+    "updatedAt": "2025-11-28T17:57:02.505Z",
+    "deleted": false
   },
   {
     "id": 1764237132854.95,
@@ -244,7 +268,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237132854.4973,
@@ -255,7 +281,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176,
@@ -266,7 +294,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.4502,
@@ -277,7 +307,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.1023,
@@ -288,7 +320,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.7239,
@@ -299,7 +333,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.4788,
@@ -310,7 +346,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.8616,
@@ -321,7 +359,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.1,
@@ -332,7 +372,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.3757,
@@ -343,7 +385,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.411,
@@ -354,7 +398,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764237982176.5647,
@@ -365,7 +411,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764244703801.7957,
@@ -376,7 +424,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764244703801.9907,
@@ -387,7 +437,9 @@
     "category": "maas",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764235900248.2004
+    "planId": 1764235900248.2004,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764244703801.3237,
@@ -398,7 +450,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764244703801.662,
@@ -409,7 +463,9 @@
     "category": "maaş",
     "amount": 100,
     "isFixed": true,
-    "planId": 1764237982176.4917
+    "planId": 1764237982176.4917,
+    "updatedAt": "2025-11-29T13:06:27.022Z",
+    "deleted": false
   },
   {
     "id": 1764245004492,
