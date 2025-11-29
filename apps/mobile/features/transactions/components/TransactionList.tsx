@@ -8,27 +8,27 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import type { Transaction } from "@budget/core";
+import type { LocalTransaction } from "@budget/core";
 
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { styles } from "../styles";
 import { CashflowRow } from "@/components/ui/CashflowRow";
 
 interface TransactionListProps {
-  transactions: Transaction[];
-  onDelete: (tx: Transaction) => void;
-  onEdit: (tx: Transaction) => void;
+  transactions: LocalTransaction[];
+  onDelete: (tx: LocalTransaction) => void;
+  onEdit: (tx: LocalTransaction) => void;
   onPressRefresh?: () => void | Promise<void>;
 }
 
 type TxSection = {
   title: string;
   key: string;
-  data: Transaction[];
+  data: LocalTransaction[];
   cumulativeBalance: number;
 };
 
-function getTxDate(tx: Transaction): dayjs.Dayjs | null {
+function getTxDate(tx: LocalTransaction): dayjs.Dayjs | null {
   if (tx.date) {
     return dayjs(tx.date);
   }
@@ -72,7 +72,7 @@ export default function TransactionList({
       return da.valueOf() - db.valueOf();
     });
 
-    const groups: Record<string, Transaction[]> = {};
+    const groups: Record<string, LocalTransaction[]> = {};
     const order: string[] = [];
 
     for (const tx of sorted) {
