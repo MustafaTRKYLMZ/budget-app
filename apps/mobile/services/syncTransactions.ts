@@ -1,8 +1,9 @@
 // apps/mobile/services/syncTransactions.ts
 
+import { LocalTransaction } from "@budget/core";
 import { apiConfig } from "../constants/apiConfig";
 import { useTransactionsStore } from "../store/useTransactionsStore";
-import type { LocalTransaction } from "../types"; // adjust import path if needed
+// adjust import path if needed
 
 const BASE_URL = apiConfig.baseUrl;
 
