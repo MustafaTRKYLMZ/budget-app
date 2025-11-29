@@ -8,19 +8,26 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
 dayjs.extend(isSameOrBefore);
 
-import type { Transaction } from "@budget/core";
-import type { LocalTransaction } from "../types";
+import type { LocalTransaction } from "@budget/core";
+
 import { useSettingsStore } from "./useSettingsStore";
 
 export type DeleteScope = "this" | "thisAndFuture" | "all";
 export type UpdateScope = "this" | "thisAndFuture" | "all";
+type Transaction = LocalTransaction;
 
 export type BalanceOnDate = {
   income: number;
   expense: number;
   balance: number;
 };
-
+type TransactionDraft = Omit<
+  Transaction,
+  "id" | "month" | "updatedAt" | "deleted" | "syncStatus"
+> & {
+  id?: string | number;
+  date?: string; // form bazen boş gönderebilir, biz default veriyoruz
+};
 interface TransactionsStore {
   transactions: LocalTransaction[];
   lastSyncAt: string | null;
@@ -28,10 +35,10 @@ interface TransactionsStore {
 
   loadFromStorage: () => Promise<void>;
 
-  createTransaction: (tx: Transaction) => Promise<void>;
+  createTransaction: (tx: TransactionDraft) => Promise<void>;
   updateTransactionScoped: (
     id: number | string,
-    body: Transaction,
+    body: Partial<Transaction>,
     scope: UpdateScope
   ) => Promise<void>;
   deleteTransactionScoped: (

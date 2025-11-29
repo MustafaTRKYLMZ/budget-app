@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import type { Transaction } from "@budget/core";
+import type { LocalTransaction } from "@budget/core";
 import {
   useTransactionsStore,
   type UpdateScope,
@@ -32,7 +32,7 @@ export default function TransactionModal() {
   );
 
   const [scopeSheetOpen, setScopeSheetOpen] = useState(false);
-  const [draftUpdate, setDraftUpdate] = useState<Transaction | null>(null);
+  const [draftUpdate, setDraftUpdate] = useState<LocalTransaction | null>(null);
 
   const existing = useMemo(
     () =>
@@ -48,7 +48,7 @@ export default function TransactionModal() {
     router.back();
   };
 
-  const handleSubmit = async (tx: Transaction) => {
+  const handleSubmit = async (tx: LocalTransaction) => {
     // CREATE
     if (!existing) {
       await createTransaction(tx);
