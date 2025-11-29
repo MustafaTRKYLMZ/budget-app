@@ -119,7 +119,7 @@ export default function TransactionModal() {
       {/* UPDATE SCOPE BOTTOM SHEET */}
       {scopeSheetOpen && existing && draftUpdate && (
         <View style={styles.scopeOverlay}>
-          {/* backdrop – dışa tıklayınca iptal */}
+          {/* backdrop  */}
           <TouchableOpacity
             style={styles.scopeBackdrop}
             activeOpacity={1}

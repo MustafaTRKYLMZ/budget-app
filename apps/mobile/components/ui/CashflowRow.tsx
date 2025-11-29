@@ -23,6 +23,7 @@ export interface CashflowRowProps {
 
   onPress?: () => void;
   onDelete?: () => void;
+  multiplier?: number;
 }
 
 export const CashflowRow: React.FC<CashflowRowProps> = ({
@@ -34,6 +35,7 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
   isFixed,
   onPress,
   onDelete,
+  multiplier,
 }) => {
   const isIncome = type === "Income";
   const isExpense = type === "Expense";
@@ -43,7 +45,6 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
   const statusIconName = isFixed ? "repeat" : undefined;
   const statusIconColor = isFixed ? "#bfdbfe" : "#6b7280";
 
-  console.log("date in CashflowRow:", date);
   return (
     <Pressable
       onPress={onPress}
@@ -91,6 +92,11 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
             {isExpense && "-"}
             {Math.abs(amount).toFixed(2)} €
           </Text>
+          {multiplier && multiplier > 1 && (
+            <View style={styles.multiplierPill}>
+              <Text style={styles.multiplierText}>×{multiplier}</Text>
+            </View>
+          )}
         </View>
 
         {onDelete && (
@@ -108,6 +114,24 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
 };
 
 const styles = StyleSheet.create({
+  amountRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  multiplierPill: {
+    marginLeft: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#4b5563",
+  },
+  multiplierText: {
+    color: "#9ca3af",
+    fontSize: 11,
+    fontWeight: "500",
+  },
   dateText: {
     color: "#9ca3af",
     fontSize: 12,
@@ -141,19 +165,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   rightCol: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: 6,
   },
-  amountRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 12,
-  },
+
   amount: {
     fontSize: 14,
     fontWeight: "600",
   },
   iconButton: {
-    paddingHorizontal: 4,
+    paddingHorizontal: 12,
   },
 });

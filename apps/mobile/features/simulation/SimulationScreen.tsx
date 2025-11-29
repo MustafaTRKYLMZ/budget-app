@@ -18,10 +18,10 @@ import {
 import { useTransactionsStore } from "../../store/useTransactionsStore";
 import { SimulationItemModal } from "../../components/ui/modals/SimulationItemModal";
 import { RenameScenarioModal } from "@/components/ui/modals/RenameScenarioModal";
-import { CashflowRow } from "@/components/ui/CashflowRow";
 import { DailyBalanceSection } from "@/features/transactions";
 import { CashflowTotals } from "@/components/ui/CashflowTotals";
 import { SimulationList } from "./components/SimulationList";
+import { getOccurrencesUntilDate } from "@/helper/getOccurrencesUntilDate";
 
 export default function SimulationScreen() {
   const {
@@ -42,9 +42,7 @@ export default function SimulationScreen() {
 
   const todayStr = dayjs().format("YYYY-MM-DD");
   const [targetDate, setTargetDate] = useState(todayStr);
-  const [showTargetDatePicker, setShowTargetDatePicker] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-
   const [showScenarioSidebar, setShowScenarioSidebar] = useState(false);
 
   // rename modal state
@@ -81,34 +79,23 @@ export default function SimulationScreen() {
   // base (real) balance for target date
   const baseBalance = getBalanceOnDate(targetDate);
 
-  // tüm senaryodaki kalemlerin toplamı (genel özet)
-  const allIncomeTotal =
-    activeScenario?.items
-      .filter((it) => it.type === "Income")
-      .reduce((sum, it) => sum + it.amount, 0) ?? 0;
-
-  const allExpenseTotal =
-    activeScenario?.items
-      .filter((it) => it.type === "Expense")
-      .reduce((sum, it) => sum + it.amount, 0) ?? 0;
-
-  const allNetTotal = allIncomeTotal - allExpenseTotal;
-
-  // targetDate SONRASINDAKİ simülasyon kalemleri (plan ufku)
   const simIncomeTotalForDate =
-    activeScenario?.items
-      .filter((it) => it.type === "Income")
-      .reduce((sum, it) => sum + it.amount, 0) ?? 0;
+    activeScenario?.items.reduce((sum, it) => {
+      const occurrences = getOccurrencesUntilDate(it, targetDate);
+      if (occurrences === 0 || it.type !== "Income") return sum;
+      return sum + it.amount * occurrences;
+    }, 0) ?? 0;
 
   const simExpenseTotalForDate =
-    activeScenario?.items
-      .filter((it) => it.type === "Expense")
-      .reduce((sum, it) => sum + it.amount, 0) ?? 0;
+    activeScenario?.items.reduce((sum, it) => {
+      const occurrences = getOccurrencesUntilDate(it, targetDate);
+      if (occurrences === 0 || it.type !== "Expense") return sum;
+      return sum + it.amount * occurrences;
+    }, 0) ?? 0;
 
   const simNetTotalForDate = simIncomeTotalForDate - simExpenseTotalForDate;
 
   const withSimulationBalance = baseBalance.balance + simNetTotalForDate;
-
   const openRename = (scenario: SimulationScenario) => {
     setRenameTarget(scenario);
     setRenameDraft(scenario.name);
@@ -156,7 +143,7 @@ export default function SimulationScreen() {
           change your balance on that day.
         </Text>
 
-        {/* 🔹 Scenario header row (solda label, sağda aktif senaryo + ⋮) */}
+        {/* 🔹 Scenario header row ⋮) */}
         <View style={styles.futureSection}>
           <Text style={styles.sectionTitle}>Scenario</Text>
 
@@ -209,13 +196,14 @@ export default function SimulationScreen() {
                 <SimulationList
                   items={activeScenario.items}
                   onDelete={removeItemFromActive}
+                  targetDate={targetDate}
                 />
               </View>
 
               {/* Planned items totals (ALL items of scenario) */}
               <CashflowTotals
-                income={allIncomeTotal}
-                expense={allExpenseTotal}
+                income={simIncomeTotalForDate}
+                expense={simExpenseTotalForDate}
                 incomeLabel="Income (all)"
                 expenseLabel="Expense (all)"
                 netLabel="Balance (all)"
@@ -279,7 +267,7 @@ export default function SimulationScreen() {
         }}
       />
 
-      {/* 🔹 Scenario sidebar (sağdan açılan) */}
+      {/* 🔹 Scenario sidebar  */}
       {showScenarioSidebar && (
         <View style={styles.sidebarOverlay}>
           <TouchableOpacity
@@ -470,6 +458,7 @@ const styles = StyleSheet.create({
     color: "#e5e7eb",
     fontSize: 15,
     fontWeight: "700",
+    marginBottom: 8,
   },
 
   activeScenarioButton: {
