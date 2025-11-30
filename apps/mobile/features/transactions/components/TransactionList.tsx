@@ -8,7 +8,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import type { LocalTransaction } from "@budget/core";
+import {
+  getLocalizedDateParts,
+  useTranslation,
+  type LocalTransaction,
+} from "@budget/core";
 
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { styles } from "../styles";
@@ -29,12 +33,8 @@ type TxSection = {
 };
 
 function getTxDate(tx: LocalTransaction): dayjs.Dayjs | null {
-  if (tx.date) {
-    return dayjs(tx.date);
-  }
-  if (tx.month) {
-    return dayjs(`${tx.month}-01`);
-  }
+  if (tx.date) return dayjs(tx.date);
+  if (tx.month) return dayjs(`${tx.month}-01`);
   return null;
 }
 
@@ -44,6 +44,7 @@ export default function TransactionList({
   onEdit,
   onPressRefresh,
 }: TransactionListProps) {
+  const { language } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
@@ -77,10 +78,7 @@ export default function TransactionList({
 
     for (const tx of sorted) {
       const d = getTxDate(tx);
-      let key = "other";
-      if (d) {
-        key = d.format("YYYY-MM-DD");
-      }
+      const key = d ? d.format("YYYY-MM-DD") : "other";
 
       if (!groups[key]) {
         groups[key] = [];
@@ -96,7 +94,10 @@ export default function TransactionList({
 
       if (key !== "other") {
         const d = dayjs(key);
-        title = d.format("DD MMM YYYY");
+
+        // 🔥 LOKALIZE TARİH (yeni)
+        const { day, monthShort, year } = getLocalizedDateParts(key, language);
+        title = `${day} ${monthShort} ${year}`;
 
         const balanceResult = getBalanceOnDate(key);
         cumulativeBalance = balanceResult.balance;
@@ -111,7 +112,7 @@ export default function TransactionList({
     });
 
     return result;
-  }, [transactions]);
+  }, [transactions, language]);
 
   if (!transactions.length) {
     return (

@@ -1,7 +1,9 @@
 import React from "react";
 import { Tabs } from "expo-router";
+import { useTranslation } from "@budget/core";
 
 export default function TabLayout() {
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -15,7 +17,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: t("nav.home"),
         }}
       />
 
@@ -23,20 +25,20 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: t("nav.settings"),
         }}
       />
 
       <Tabs.Screen
         name="about"
         options={{
-          title: "About",
+          title: t("nav.about"),
         }}
       />
       <Tabs.Screen
         name="simulation"
         options={{
-          title: "Simulation",
+          title: t("nav.simulation"),
         }}
       />
     </Tabs>

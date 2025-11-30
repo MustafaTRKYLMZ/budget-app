@@ -19,6 +19,15 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useSettingsStore } from "../../store/useSettingsStore";
 import { useTransactionsStore } from "../../store/useTransactionsStore";
 import { syncTransactions } from "../../services/syncTransactions";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useTranslation } from "@budget/core";
+
+const PRIMARY = "#0A1A4F";
+const PRIMARY_DARK = "#050C2C";
+const PRIMARY_LIGHT = "#132868";
+const TEXT_PRIMARY = "#FFFFFF";
+const TEXT_MUTED = "#D1D5DB";
+const BORDER = "rgba(255,255,255,0.22)";
 
 export default function SettingsScreen() {
   const handleClose = () => router.back();
@@ -33,6 +42,7 @@ export default function SettingsScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [isSyncing, setIsSyncing] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadInitialBalance();
@@ -98,27 +108,28 @@ export default function SettingsScreen() {
           style={styles.closeButton}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons name="close" size={22} color="#e5e7eb" />
+          <Ionicons name="close" size={22} color={TEXT_MUTED} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{t("settings.title")}</Text>
         <View style={{ width: 32 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* SECTION: Opening Balance */}
-        <Text style={styles.sectionTitle}>Starting Balance</Text>
-
-        {/* Amount Input */}
-        <Text style={styles.itemLabel}>Initial Amount</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          placeholder="0"
-          placeholderTextColor="#6b7280"
-          value={amount}
-          onChangeText={setAmount}
-        />
-
+        <View>
+          <Text style={styles.sectionTitle}>Starting Balance</Text>
+          {/* Amount Input */}
+          <Text style={styles.itemLabel}>Initial Amount</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            placeholder="0"
+            placeholderTextColor={TEXT_MUTED}
+            value={amount}
+            onChangeText={setAmount}
+          />
+        </View>
+        {/*initial balance date*/}
         {/* Date Picker */}
         <Text style={styles.itemLabel}>Starting from Date</Text>
         <TouchableOpacity
@@ -128,7 +139,7 @@ export default function SettingsScreen() {
           <Text style={styles.dateText}>
             {dayjs(date).format("DD MMM YYYY")}
           </Text>
-          <Ionicons name="calendar" size={18} color="#9ca3af" />
+          <Ionicons name="calendar" size={18} color={TEXT_MUTED} />
         </TouchableOpacity>
 
         {showDatePicker && (
@@ -169,7 +180,7 @@ export default function SettingsScreen() {
             <Ionicons
               name={isSyncing ? "sync" : "cloud-upload-outline"}
               size={16}
-              color="#f9fafb"
+              color={TEXT_PRIMARY}
               style={{ marginRight: 6 }}
             />
             <Text style={styles.syncButtonText}>
@@ -185,7 +196,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#020617",
+    backgroundColor: PRIMARY,
   },
   headerRow: {
     flexDirection: "row",
@@ -199,14 +210,14 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#1f2937",
+    borderColor: BORDER,
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    color: "#f9fafb",
+    color: TEXT_PRIMARY,
     fontSize: 20,
     fontWeight: "700",
   },
@@ -216,14 +227,14 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   sectionTitle: {
-    color: "#e5e7eb",
+    color: TEXT_PRIMARY,
     fontSize: 16,
     fontWeight: "700",
     marginBottom: 12,
     marginTop: 16,
   },
   itemLabel: {
-    color: "#9ca3af",
+    color: TEXT_MUTED,
     fontSize: 14,
     marginBottom: 4,
     marginTop: 8,
@@ -231,43 +242,43 @@ const styles = StyleSheet.create({
 
   // inputs
   input: {
-    backgroundColor: "#111827",
-    color: "#e5e7eb",
+    backgroundColor: PRIMARY_DARK,
+    color: TEXT_PRIMARY,
     padding: 12,
     borderRadius: 8,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#1f2937",
+    borderColor: BORDER,
   },
 
   // date button
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#111827",
+    backgroundColor: PRIMARY_DARK,
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#1f2937",
+    borderColor: BORDER,
     justifyContent: "space-between",
     marginBottom: 16,
   },
   dateText: {
-    color: "#e5e7eb",
+    color: TEXT_PRIMARY,
     fontSize: 16,
   },
 
   // save button
   saveButton: {
-    backgroundColor: "#4f46e5",
+    backgroundColor: PRIMARY_LIGHT,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 8,
   },
   saveButtonText: {
-    color: "#f9fafb",
+    color: TEXT_PRIMARY,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -277,33 +288,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#020819",
+    backgroundColor: PRIMARY_DARK,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#1f2937",
+    borderColor: BORDER,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   syncLabel: {
-    color: "#9ca3af",
+    color: TEXT_MUTED,
     fontSize: 13,
     marginBottom: 4,
   },
   syncValue: {
-    color: "#e5e7eb",
+    color: TEXT_PRIMARY,
     fontSize: 14,
     fontWeight: "500",
   },
   syncButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#22c55e",
+    backgroundColor: PRIMARY_LIGHT,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
   },
   syncButtonText: {
-    color: "#020617",
+    color: TEXT_PRIMARY,
     fontSize: 14,
     fontWeight: "600",
   },

@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import type { Transaction } from "@budget/core";
+import { useTranslation, type LocalTransaction } from "@budget/core";
 import { styles } from "../styles";
 
 interface Props {
-  target: Transaction | null;
+  target: LocalTransaction | null;
   isPlanBased: boolean;
   onConfirm: (scope: "this" | "thisAndFuture" | "all") => void;
 
@@ -18,7 +18,7 @@ export function DeleteTransactionSheet({
   onClose,
 }: Props) {
   if (!target) return null;
-
+  const { t } = useTranslation();
   return (
     <View style={styles.deleteOverlay}>
       <TouchableOpacity
@@ -29,7 +29,9 @@ export function DeleteTransactionSheet({
       <View style={styles.deleteSheet}>
         <View style={styles.deleteHandle} />
         <Text style={styles.deleteTitle}>
-          {isPlanBased ? "Delete fixed transaction" : "Delete transaction"}
+          {isPlanBased
+            ? t("delete_fixed_transaction")
+            : t("delete_transaction")}
         </Text>
         <Text style={styles.deleteSubtitle}>
           {target.item} · {target.amount.toFixed(2)} €
@@ -40,14 +42,14 @@ export function DeleteTransactionSheet({
               style={styles.deleteButton}
               onPress={() => onConfirm("this")}
             >
-              <Text style={styles.deleteButtonText}>This only</Text>
+              <Text style={styles.deleteButtonText}>{t("this_only")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => onConfirm("thisAndFuture")}
             >
               <Text style={styles.deleteButtonText}>
-                This and future months
+                {t("this_and_future")}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -55,7 +57,7 @@ export function DeleteTransactionSheet({
               onPress={() => onConfirm("all")}
             >
               <Text style={[styles.deleteButtonText, styles.deleteDangerText]}>
-                All occurrences
+                {t("all_occurrences")}
               </Text>
             </TouchableOpacity>
           </>
@@ -65,12 +67,12 @@ export function DeleteTransactionSheet({
             onPress={() => onConfirm("this")}
           >
             <Text style={[styles.deleteButtonText, styles.deleteDangerText]}>
-              Delete
+              {t("delete")}
             </Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-          <Text style={styles.cancelButtonText}>Cancel</Text>
+          <Text style={styles.cancelButtonText}>{t("cancel")}</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import { getLocalizedDateParts, useTranslation } from "@budget/core";
 
 export interface CashflowRowProps {
   title: string;
@@ -37,6 +38,13 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
   onDelete,
   multiplier,
 }) => {
+  const { language } = useTranslation();
+  let formattedDate = "";
+  if (date) {
+    const { day, monthShort, year } = getLocalizedDateParts(date, language);
+    formattedDate = `${day} ${monthShort} ${year}`;
+  }
+
   const isIncome = type === "Income";
   const isExpense = type === "Expense";
   const amountColor = isIncome ? "#4ade80" : "#fb7185";
@@ -57,11 +65,9 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
         </Text>
 
         <View style={styles.metaRow}>
-          {date && (
-            <Text style={styles.dateText}>
-              {dayjs(date).format("DD MMM YYYY")}
-            </Text>
-          )}
+          {formattedDate ? (
+            <Text style={styles.dateText}>{formattedDate}</Text>
+          ) : null}
           {statusIconName && (
             <Ionicons
               name={statusIconName}

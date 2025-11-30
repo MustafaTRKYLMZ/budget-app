@@ -5,6 +5,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 import { styles } from "../styles";
 import { QuickChip } from "./QuickChip";
+import { getLocalizedDateParts, useTranslation } from "@budget/core";
 
 interface Props {
   selectedDate: string | undefined; // "YYYY-MM-DD"
@@ -24,6 +25,7 @@ export function DailyBalanceSection({
   onChangeDate,
 }: Props) {
   const [showPicker, setShowPicker] = useState(false);
+  const { t, language } = useTranslation();
 
   const todayStr = dayjs().format("YYYY-MM-DD");
   const effectiveSelectedDate = selectedDate || todayStr;
@@ -32,6 +34,10 @@ export function DailyBalanceSection({
     .endOf("month")
     .format("YYYY-MM-DD");
 
+  const { day, monthShort, year } = getLocalizedDateParts(
+    effectiveSelectedDate,
+    language
+  );
   return (
     <>
       <View style={styles.dailyRow}>
@@ -48,7 +54,7 @@ export function DailyBalanceSection({
               style={{ marginRight: 6 }}
             />
             <Text style={styles.dailyDateText}>
-              {dayjs(effectiveSelectedDate).format("DD MMM YYYY")}
+              {`${day} ${monthShort} ${year}`}
             </Text>
           </TouchableOpacity>
         </View>
@@ -67,12 +73,12 @@ export function DailyBalanceSection({
       {isTransaction && (
         <View style={styles.quickRow}>
           <QuickChip
-            label="Today"
+            label={t("today")}
             active={effectiveSelectedDate === todayStr}
             onPress={() => onChangeDate(todayStr)}
           />
           <QuickChip
-            label="End of month"
+            label={t("end_of_month")}
             active={effectiveSelectedDate === endOfMonthStr}
             onPress={() => onChangeDate(endOfMonthStr)}
           />
