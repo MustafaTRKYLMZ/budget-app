@@ -14,7 +14,7 @@ export const tr = {
   "delete": "Sil",
   "edit": "Düzenle",
   "save": "Kaydet",
-    "type": "Tür",
+  "type": "Tür",
   "update": "Güncelle",
 
   // Common
@@ -128,5 +128,6 @@ export const tr = {
   "transaction.edit": "İşlemi Düzenle",
   "transaction.delete": "İşlemi Sil",
   "transaction_fixed_delete": "Sabit İşlemi Sil",
-  };
+  "update_fixed_transaction": "Sabit işlemi güncelle",
+};
   

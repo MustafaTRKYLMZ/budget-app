@@ -159,7 +159,9 @@ export default function TransactionModal() {
           <View style={styles.scopeSheet}>
             <View style={styles.scopeHandle} />
 
-            <Text style={styles.scopeTitle}>Update fixed transaction</Text>
+            <Text style={styles.scopeTitle}>
+              {t("update_fixed_transaction")}
+            </Text>
             <Text style={styles.scopeSubtitle}>
               {existing.item} · {existing.amount.toFixed(2)} €
             </Text>
@@ -168,14 +170,14 @@ export default function TransactionModal() {
               style={styles.scopeButton}
               onPress={() => void applyScope("this")}
             >
-              <Text style={styles.scopeButtonText}>This only</Text>
+              <Text style={styles.scopeButtonText}>{t("this_only")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.scopeButton}
               onPress={() => void applyScope("thisAndFuture")}
             >
-              <Text style={styles.scopeButtonText}>This and future months</Text>
+              <Text style={styles.scopeButtonText}>{t("this_and_future")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -183,7 +185,7 @@ export default function TransactionModal() {
               onPress={() => void applyScope("all")}
             >
               <Text style={[styles.scopeButtonText, styles.scopeDangerText]}>
-                All occurrences
+                {t("all_occurrences")}
               </Text>
             </TouchableOpacity>
 
@@ -191,7 +193,7 @@ export default function TransactionModal() {
               style={styles.scopeCancel}
               onPress={closeScopeSheet}
             >
-              <Text style={styles.scopeCancelText}>Cancel</Text>
+              <Text style={styles.scopeCancelText}>{t("cancel")}</Text>
             </TouchableOpacity>
           </View>
         </View>
