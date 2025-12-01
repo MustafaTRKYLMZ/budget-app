@@ -6,12 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Modal,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import type { SimulationItemType } from "../../../store/useSimulationStore";
 import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
 import { useTranslation } from "@budget/core";
+import { BottomSheetModal } from "./BottomSheetModal";
 
 interface Props {
   visible: boolean;
@@ -45,6 +44,7 @@ export function SimulationItemModal({
       setItem("");
       setAmount("");
       setDate(initialDate);
+      setIsFixed(false);
     }
   }, [visible, initialDate]);
 
@@ -67,132 +67,98 @@ export function SimulationItemModal({
   };
 
   return (
-    <Modal
+    <BottomSheetModal
       visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
+      title={t("add_simulation_item")}
+      onClose={onClose}
     >
-      {/* Backdrop */}
-      <TouchableOpacity
-        activeOpacity={1}
-        style={styles.backdrop}
-        onPress={onClose}
-      />
-
-      {/* Bottom sheet */}
-      <View style={styles.sheet}>
-        {/* Handle bar */}
-        <View style={styles.handle} />
-
-        {/* HEADER ROW */}
-        <View style={styles.headerRow}>
-          <Text style={styles.title}>{t("add_simulation_item")}</Text>
-          <TouchableOpacity
-            onPress={onClose}
-            style={styles.closeButton}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="close" size={18} color="#e5e7eb" />
-          </TouchableOpacity>
+      {/* CONTENT */}
+      <View style={styles.content}>
+        <Text style={styles.smallLabel}>{t("type")}</Text>
+        <View style={styles.typeRow}>
+          <TypeChip
+            label={t("expense")}
+            active={type === "Expense"}
+            onPress={() => setType("Expense")}
+          />
+          <TypeChip
+            label={t("income")}
+            active={type === "Income"}
+            onPress={() => setType("Income")}
+          />
         </View>
 
-        {/* CONTENT */}
-        <View style={styles.content}>
-          <Text style={styles.smallLabel}>{t("type")}</Text>
-          <View style={styles.typeRow}>
-            <TypeChip
-              label={t("expense")}
-              active={type === "Expense"}
-              onPress={() => setType("Expense")}
-            />
-            <TypeChip
-              label={t("income")}
-              active={type === "Income"}
-              onPress={() => setType("Income")}
-            />
-          </View>
-
-          {/* FIXED? */}
-          <View style={styles.field}>
-            <Text style={styles.label}>{t("fixed")}?</Text>
-            <View style={styles.segmentRow}>
-              <TouchableOpacity
+        {/* FIXED? */}
+        <View style={styles.field}>
+          <Text style={styles.label}>{t("fixed")}?</Text>
+          <View style={styles.segmentRow}>
+            <TouchableOpacity
+              style={[styles.segment, !isFixed && styles.segmentActiveNeutral]}
+              onPress={() => setIsFixed(false)}
+            >
+              <Text
                 style={[
-                  styles.segment,
-                  !isFixed && styles.segmentActiveNeutral,
+                  styles.segmentText,
+                  !isFixed && styles.segmentTextActive,
                 ]}
-                onPress={() => setIsFixed(false)}
               >
-                <Text
-                  style={[
-                    styles.segmentText,
-                    !isFixed && styles.segmentTextActive,
-                  ]}
-                >
-                  {t("no")}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
-                onPress={() => setIsFixed(true)}
+                {t("no")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
+              onPress={() => setIsFixed(true)}
+            >
+              <Text
+                style={[
+                  styles.segmentText,
+                  isFixed && styles.segmentTextActive,
+                ]}
               >
-                <Text
-                  style={[
-                    styles.segmentText,
-                    isFixed && styles.segmentTextActive,
-                  ]}
-                >
-                  {t("yes")} ({t("recurring")})
-                </Text>
-              </TouchableOpacity>
-            </View>
+                {t("yes")} ({t("recurring")})
+              </Text>
+            </TouchableOpacity>
           </View>
-
-          <Text style={styles.smallLabel}>{t("item")}</Text>
-          <TextInput
-            placeholder={t("new_sofa")}
-            placeholderTextColor="#6b7280"
-            value={item}
-            onChangeText={setItem}
-            style={styles.input}
-          />
-
-          <Text style={styles.smallLabel}>{t("amount")}</Text>
-          <TextInput
-            placeholder="e.g. 1200"
-            placeholderTextColor="#6b7280"
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="numeric"
-            style={styles.input}
-          />
-          {/* localized, reusable picker */}
-          <LocalizedDatePicker
-            value={date}
-            onChange={setDate}
-            label={t("date")}
-          />
         </View>
 
-        {/* BUTTONS */}
-        <View style={styles.footerRow}>
-          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelText}>{t("cancel")}</Text>
-          </TouchableOpacity>
+        <Text style={styles.smallLabel}>{t("item")}</Text>
+        <TextInput
+          placeholder={t("new_sofa")}
+          placeholderTextColor="#6b7280"
+          value={item}
+          onChangeText={setItem}
+          style={styles.input}
+        />
 
-          <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
-            <Ionicons
-              name="add-circle-outline"
-              size={18}
-              color="#0f172a"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.addButtonText}>{t("to_scenario")}</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.smallLabel}>{t("amount")}</Text>
+        <TextInput
+          placeholder="e.g. 1200"
+          placeholderTextColor="#6b7280"
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+
+        {/* localized, reusable picker */}
+        <LocalizedDatePicker
+          value={date}
+          onChange={setDate}
+          label={t("date")}
+        />
       </View>
-    </Modal>
+
+      {/* BUTTONS */}
+      <View style={styles.footerRow}>
+        <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+          <Text style={styles.cancelText}>{t("cancel")}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
+          <Text style={styles.addButtonText}>{t("to_scenario")}</Text>
+        </TouchableOpacity>
+      </View>
+    </BottomSheetModal>
   );
 }
 
@@ -248,57 +214,11 @@ const styles = StyleSheet.create({
   },
   field: {
     gap: 4,
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(15,23,42,0.7)",
-  },
-  sheet: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: "#020617",
-    borderTopWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 16,
-  },
-  handle: {
-    alignSelf: "center",
-    width: 40,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "#4b5563",
-    marginBottom: 8,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  title: {
-    flex: 1,
-    color: "#f9fafb",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  closeButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#374151",
-    alignItems: "center",
-    justifyContent: "center",
+    marginTop: 8,
   },
   content: {
     marginTop: 4,
   },
-
   typeRow: {
     flexDirection: "row",
     marginBottom: 4,

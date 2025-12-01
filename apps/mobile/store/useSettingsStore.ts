@@ -25,7 +25,6 @@ interface SettingsStore {
 
 const STORAGE_KEY = "settings_v1";
 
-// ---- Node ortamında AsyncStorage yüzünden crash olmaması için helper ----
 const isServer = typeof window === "undefined";
 
 const createMemoryStorage = () => {

@@ -1,4 +1,5 @@
 import { useTranslation } from "@budget/core";
+import React from "react";
 import {
   View,
   TextInput,
@@ -6,6 +7,7 @@ import {
   Text,
   StyleSheet,
 } from "react-native";
+import { AppModal } from "@/components/ui/AppModal";
 
 /**
  * rename modal – cross-platform, simple implementation
@@ -25,13 +27,13 @@ function RenameScenarioModal({
   onCancel,
   onSave,
 }: RenameScenarioModalProps) {
-  if (!visible) return null;
   const { t } = useTranslation();
 
+  if (!visible) return null;
+
   return (
-    <View style={styles.renameOverlay}>
-      <View style={styles.renameCard}>
-        <Text style={styles.renameTitle}>{t("rename_scenario")}</Text>
+    <AppModal visible={visible} title={t("rename_scenario")} onClose={onCancel}>
+      <View>
         <TextInput
           value={value}
           onChangeText={onChangeValue}
@@ -54,36 +56,13 @@ function RenameScenarioModal({
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </AppModal>
   );
 }
 
 export { RenameScenarioModal };
 
 const styles = StyleSheet.create({
-  // Rename modal
-  renameOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(15,23,42,0.8)",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 50,
-  },
-  renameCard: {
-    width: "80%",
-    backgroundColor: "#020617",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-  },
-  renameTitle: {
-    color: "#e5e7eb",
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
   renameInput: {
     borderWidth: 1,
     borderColor: "#1f2937",
@@ -93,6 +72,7 @@ const styles = StyleSheet.create({
     color: "#e5e7eb",
     fontSize: 14,
     marginBottom: 12,
+    backgroundColor: "#020617",
   },
   renameActions: {
     flexDirection: "row",

@@ -1,80 +1,54 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useTranslation, type LocalTransaction } from "@budget/core";
-import { styles } from "../styles";
+import type { DeleteScope } from "../../../store/useTransactionsStore";
+import { ScopeSheet, type Scope, type ScopeOption } from "./ScopeSheet";
 
 interface Props {
   target: LocalTransaction | null;
-  isPlanBased: boolean;
-  onConfirm: (scope: "this" | "thisAndFuture" | "all") => void;
-
+  onConfirm: (scope: DeleteScope) => void;
   onClose: () => void;
 }
 
-export function DeleteTransactionSheet({
-  target,
-  isPlanBased,
-  onConfirm,
-  onClose,
-}: Props) {
-  if (!target) return null;
+export function DeleteTransactionSheet({ target, onConfirm, onClose }: Props) {
   const { t } = useTranslation();
+
+  if (!target) return null;
+
+  const isPlanBased = !!target.isFixed && target.planId != null;
+
+  const options: ScopeOption[] = isPlanBased
+    ? [
+        { scope: "this", label: t("this_only") },
+        { scope: "thisAndFuture", label: t("this_and_future") },
+        {
+          scope: "all",
+          label: t("all_occurrences"),
+          variant: "danger",
+        },
+      ]
+    : [
+        {
+          scope: "this",
+          label: t("delete"),
+          variant: "danger",
+        },
+      ];
+
+  const handleSelect = (scope: Scope) => {
+    onConfirm(scope as DeleteScope);
+  };
+
   return (
-    <View style={styles.deleteOverlay}>
-      <TouchableOpacity
-        style={styles.deleteBackdrop}
-        activeOpacity={1}
-        onPress={onClose}
-      />
-      <View style={styles.deleteSheet}>
-        <View style={styles.deleteHandle} />
-        <Text style={styles.deleteTitle}>
-          {isPlanBased
-            ? t("transaction_fixed_delete")
-            : t("transaction.delete")}
-        </Text>
-        <Text style={styles.deleteSubtitle}>
-          {target.item} · {target.amount.toFixed(2)} €
-        </Text>
-        {isPlanBased ? (
-          <>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => onConfirm("this")}
-            >
-              <Text style={styles.deleteButtonText}>{t("this_only")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => onConfirm("thisAndFuture")}
-            >
-              <Text style={styles.deleteButtonText}>
-                {t("this_and_future")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.deleteButton, styles.deleteDanger]}
-              onPress={() => onConfirm("all")}
-            >
-              <Text style={[styles.deleteButtonText, styles.deleteDangerText]}>
-                {t("all_occurrences")}
-              </Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <TouchableOpacity
-            style={[styles.deleteButton, styles.deleteDanger]}
-            onPress={() => onConfirm("this")}
-          >
-            <Text style={[styles.deleteButtonText, styles.deleteDangerText]}>
-              {t("delete")}
-            </Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-          <Text style={styles.cancelButtonText}>{t("cancel")}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <ScopeSheet
+      visible={!!target}
+      title={
+        isPlanBased ? t("transaction_fixed_delete") : t("transaction.delete")
+      }
+      subtitle={`${target.item} · ${target.amount.toFixed(2)} €`}
+      options={options}
+      cancelLabel={t("cancel")}
+      onSelect={handleSelect}
+      onCancel={onClose}
+    />
   );
 }
