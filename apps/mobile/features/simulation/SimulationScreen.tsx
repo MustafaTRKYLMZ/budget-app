@@ -22,6 +22,7 @@ import { DailyBalanceSection } from "@/features/transactions";
 import { CashflowTotals } from "@/components/ui/CashflowTotals";
 import { SimulationList } from "./components/SimulationList";
 import { getOccurrencesUntilDate } from "@/helper/getOccurrencesUntilDate";
+import { useTranslation } from "@budget/core";
 
 export default function SimulationScreen() {
   const {
@@ -44,7 +45,7 @@ export default function SimulationScreen() {
   const [targetDate, setTargetDate] = useState(todayStr);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showScenarioSidebar, setShowScenarioSidebar] = useState(false);
-
+  const { t } = useTranslation();
   // rename modal state
   const [renameTarget, setRenameTarget] = useState<SimulationScenario | null>(
     null
@@ -59,7 +60,8 @@ export default function SimulationScreen() {
 
   useEffect(() => {
     if (!scenarios.length) {
-      addScenario("New furniture plan");
+      const newPlan = t("new_future_plan");
+      addScenario(newPlan);
     }
   }, [scenarios.length, addScenario]);
 
@@ -112,10 +114,10 @@ export default function SimulationScreen() {
     setRenameTarget(null);
   };
 
-  const activeScenarioName = activeScenario?.name ?? "No scenario";
+  const activeScenarioName = activeScenario?.name ?? t("no_scenario");
   const activeScenarioDisplayName =
-    activeScenarioName.length > 7
-      ? `${activeScenarioName.slice(0, 7)}…`
+    activeScenarioName.length > 18
+      ? `${activeScenarioName.slice(0, 18)}…`
       : activeScenarioName;
 
   return (
@@ -129,7 +131,7 @@ export default function SimulationScreen() {
         >
           <Ionicons name="chevron-back" size={22} color="#e5e7eb" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Simulation</Text>
+        <Text style={styles.headerTitle}>{t("simulation.title")}</Text>
         <View style={{ width: 32 }} />
       </View>
 
@@ -138,14 +140,11 @@ export default function SimulationScreen() {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.description}>
-          Pick a target date and see how planned expenses or incomes would
-          change your balance on that day.
-        </Text>
+        <Text style={styles.description}>{t("simulation.description")}</Text>
 
         {/* 🔹 Scenario header row ⋮) */}
         <View style={styles.futureSection}>
-          <Text style={styles.sectionTitle}>Scenario</Text>
+          <Text style={styles.sectionTitle}>{t("scenario")}</Text>
 
           <TouchableOpacity
             style={styles.activeScenarioButton}
@@ -175,7 +174,7 @@ export default function SimulationScreen() {
         </View>
         <DailyBalanceSection
           isTransaction={false}
-          title="Real balance on"
+          title={t("real_balance_on")}
           selectedDate={targetDate}
           currentMonth={dayjs().format("YYYY-MM")}
           balance={baseBalance.balance}
@@ -189,7 +188,7 @@ export default function SimulationScreen() {
 
         {/* Items list */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Planned items</Text>
+          <Text style={styles.sectionTitle}>{t("planned_transactions")}</Text>
           {activeScenario && activeScenario.items.length > 0 ? (
             <>
               <View style={styles.simListCard}>
@@ -210,9 +209,7 @@ export default function SimulationScreen() {
               />
             </>
           ) : (
-            <Text style={styles.emptySimText}>
-              No simulated items yet. Use the + button to add one.
-            </Text>
+            <Text style={styles.emptySimText}>{t("no_sumalation_data")}</Text>
           )}
         </View>
       </ScrollView>
@@ -227,7 +224,8 @@ export default function SimulationScreen() {
             style={{ marginRight: 6 }}
           />
           <Text style={styles.withSimLabel}>
-            With simulation on {dayjs(targetDate).format("DD MMM YYYY")}
+            {t("with_simulation_balance")}{" "}
+            {dayjs(targetDate).format("DD MMM YYYY")}
           </Text>
         </View>
 
@@ -277,7 +275,7 @@ export default function SimulationScreen() {
           />
           <View style={styles.sidebarPanel}>
             <View style={styles.sidebarHeaderRow}>
-              <Text style={styles.sidebarTitle}>Scenarios</Text>
+              <Text style={styles.sidebarTitle}>{t("scenarios")}</Text>
               <TouchableOpacity
                 onPress={() => setShowScenarioSidebar(false)}
                 style={styles.sidebarCloseButton}
@@ -298,7 +296,9 @@ export default function SimulationScreen() {
                   color="#22c55e"
                   style={{ marginRight: 8 }}
                 />
-                <Text style={styles.sidebarNewScenarioText}>New scenario</Text>
+                <Text style={styles.sidebarNewScenarioText}>
+                  {t("new_scenario")}
+                </Text>
               </TouchableOpacity>
               {scenarios.map((s) => {
                 const isActive = s.id === activeScenarioId;
@@ -335,7 +335,7 @@ export default function SimulationScreen() {
                           {s.name}
                         </Text>
                         <Text style={styles.sidebarScenarioMeta}>
-                          {s.items.length} items
+                          {s.items.length} {t("items")}
                         </Text>
                       </View>
                     </View>

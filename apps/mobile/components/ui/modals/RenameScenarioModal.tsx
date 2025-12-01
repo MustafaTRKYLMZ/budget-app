@@ -1,3 +1,4 @@
+import { useTranslation } from "@budget/core";
 import {
   View,
   TextInput,
@@ -25,16 +26,17 @@ function RenameScenarioModal({
   onSave,
 }: RenameScenarioModalProps) {
   if (!visible) return null;
+  const { t } = useTranslation();
 
   return (
     <View style={styles.renameOverlay}>
       <View style={styles.renameCard}>
-        <Text style={styles.renameTitle}>Rename scenario</Text>
+        <Text style={styles.renameTitle}>{t("rename_scenario")}</Text>
         <TextInput
           value={value}
           onChangeText={onChangeValue}
           style={styles.renameInput}
-          placeholder="Scenario name"
+          placeholder={t("scenario_name")}
           placeholderTextColor="#6b7280"
         />
         <View style={styles.renameActions}>
@@ -42,13 +44,13 @@ function RenameScenarioModal({
             onPress={onCancel}
             style={[styles.renameButton, styles.renameCancelButton]}
           >
-            <Text style={styles.renameCancelText}>Cancel</Text>
+            <Text style={styles.renameCancelText}>{t("cancel")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onSave}
             style={[styles.renameButton, styles.renameSaveButton]}
           >
-            <Text style={styles.renameSaveText}>Save</Text>
+            <Text style={styles.renameSaveText}>{t("save")}</Text>
           </TouchableOpacity>
         </View>
       </View>

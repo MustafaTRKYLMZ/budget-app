@@ -30,7 +30,7 @@ export default function TransactionForm({
   const [date, setDate] = useState(
     initialTransaction?.date ?? dayjs().format("YYYY-MM-DD")
   );
-
+  const { t } = useTranslation();
   const [type, setType] = useState<TransactionType>(
     (initialTransaction?.type as TransactionType) ?? "Expense"
   );
@@ -73,16 +73,16 @@ export default function TransactionForm({
     void onSubmit(tx, isFixed ? { fixedEndMonth } : undefined);
   };
 
-  const titlePrefix = mode === "edit" ? "Update" : "Save";
+  const titlePrefix = mode === "edit" ? t("update") : t("save");
 
   return (
     <View style={styles.form}>
       {/* DATE */}
-      <LocalizedDatePicker value={date} onChange={setDate} label="Date" />
+      <LocalizedDatePicker value={date} onChange={setDate} label={t("date")} />
 
       {/* TYPE */}
       <View style={styles.field}>
-        <Text style={styles.label}>Type</Text>
+        <Text style={styles.label}>{t("type")}</Text>
         <View style={styles.segmentRow}>
           <TouchableOpacity
             style={[
@@ -97,7 +97,7 @@ export default function TransactionForm({
                 type === "Income" && styles.segmentTextActive,
               ]}
             >
-              Income
+              {t("income")}
             </Text>
           </TouchableOpacity>
 
@@ -114,7 +114,7 @@ export default function TransactionForm({
                 type === "Expense" && styles.segmentTextActive,
               ]}
             >
-              Expense
+              {t("expense")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -122,7 +122,7 @@ export default function TransactionForm({
 
       {/* FIXED? */}
       <View style={styles.field}>
-        <Text style={styles.label}>Fixed?</Text>
+        <Text style={styles.label}>{t("fixed")}?</Text>
         <View style={styles.segmentRow}>
           <TouchableOpacity
             style={[styles.segment, !isFixed && styles.segmentActiveNeutral]}
@@ -134,7 +134,7 @@ export default function TransactionForm({
             <Text
               style={[styles.segmentText, !isFixed && styles.segmentTextActive]}
             >
-              No
+              {t("no")}
             </Text>
           </TouchableOpacity>
 
@@ -145,7 +145,7 @@ export default function TransactionForm({
             <Text
               style={[styles.segmentText, isFixed && styles.segmentTextActive]}
             >
-              Yes (recurring)
+              {t("yes")} ({t("recurring")})
             </Text>
           </TouchableOpacity>
         </View>
@@ -156,17 +156,17 @@ export default function TransactionForm({
         <LocalizedDatePicker
           value={fixedEndMonth ?? date.slice(0, 7)}
           onChange={(m) => setFixedEndMonth(m)}
-          label="Fixed end month (optional)"
+          label={`${t("fixed")} ${t("end")} ${t("month")} (${t("optional")})`}
         />
       )}
 
       {/* ITEM */}
       <View style={styles.field}>
-        <Text style={styles.label}>Item</Text>
+        <Text style={styles.label}>{t("item")}</Text>
         <TextInput
           value={item}
           onChangeText={setItem}
-          placeholder="Rent, Insurance, Salary..."
+          placeholder={`${t("rent")}, ${t("insurance")}, ${t("salary")}...`}
           placeholderTextColor="#6b7280"
           style={styles.input}
         />
@@ -174,11 +174,11 @@ export default function TransactionForm({
 
       {/* CATEGORY */}
       <View style={styles.field}>
-        <Text style={styles.label}>Category</Text>
+        <Text style={styles.label}>{t("category")}</Text>
         <TextInput
           value={category}
           onChangeText={setCategory}
-          placeholder="Housing, Food, Transport..."
+          placeholder={`${t("transport")}, ${t("food")}...`}
           placeholderTextColor="#6b7280"
           style={styles.input}
         />
@@ -186,7 +186,7 @@ export default function TransactionForm({
 
       {/* AMOUNT */}
       <View style={styles.field}>
-        <Text style={styles.label}>Amount (€)</Text>
+        <Text style={styles.label}>{t("amount")} (€)</Text>
         <TextInput
           value={amount}
           onChangeText={setAmount}

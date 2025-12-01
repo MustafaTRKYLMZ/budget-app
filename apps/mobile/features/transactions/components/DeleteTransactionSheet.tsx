@@ -30,8 +30,8 @@ export function DeleteTransactionSheet({
         <View style={styles.deleteHandle} />
         <Text style={styles.deleteTitle}>
           {isPlanBased
-            ? t("delete_fixed_transaction")
-            : t("delete_transaction")}
+            ? t("transaction_fixed_delete")
+            : t("transaction.delete")}
         </Text>
         <Text style={styles.deleteSubtitle}>
           {target.item} · {target.amount.toFixed(2)} €

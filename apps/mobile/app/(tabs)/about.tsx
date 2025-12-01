@@ -27,7 +27,7 @@ export default function AboutScreen() {
         >
           <Ionicons name="close" size={22} color="#e5e7eb" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t("nav.about")}</Text>
+        <Text style={styles.headerTitle}>{t("about")}</Text>
         <View style={{ width: 32 }} />
       </View>
 

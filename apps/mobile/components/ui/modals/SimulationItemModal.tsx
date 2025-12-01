@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import type { SimulationItemType } from "../../../store/useSimulationStore";
 import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
+import { useTranslation } from "@budget/core";
 
 interface Props {
   visible: boolean;
@@ -36,6 +37,7 @@ export function SimulationItemModal({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(initialDate);
   const [isFixed, setIsFixed] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (visible) {
@@ -85,7 +87,7 @@ export function SimulationItemModal({
 
         {/* HEADER ROW */}
         <View style={styles.headerRow}>
-          <Text style={styles.title}>Add simulation item</Text>
+          <Text style={styles.title}>{t("add_simulation_item")}</Text>
           <TouchableOpacity
             onPress={onClose}
             style={styles.closeButton}
@@ -97,15 +99,15 @@ export function SimulationItemModal({
 
         {/* CONTENT */}
         <View style={styles.content}>
-          <Text style={styles.smallLabel}>Type</Text>
+          <Text style={styles.smallLabel}>{t("type")}</Text>
           <View style={styles.typeRow}>
             <TypeChip
-              label="Expense"
+              label={t("expense")}
               active={type === "Expense"}
               onPress={() => setType("Expense")}
             />
             <TypeChip
-              label="Income"
+              label={t("income")}
               active={type === "Income"}
               onPress={() => setType("Income")}
             />
@@ -113,7 +115,7 @@ export function SimulationItemModal({
 
           {/* FIXED? */}
           <View style={styles.field}>
-            <Text style={styles.label}>Fixed?</Text>
+            <Text style={styles.label}>{t("fixed")}?</Text>
             <View style={styles.segmentRow}>
               <TouchableOpacity
                 style={[
@@ -128,7 +130,7 @@ export function SimulationItemModal({
                     !isFixed && styles.segmentTextActive,
                   ]}
                 >
-                  No
+                  {t("no")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -141,22 +143,22 @@ export function SimulationItemModal({
                     isFixed && styles.segmentTextActive,
                   ]}
                 >
-                  Yes (recurring)
+                  {t("yes")} ({t("recurring")})
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          <Text style={styles.smallLabel}>Item</Text>
+          <Text style={styles.smallLabel}>{t("item")}</Text>
           <TextInput
-            placeholder="e.g. New sofa"
+            placeholder={t("new_sofa")}
             placeholderTextColor="#6b7280"
             value={item}
             onChangeText={setItem}
             style={styles.input}
           />
 
-          <Text style={styles.smallLabel}>Amount</Text>
+          <Text style={styles.smallLabel}>{t("amount")}</Text>
           <TextInput
             placeholder="e.g. 1200"
             placeholderTextColor="#6b7280"
@@ -166,13 +168,17 @@ export function SimulationItemModal({
             style={styles.input}
           />
           {/* localized, reusable picker */}
-          <LocalizedDatePicker value={date} onChange={setDate} label="Date" />
+          <LocalizedDatePicker
+            value={date}
+            onChange={setDate}
+            label={t("date")}
+          />
         </View>
 
         {/* BUTTONS */}
         <View style={styles.footerRow}>
           <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={styles.cancelText}>{t("cancel")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
@@ -182,7 +188,7 @@ export function SimulationItemModal({
               color="#0f172a"
               style={{ marginRight: 6 }}
             />
-            <Text style={styles.addButtonText}>Add to scenario</Text>
+            <Text style={styles.addButtonText}>{t("to_scenario")}</Text>
           </TouchableOpacity>
         </View>
       </View>

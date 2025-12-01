@@ -107,10 +107,10 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* SECTION: Opening Balance */}
         <View>
-          <Text style={styles.sectionTitle}>Starting Balance</Text>
+          <Text style={styles.sectionTitle}>{t("starting_balance")}</Text>
 
           {/* Amount Input */}
-          <Text style={styles.itemLabel}>Initial Amount</Text>
+          <Text style={styles.itemLabel}>{t("initial_amount")}</Text>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
@@ -124,7 +124,7 @@ export default function SettingsScreen() {
           <LocalizedDatePicker
             value={date}
             onChange={setDate}
-            label="Starting from Date"
+            label={t("starting_from_date")}
           />
         </View>
 
@@ -134,15 +134,17 @@ export default function SettingsScreen() {
           onPress={handleSave}
           disabled={isLoading}
         >
-          <Text style={styles.saveButtonText}>Save</Text>
+          <Text style={styles.saveButtonText}>{t("save")}</Text>
         </TouchableOpacity>
 
         {/* SECTION: Sync */}
-        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Sync</Text>
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+          {t("sysnc")}
+        </Text>
 
         <View style={styles.syncInfoBox}>
           <View>
-            <Text style={styles.syncLabel}>Last sync</Text>
+            <Text style={styles.syncLabel}>{t("last_sync")}</Text>
             <Text style={styles.syncValue}>{lastSyncLabel}</Text>
           </View>
           <TouchableOpacity
@@ -160,7 +162,7 @@ export default function SettingsScreen() {
               style={{ marginRight: 6 }}
             />
             <Text style={styles.syncButtonText}>
-              {isSyncing ? "Syncing..." : "Sync now"}
+              {isSyncing ? `${t("syncing")}...` : t("now_sync")}
             </Text>
           </TouchableOpacity>
         </View>
