@@ -26,7 +26,7 @@ jobs:
       - name: Build Android with EAS
         working-directory: apps/mobile
         env:
-          EAS_TOKEN: ${{ secrets.musti_app }} 
+          EXPO_TOKEN: ${{ secrets.musti_app }} 
         run: |
           npx eas-cli build \
             --platform android \
