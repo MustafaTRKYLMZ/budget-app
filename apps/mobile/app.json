@@ -2,6 +2,7 @@
   "expo": {
     "name": "Musti Budget Mobile",
     "slug": "mobile",
+    "owner": "mustafa123_1",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
