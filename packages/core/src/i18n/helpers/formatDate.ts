@@ -22,6 +22,7 @@ export function getLocalizedDateParts(
       month: "",
       monthShort: "",
       year: "",
+     
     };
   }
 
@@ -31,7 +32,8 @@ export function getLocalizedDateParts(
 
   const monthKey = MONTH_KEYS[monthIndex];
   const month = translate(language, monthKey);
-  const monthShort = month.slice(0, 3); // ilk 3 harf
+  const monthShort = month.slice(0, 3); // first 3 chars
+   
 
   return {
     day,

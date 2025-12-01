@@ -14,13 +14,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import dayjs from "dayjs";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import { useSettingsStore } from "../../store/useSettingsStore";
 import { useTransactionsStore } from "../../store/useTransactionsStore";
 import { syncTransactions } from "../../services/syncTransactions";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useTranslation } from "@budget/core";
+import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
 
 const PRIMARY = "#0A1A4F";
 const PRIMARY_DARK = "#050C2C";
@@ -31,18 +31,15 @@ const BORDER = "rgba(255,255,255,0.22)";
 
 export default function SettingsScreen() {
   const handleClose = () => router.back();
+  const { t } = useTranslation();
 
   const { initialBalance, loadInitialBalance, saveInitialBalance, isLoading } =
     useSettingsStore();
-
   const { lastSyncAt } = useTransactionsStore();
 
   const [amount, setAmount] = useState<string>("0");
   const [date, setDate] = useState<string>(dayjs().format("YYYY-MM-DD"));
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
   const [isSyncing, setIsSyncing] = useState(false);
-  const { t } = useTranslation();
 
   useEffect(() => {
     loadInitialBalance();
@@ -74,13 +71,6 @@ export default function SettingsScreen() {
     }
 
     Alert.alert("Saved", "Initial balance updated");
-  };
-
-  const onChangeDate = (event: any, selected?: Date) => {
-    setShowDatePicker(false);
-    if (selected) {
-      setDate(dayjs(selected).format("YYYY-MM-DD"));
-    }
   };
 
   const handleSyncNow = async () => {
@@ -118,6 +108,7 @@ export default function SettingsScreen() {
         {/* SECTION: Opening Balance */}
         <View>
           <Text style={styles.sectionTitle}>Starting Balance</Text>
+
           {/* Amount Input */}
           <Text style={styles.itemLabel}>Initial Amount</Text>
           <TextInput
@@ -128,29 +119,14 @@ export default function SettingsScreen() {
             value={amount}
             onChangeText={setAmount}
           />
-        </View>
-        {/*initial balance date*/}
-        {/* Date Picker */}
-        <Text style={styles.itemLabel}>Starting from Date</Text>
-        <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={styles.dateText}>
-            {dayjs(date).format("DD MMM YYYY")}
-          </Text>
-          <Ionicons name="calendar" size={18} color={TEXT_MUTED} />
-        </TouchableOpacity>
 
-        {showDatePicker && (
-          <DateTimePickerModal
-            isVisible={showDatePicker}
-            date={dayjs(date).toDate()}
-            mode="date"
-            onConfirm={onChangeDate}
-            onCancel={() => setShowDatePicker(false)}
+          {/* Date Picker (Localized) */}
+          <LocalizedDatePicker
+            value={date}
+            onChange={setDate}
+            label="Starting from Date"
           />
-        )}
+        </View>
 
         {/* Save Button */}
         <TouchableOpacity
@@ -239,8 +215,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 8,
   },
-
-  // inputs
   input: {
     backgroundColor: PRIMARY_DARK,
     color: TEXT_PRIMARY,
@@ -250,26 +224,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: BORDER,
   },
-
-  // date button
-  dateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: PRIMARY_DARK,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: BORDER,
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  dateText: {
-    color: TEXT_PRIMARY,
-    fontSize: 16,
-  },
-
-  // save button
   saveButton: {
     backgroundColor: PRIMARY_LIGHT,
     paddingVertical: 12,
@@ -282,8 +236,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-
-  // sync section
   syncInfoBox: {
     flexDirection: "row",
     alignItems: "center",

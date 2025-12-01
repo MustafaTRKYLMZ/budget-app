@@ -8,8 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import dayjs from "dayjs";
-import { getLocalizedDateParts, useTranslation } from "@budget/core";
+import { LocalizedDateText } from "@budget/core";
 
 export interface CashflowRowProps {
   title: string;
@@ -38,13 +37,6 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
   onDelete,
   multiplier,
 }) => {
-  const { language } = useTranslation();
-  let formattedDate = "";
-  if (date) {
-    const { day, monthShort, year } = getLocalizedDateParts(date, language);
-    formattedDate = `${day} ${monthShort} ${year}`;
-  }
-
   const isIncome = type === "Income";
   const isExpense = type === "Expense";
   const amountColor = isIncome ? "#4ade80" : "#fb7185";
@@ -65,9 +57,14 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
         </Text>
 
         <View style={styles.metaRow}>
-          {formattedDate ? (
-            <Text style={styles.dateText}>{formattedDate}</Text>
+          {date ? (
+            <LocalizedDateText
+              date={date}
+              style={styles.dateText}
+              shortMonth={true}
+            />
           ) : null}
+
           {statusIconName && (
             <Ionicons
               name={statusIconName}

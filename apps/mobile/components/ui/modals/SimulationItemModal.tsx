@@ -6,13 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Platform,
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import dayjs from "dayjs";
 import type { SimulationItemType } from "../../../store/useSimulationStore";
+import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
 
 interface Props {
   visible: boolean;
@@ -37,7 +35,6 @@ export function SimulationItemModal({
   const [item, setItem] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(initialDate);
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isFixed, setIsFixed] = useState<boolean>(false);
 
   useEffect(() => {
@@ -46,7 +43,6 @@ export function SimulationItemModal({
       setItem("");
       setAmount("");
       setDate(initialDate);
-      setShowDatePicker(false);
     }
   }, [visible, initialDate]);
 
@@ -114,6 +110,7 @@ export function SimulationItemModal({
               onPress={() => setType("Income")}
             />
           </View>
+
           {/* FIXED? */}
           <View style={styles.field}>
             <Text style={styles.label}>Fixed?</Text>
@@ -168,35 +165,8 @@ export function SimulationItemModal({
             keyboardType="numeric"
             style={styles.input}
           />
-
-          <Text style={styles.smallLabel}>Date</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Ionicons
-              name="calendar-outline"
-              size={16}
-              color="#9ca3af"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.dateButtonText}>
-              {dayjs(date).format("DD MMM YYYY")}
-            </Text>
-          </TouchableOpacity>
-
-          {showDatePicker && (
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              date={dayjs(date).toDate()}
-              mode="date"
-              onCancel={() => setShowDatePicker(false)}
-              onConfirm={(selectedDate) => {
-                setDate(dayjs(selectedDate).format("YYYY-MM-DD"));
-                setShowDatePicker(false);
-              }}
-            />
-          )}
+          {/* localized, reusable picker */}
+          <LocalizedDatePicker value={date} onChange={setDate} label="Date" />
         </View>
 
         {/* BUTTONS */}
@@ -362,20 +332,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 4,
     marginTop: 6,
-  },
-  dateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  dateButtonText: {
-    color: "#e5e7eb",
-    fontSize: 14,
-    fontWeight: "500",
   },
   footerRow: {
     flexDirection: "row",

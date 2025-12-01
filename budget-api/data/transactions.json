@@ -1006,8 +1006,8 @@
     "amount": 88,
     "isFixed": true,
     "planId": "LpSuG-0DG_sTxvVt5LzgP",
-    "updatedAt": "2025-11-30T19:49:51.886Z",
-    "deleted": false
+    "updatedAt": "2025-12-01T00:11:05.972Z",
+    "deleted": true
   },
   {
     "id": 1764450926008.5305,
@@ -1019,8 +1019,8 @@
     "amount": 88,
     "isFixed": true,
     "planId": "LpSuG-0DG_sTxvVt5LzgP",
-    "updatedAt": "2025-11-30T19:49:51.944Z",
-    "deleted": false
+    "updatedAt": "2025-12-01T00:11:06.019Z",
+    "deleted": true
   },
   {
     "id": 1764450926008.5935,
@@ -1032,8 +1032,8 @@
     "amount": 88,
     "isFixed": true,
     "planId": "LpSuG-0DG_sTxvVt5LzgP",
-    "updatedAt": "2025-11-30T19:49:51.975Z",
-    "deleted": false
+    "updatedAt": "2025-12-01T00:11:06.053Z",
+    "deleted": true
   },
   {
     "id": 1764451038161.2678,
@@ -1045,8 +1045,8 @@
     "amount": 88,
     "isFixed": true,
     "planId": "LpSuG-0DG_sTxvVt5LzgP",
-    "updatedAt": "2025-11-30T19:49:52.009Z",
-    "deleted": false
+    "updatedAt": "2025-12-01T00:11:06.083Z",
+    "deleted": true
   },
   {
     "id": 1764451038161.4055,
@@ -1058,8 +1058,8 @@
     "amount": 88,
     "isFixed": true,
     "planId": "LpSuG-0DG_sTxvVt5LzgP",
-    "updatedAt": "2025-11-30T19:49:52.045Z",
-    "deleted": false
+    "updatedAt": "2025-12-01T00:11:06.118Z",
+    "deleted": true
   },
   {
     "id": 1764451063272.9634,
@@ -1071,8 +1071,8 @@
     "amount": 88,
     "isFixed": true,
     "planId": "LpSuG-0DG_sTxvVt5LzgP",
-    "updatedAt": "2025-11-30T19:49:52.080Z",
-    "deleted": false
+    "updatedAt": "2025-12-01T00:11:06.152Z",
+    "deleted": true
   },
   {
     "id": 1764451479426.8306,
@@ -1084,7 +1084,189 @@
     "amount": 88,
     "isFixed": true,
     "planId": "LpSuG-0DG_sTxvVt5LzgP",
-    "updatedAt": "2025-11-30T19:49:52.163Z",
+    "updatedAt": "2025-12-01T00:11:06.192Z",
+    "deleted": true
+  },
+  {
+    "id": 1764547813504,
+    "date": "2025-12-01",
+    "month": "2025-12",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:06.340Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813508.7056,
+    "date": "2026-01-01",
+    "month": "2026-01",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:06.434Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813509.0469,
+    "date": "2026-02-01",
+    "month": "2026-02",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:06.557Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813509.128,
+    "date": "2026-03-01",
+    "month": "2026-03",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:06.654Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813509.729,
+    "date": "2026-04-01",
+    "month": "2026-04",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:06.783Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813509.4595,
+    "date": "2026-05-01",
+    "month": "2026-05",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:06.868Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813509.0107,
+    "date": "2026-06-01",
+    "month": "2026-06",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:06.993Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813509.9377,
+    "date": "2026-07-01",
+    "month": "2026-07",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:07.087Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813509.5527,
+    "date": "2026-08-01",
+    "month": "2026-08",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:07.241Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813510.8296,
+    "date": "2026-09-01",
+    "month": "2026-09",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:07.336Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813510.592,
+    "date": "2026-10-01",
+    "month": "2026-10",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:07.439Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547813510.6323,
+    "date": "2026-11-01",
+    "month": "2026-11",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:07.553Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547827259.7065,
+    "date": "2026-12-01",
+    "month": "2026-12",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:07.686Z",
+    "deleted": false
+  },
+  {
+    "id": 1764547827259.1848,
+    "date": "2027-01-01",
+    "month": "2027-01",
+    "type": "Expense",
+    "item": "guncel testtest",
+    "category": "test",
+    "amount": 50,
+    "isFixed": true,
+    "planId": "k88zULo7IWmZTkGQBlXLe",
+    "updatedAt": "2025-12-01T00:11:07.801Z",
     "deleted": false
   }
 ]

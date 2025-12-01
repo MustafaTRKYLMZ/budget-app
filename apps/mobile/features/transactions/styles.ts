@@ -337,11 +337,13 @@ export const styles = StyleSheet.create({
       fontWeight: "600",
     },
 
-    //daily balance section styles
+  
+    // daily balance section styles
     dailyRow: {
       flexDirection: "row",
       alignItems: "center",
       marginBottom: 4,
+      gap: 8,
     },
     dailyLabel: {
       color: "#9ca3af",
@@ -351,6 +353,7 @@ export const styles = StyleSheet.create({
     dailyDateButton: {
       flexDirection: "row",
       alignItems: "center",
+      alignSelf: "flex-start", 
     },
     dailyDateText: {
       color: "#e5e7eb",
@@ -361,6 +364,7 @@ export const styles = StyleSheet.create({
       fontSize: 18,
       fontWeight: "700",
     },
+
     quickRow: {
       flexDirection: "row",
       marginBottom: 8,

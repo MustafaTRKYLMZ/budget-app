@@ -39,7 +39,7 @@ export const tr = {
   "months.october": "Ekim",
   "months.november": "Kasım",
   "months.december": "Aralık",
-
+"select_date": "Tarih Seç",
   "transaction.title": "İşlem",
   "transaction.income": "Gelir",
   "transaction.expense": "Gider",

@@ -1,12 +1,11 @@
 // apps/mobile/components/TransactionForm.tsx
 
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import dayjs from "dayjs";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import type { LocalTransaction } from "@budget/core";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { useTranslation, type LocalTransaction } from "@budget/core";
 import { styles } from "../styles";
-import { Ionicons } from "@expo/vector-icons";
+import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
 
 type TransactionType = "Income" | "Expense";
 
@@ -22,16 +21,15 @@ interface TransactionFormProps {
   ) => void | Promise<void>;
 }
 
-const today = dayjs().format("YYYY-MM-DD");
-
 export default function TransactionForm({
   mode = "create",
   initialTransaction,
   initialFixedEndMonth,
   onSubmit,
 }: TransactionFormProps) {
-  const [date, setDate] = useState(initialTransaction?.date ?? today);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [date, setDate] = useState(
+    initialTransaction?.date ?? dayjs().format("YYYY-MM-DD")
+  );
 
   const [type, setType] = useState<TransactionType>(
     (initialTransaction?.type as TransactionType) ?? "Expense"
@@ -41,7 +39,6 @@ export default function TransactionForm({
   const [isFixed, setIsFixed] = useState<boolean>(
     initialTransaction?.isFixed ?? false
   );
-
   const [amount, setAmount] = useState(
     initialTransaction ? String(initialTransaction.amount) : ""
   );
@@ -49,7 +46,6 @@ export default function TransactionForm({
   const [fixedEndMonth, setFixedEndMonth] = useState<string | null>(
     initialFixedEndMonth ?? null
   );
-  const [showEndMonthPicker, setShowEndMonthPicker] = useState(false);
 
   const handleSubmit = () => {
     const parsed = Number(String(amount).replace(",", "."));
@@ -59,8 +55,7 @@ export default function TransactionForm({
       return;
     }
 
-    const month =
-      date && date.length >= 7 ? date.slice(0, 7) : dayjs().format("YYYY-MM");
+    const month = date.slice(0, 7);
 
     const tx: Transaction = {
       id: (initialTransaction?.id as any) ?? (Date.now() as any),
@@ -83,33 +78,7 @@ export default function TransactionForm({
   return (
     <View style={styles.form}>
       {/* DATE */}
-      <Text style={styles.smallLabel}>Date</Text>
-      <TouchableOpacity
-        style={styles.dateButton}
-        onPress={() => setShowDatePicker(true)}
-      >
-        <Ionicons
-          name="calendar-outline"
-          size={16}
-          color="#9ca3af"
-          style={{ marginRight: 6 }}
-        />
-        <Text style={styles.dateButtonText}>
-          {dayjs(date).format("DD MMM YYYY")}
-        </Text>
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePickerModal
-          isVisible={showDatePicker}
-          date={dayjs(date).toDate()}
-          mode="date"
-          onCancel={() => setShowDatePicker(false)}
-          onConfirm={(selectedDate) => {
-            setDate(dayjs(selectedDate).format("YYYY-MM-DD"));
-            setShowDatePicker(false);
-          }}
-        />
-      )}
+      <LocalizedDatePicker value={date} onChange={setDate} label="Date" />
 
       {/* TYPE */}
       <View style={styles.field}>
@@ -131,6 +100,7 @@ export default function TransactionForm({
               Income
             </Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={[
               styles.segment,
@@ -167,6 +137,7 @@ export default function TransactionForm({
               No
             </Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
             onPress={() => setIsFixed(true)}
@@ -182,41 +153,11 @@ export default function TransactionForm({
 
       {/* FIXED END MONTH */}
       {isFixed && (
-        <View style={styles.field}>
-          <Text style={styles.label}>Fixed end month (optional)</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowEndMonthPicker(true)}
-          >
-            <Ionicons
-              name="calendar-outline"
-              size={16}
-              color="#9ca3af"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.dateButtonText}>
-              {fixedEndMonth
-                ? dayjs(fixedEndMonth + "-01").format("DD MMM YYYY")
-                : "No end (infinite)"}
-            </Text>
-          </TouchableOpacity>
-
-          <DateTimePickerModal
-            isVisible={showEndMonthPicker}
-            date={
-              fixedEndMonth
-                ? dayjs(fixedEndMonth + "-01").toDate()
-                : dayjs(date).toDate()
-            }
-            mode="date"
-            onCancel={() => setShowEndMonthPicker(false)}
-            onConfirm={(selectedDate) => {
-              const m = dayjs(selectedDate).format("YYYY-MM");
-              setFixedEndMonth(m);
-              setShowEndMonthPicker(false);
-            }}
-          />
-        </View>
+        <LocalizedDatePicker
+          value={fixedEndMonth ?? date.slice(0, 7)}
+          onChange={(m) => setFixedEndMonth(m)}
+          label="Fixed end month (optional)"
+        />
       )}
 
       {/* ITEM */}

@@ -39,6 +39,7 @@ export const en = {
     "months.november": "November",
     "months.december": "December",
    
+    "select_date": "Select Date",
 
     "transaction.title": "Transaction",
     "transaction.income": "Income",
