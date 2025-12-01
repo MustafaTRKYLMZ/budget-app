@@ -1,12 +1,11 @@
 // apps/mobile/components/TransactionForm.tsx
 
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import dayjs from "dayjs";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import type { LocalTransaction } from "@budget/core";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { useTranslation, type LocalTransaction } from "@budget/core";
 import { styles } from "../styles";
-import { Ionicons } from "@expo/vector-icons";
+import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
 
 type TransactionType = "Income" | "Expense";
 
@@ -22,17 +21,16 @@ interface TransactionFormProps {
   ) => void | Promise<void>;
 }
 
-const today = dayjs().format("YYYY-MM-DD");
-
 export default function TransactionForm({
   mode = "create",
   initialTransaction,
   initialFixedEndMonth,
   onSubmit,
 }: TransactionFormProps) {
-  const [date, setDate] = useState(initialTransaction?.date ?? today);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
+  const [date, setDate] = useState(
+    initialTransaction?.date ?? dayjs().format("YYYY-MM-DD")
+  );
+  const { t } = useTranslation();
   const [type, setType] = useState<TransactionType>(
     (initialTransaction?.type as TransactionType) ?? "Expense"
   );
@@ -41,7 +39,6 @@ export default function TransactionForm({
   const [isFixed, setIsFixed] = useState<boolean>(
     initialTransaction?.isFixed ?? false
   );
-
   const [amount, setAmount] = useState(
     initialTransaction ? String(initialTransaction.amount) : ""
   );
@@ -49,7 +46,6 @@ export default function TransactionForm({
   const [fixedEndMonth, setFixedEndMonth] = useState<string | null>(
     initialFixedEndMonth ?? null
   );
-  const [showEndMonthPicker, setShowEndMonthPicker] = useState(false);
 
   const handleSubmit = () => {
     const parsed = Number(String(amount).replace(",", "."));
@@ -59,8 +55,7 @@ export default function TransactionForm({
       return;
     }
 
-    const month =
-      date && date.length >= 7 ? date.slice(0, 7) : dayjs().format("YYYY-MM");
+    const month = date.slice(0, 7);
 
     const tx: Transaction = {
       id: (initialTransaction?.id as any) ?? (Date.now() as any),
@@ -78,42 +73,16 @@ export default function TransactionForm({
     void onSubmit(tx, isFixed ? { fixedEndMonth } : undefined);
   };
 
-  const titlePrefix = mode === "edit" ? "Update" : "Save";
+  const titlePrefix = mode === "edit" ? t("update") : t("save");
 
   return (
     <View style={styles.form}>
       {/* DATE */}
-      <Text style={styles.smallLabel}>Date</Text>
-      <TouchableOpacity
-        style={styles.dateButton}
-        onPress={() => setShowDatePicker(true)}
-      >
-        <Ionicons
-          name="calendar-outline"
-          size={16}
-          color="#9ca3af"
-          style={{ marginRight: 6 }}
-        />
-        <Text style={styles.dateButtonText}>
-          {dayjs(date).format("DD MMM YYYY")}
-        </Text>
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePickerModal
-          isVisible={showDatePicker}
-          date={dayjs(date).toDate()}
-          mode="date"
-          onCancel={() => setShowDatePicker(false)}
-          onConfirm={(selectedDate) => {
-            setDate(dayjs(selectedDate).format("YYYY-MM-DD"));
-            setShowDatePicker(false);
-          }}
-        />
-      )}
+      <LocalizedDatePicker value={date} onChange={setDate} label={t("date")} />
 
       {/* TYPE */}
       <View style={styles.field}>
-        <Text style={styles.label}>Type</Text>
+        <Text style={styles.label}>{t("type")}</Text>
         <View style={styles.segmentRow}>
           <TouchableOpacity
             style={[
@@ -128,9 +97,10 @@ export default function TransactionForm({
                 type === "Income" && styles.segmentTextActive,
               ]}
             >
-              Income
+              {t("income")}
             </Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={[
               styles.segment,
@@ -144,7 +114,7 @@ export default function TransactionForm({
                 type === "Expense" && styles.segmentTextActive,
               ]}
             >
-              Expense
+              {t("expense")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -152,7 +122,7 @@ export default function TransactionForm({
 
       {/* FIXED? */}
       <View style={styles.field}>
-        <Text style={styles.label}>Fixed?</Text>
+        <Text style={styles.label}>{t("fixed")}?</Text>
         <View style={styles.segmentRow}>
           <TouchableOpacity
             style={[styles.segment, !isFixed && styles.segmentActiveNeutral]}
@@ -164,9 +134,10 @@ export default function TransactionForm({
             <Text
               style={[styles.segmentText, !isFixed && styles.segmentTextActive]}
             >
-              No
+              {t("no")}
             </Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
             onPress={() => setIsFixed(true)}
@@ -174,7 +145,7 @@ export default function TransactionForm({
             <Text
               style={[styles.segmentText, isFixed && styles.segmentTextActive]}
             >
-              Yes (recurring)
+              {t("yes")} ({t("recurring")})
             </Text>
           </TouchableOpacity>
         </View>
@@ -182,50 +153,20 @@ export default function TransactionForm({
 
       {/* FIXED END MONTH */}
       {isFixed && (
-        <View style={styles.field}>
-          <Text style={styles.label}>Fixed end month (optional)</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowEndMonthPicker(true)}
-          >
-            <Ionicons
-              name="calendar-outline"
-              size={16}
-              color="#9ca3af"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.dateButtonText}>
-              {fixedEndMonth
-                ? dayjs(fixedEndMonth + "-01").format("DD MMM YYYY")
-                : "No end (infinite)"}
-            </Text>
-          </TouchableOpacity>
-
-          <DateTimePickerModal
-            isVisible={showEndMonthPicker}
-            date={
-              fixedEndMonth
-                ? dayjs(fixedEndMonth + "-01").toDate()
-                : dayjs(date).toDate()
-            }
-            mode="date"
-            onCancel={() => setShowEndMonthPicker(false)}
-            onConfirm={(selectedDate) => {
-              const m = dayjs(selectedDate).format("YYYY-MM");
-              setFixedEndMonth(m);
-              setShowEndMonthPicker(false);
-            }}
-          />
-        </View>
+        <LocalizedDatePicker
+          value={fixedEndMonth ?? date.slice(0, 7)}
+          onChange={(m) => setFixedEndMonth(m)}
+          label={`${t("fixed")} ${t("end")} ${t("month")} (${t("optional")})`}
+        />
       )}
 
       {/* ITEM */}
       <View style={styles.field}>
-        <Text style={styles.label}>Item</Text>
+        <Text style={styles.label}>{t("item")}</Text>
         <TextInput
           value={item}
           onChangeText={setItem}
-          placeholder="Rent, Insurance, Salary..."
+          placeholder={`${t("rent")}, ${t("insurance")}, ${t("salary")}...`}
           placeholderTextColor="#6b7280"
           style={styles.input}
         />
@@ -233,11 +174,11 @@ export default function TransactionForm({
 
       {/* CATEGORY */}
       <View style={styles.field}>
-        <Text style={styles.label}>Category</Text>
+        <Text style={styles.label}>{t("category")}</Text>
         <TextInput
           value={category}
           onChangeText={setCategory}
-          placeholder="Housing, Food, Transport..."
+          placeholder={`${t("transport")}, ${t("food")}...`}
           placeholderTextColor="#6b7280"
           style={styles.input}
         />
@@ -245,7 +186,7 @@ export default function TransactionForm({
 
       {/* AMOUNT */}
       <View style={styles.field}>
-        <Text style={styles.label}>Amount (€)</Text>
+        <Text style={styles.label}>{t("amount")} (€)</Text>
         <TextInput
           value={amount}
           onChangeText={setAmount}

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useTranslation } from "@budget/core";
 
 interface Props {
   open: boolean;
@@ -10,6 +11,7 @@ interface Props {
 
 export function SidebarMenu({ open, onClose }: Props) {
   if (!open) return null;
+  const { t } = useTranslation();
 
   const go = (path: string) => {
     onClose();
@@ -27,7 +29,7 @@ export function SidebarMenu({ open, onClose }: Props) {
         </View>
 
         {/* MONEY */}
-        <Text style={styles.sectionLabel}>Money</Text>
+        <Text style={styles.sectionLabel}>{t("money")}</Text>
 
         <TouchableOpacity style={styles.sidebarItem} onPress={() => go("/")}>
           <Ionicons
@@ -36,7 +38,7 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Transactions</Text>
+          <Text style={styles.sidebarItemText}>{t("transactions")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -49,7 +51,7 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Fixed Expenses</Text>
+          <Text style={styles.sidebarItemText}>{t("fixed_expenses")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -62,11 +64,13 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Simulation</Text>
+          <Text style={styles.sidebarItemText}>{t("simulation.title")}</Text>
         </TouchableOpacity>
 
         {/* GROCERIES */}
-        <Text style={styles.sectionLabel}>Groceries & Products</Text>
+        <Text style={styles.sectionLabel}>
+          {t("grocies")} & {t("products")}
+        </Text>
 
         <TouchableOpacity
           style={styles.sidebarItem}
@@ -78,7 +82,7 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Markets</Text>
+          <Text style={styles.sidebarItemText}>{t("markets")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -91,7 +95,7 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Products</Text>
+          <Text style={styles.sidebarItemText}>{t("products")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -104,11 +108,11 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Shopping Lists</Text>
+          <Text style={styles.sidebarItemText}>{t("shopping_list")}</Text>
         </TouchableOpacity>
 
         {/* INSIGHTS */}
-        <Text style={styles.sectionLabel}>Insights</Text>
+        <Text style={styles.sectionLabel}>{t("insights")}</Text>
 
         <TouchableOpacity
           style={styles.sidebarItem}
@@ -120,7 +124,9 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Analytics / Reports</Text>
+          <Text style={styles.sidebarItemText}>
+            {t("analytics")} / {t("reports")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -133,11 +139,13 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Price History</Text>
+          <Text style={styles.sidebarItemText}>{t("price_history")}</Text>
         </TouchableOpacity>
 
         {/* SYSTEM */}
-        <Text style={styles.sectionLabel}>Data & System</Text>
+        <Text style={styles.sectionLabel}>
+          {t("data")} & {t("system")}
+        </Text>
 
         <TouchableOpacity
           style={styles.sidebarItem}
@@ -149,7 +157,7 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Sync</Text>
+          <Text style={styles.sidebarItemText}>{t("sysnc")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -162,7 +170,9 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Import / Export</Text>
+          <Text style={styles.sidebarItemText}>
+            {t("import")} / {t("export")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -175,7 +185,7 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>Settings</Text>
+          <Text style={styles.sidebarItemText}>{t("settings.title")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -188,7 +198,7 @@ export function SidebarMenu({ open, onClose }: Props) {
             color="#e5e7eb"
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>About</Text>
+          <Text style={styles.sidebarItemText}>{t("about")}</Text>
         </TouchableOpacity>
       </View>
 

@@ -16,7 +16,9 @@
     "lint:web": "npm run lint --workspace web",
     "lint:mobile": "eslint apps/mobile",
      "build:core": "pnpm --filter @budget/core build",
-    "eas-build-post-install": "pnpm build:core"
+    "eas-build-post-install": "pnpm build:core",
+    "i18n:watch": "node packages/core/scripts/watch-translations.js",
+    "i18n:export": "node packages/core/scripts/export-translations.js"
   },
   "devDependencies": {
     "@types/babel__template": "^7.4.4"

@@ -4,7 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import type { Transaction } from "@budget/core";
+import {
+  getLocalizedDateParts,
+  useTranslation,
+  type LocalTransaction,
+} from "@budget/core";
 
 import TransactionList from "../../features/transactions/components/TransactionList";
 import {
@@ -21,22 +25,26 @@ import { MonthlyBalanceBar } from "../../features/transactions/components/Monthl
 import { SidebarMenu } from "../../components/ui/SidebarMenu";
 import { DeleteTransactionSheet } from "../../features/transactions/components/DeleteTransactionSheet";
 import { syncTransactions } from "../../services/syncTransactions";
+import { CustomAlert } from "@/components/CustomAlert";
 
 const getCurrentMonth = () => dayjs().format("YYYY-MM");
 
 export default function HomeScreen() {
-  // raw local transactions (with deleted flag)
   const allTransactions = useTransactionsStore((s) => s.transactions);
   const loadFromStorage = useTransactionsStore((s) => s.loadFromStorage);
   const deleteScoped = useTransactionsStore((s) => s.deleteTransactionScoped);
   const getBalanceOnDate = useTransactionsStore((s) => s.getBalanceOnDate);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const loadInitialBalance = useSettingsStore((s) => s.loadInitialBalance);
 
   const [month, setMonth] = useState(getCurrentMonth);
   const [viewTab, setViewTab] = useState<ViewTab>("all");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<LocalTransaction | null>(
+    null
+  );
+  const { t, language } = useTranslation();
 
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format("YYYY-MM-DD")
@@ -54,8 +62,7 @@ export default function HomeScreen() {
   );
 
   const currentDate = dayjs(`${month}-01`);
-  const monthName = currentDate.format("MMMM");
-  const year = currentDate.format("YYYY");
+  const { month: monthName, year } = getLocalizedDateParts(month, language);
 
   const filteredByMonth = useMemo(
     () => transactions.filter((t) => t.month === month),
@@ -75,14 +82,14 @@ export default function HomeScreen() {
     return filteredByMonth;
   }, [filteredByMonth, viewTab]);
 
-  const handleEdit = (t: Transaction) => {
+  const handleEdit = (t: LocalTransaction) => {
     router.push({
       pathname: "/modal",
       params: { id: String(t.id), mode: "edit" },
     });
   };
 
-  const handleDelete = (t: Transaction) => {
+  const handleDelete = (t: LocalTransaction) => {
     setDeleteTarget(t);
   };
 
@@ -127,7 +134,6 @@ export default function HomeScreen() {
     !!deleteTarget && deleteTarget.isFixed && deleteTarget.planId != null;
 
   const handleRefresh = () => {
-    // For a "refresh" action, it makes sense to sync with backend
     void syncTransactions();
   };
 
@@ -137,10 +143,11 @@ export default function HomeScreen() {
         <HomeHeader
           onOpenMenu={() => setSidebarOpen(true)}
           onOpenSimulation={handleOpenSimulation}
+          onLanguageChange={setAlertMessage}
         />
 
         <DailyBalanceSection
-          title="Balance as of"
+          title={t("balance_as")}
           selectedDate={selectedDate}
           currentMonth={month}
           balance={dailySummary.balance}
@@ -185,6 +192,11 @@ export default function HomeScreen() {
         onConfirm={confirmDelete}
         onClose={closeDeleteSheet}
       />
+      <CustomAlert
+        visible={!!alertMessage}
+        message={alertMessage}
+        onHide={() => setAlertMessage("")}
+      />
     </SafeAreaView>
   );
 }
@@ -197,7 +209,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 28,
     paddingBottom: 12,
   },
   listWrapper: {
