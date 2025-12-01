@@ -18,7 +18,8 @@
      "build:core": "pnpm --filter @budget/core build",
     "eas-build-post-install": "pnpm build:core",
     "i18n:watch": "node packages/core/scripts/watch-translations.js",
-    "i18n:export": "node packages/core/scripts/export-translations.js"
+    "i18n:export": "node packages/core/scripts/export-translations.js",
+    "apk": "cd apps/mobile && npx eas-cli build --platform android --profile production --local"
   },
   "devDependencies": {
     "@types/babel__template": "^7.4.4"
