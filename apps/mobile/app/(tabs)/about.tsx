@@ -9,8 +9,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useTranslation } from "@budget/core";
 
 export default function AboutScreen() {
+  const { t } = useTranslation();
   const handleClose = () => {
     router.back();
   };
@@ -25,12 +27,11 @@ export default function AboutScreen() {
         >
           <Ionicons name="close" size={22} color="#e5e7eb" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>About</Text>
+        <Text style={styles.headerTitle}>{t("about")}</Text>
         <View style={{ width: 32 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.sectionTitle}>About</Text>
         <Text style={styles.itemValue}>
           Budget app · personal finance tracker.
         </Text>

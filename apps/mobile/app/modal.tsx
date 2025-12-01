@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import type { LocalTransaction } from "@budget/core";
+import { useTranslation, type LocalTransaction } from "@budget/core";
 import {
   useTransactionsStore,
   type UpdateScope,
@@ -38,6 +38,7 @@ export default function TransactionModal() {
 
   const [scopeSheetOpen, setScopeSheetOpen] = useState(false);
   const [draftUpdate, setDraftUpdate] = useState<LocalTransaction | null>(null);
+  const { t } = useTranslation();
 
   const existing = useMemo(
     () =>
@@ -64,7 +65,7 @@ export default function TransactionModal() {
     return sortedMonths[sortedMonths.length - 1] ?? null;
   }, [existing, transactions]);
 
-  const title = existing ? "Edit transaction" : "Add transaction";
+  const title = existing ? t("transaction.edit") : t("transaction.create");
 
   const handleClose = () => {
     router.back();

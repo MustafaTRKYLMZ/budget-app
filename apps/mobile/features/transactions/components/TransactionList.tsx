@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import type { LocalTransaction } from "@budget/core";
+import { LocalizedDateText, type LocalTransaction } from "@budget/core";
 
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { styles } from "../styles";
@@ -22,19 +22,14 @@ interface TransactionListProps {
 }
 
 type TxSection = {
-  title: string;
-  key: string;
+  key: string; // "YYYY-MM-DD" veya "other"
   data: LocalTransaction[];
   cumulativeBalance: number;
 };
 
 function getTxDate(tx: LocalTransaction): dayjs.Dayjs | null {
-  if (tx.date) {
-    return dayjs(tx.date);
-  }
-  if (tx.month) {
-    return dayjs(`${tx.month}-01`);
-  }
+  if (tx.date) return dayjs(tx.date);
+  if (tx.month) return dayjs(`${tx.month}-01`);
   return null;
 }
 
@@ -77,10 +72,7 @@ export default function TransactionList({
 
     for (const tx of sorted) {
       const d = getTxDate(tx);
-      let key = "other";
-      if (d) {
-        key = d.format("YYYY-MM-DD");
-      }
+      const key = d ? d.format("YYYY-MM-DD") : "other";
 
       if (!groups[key]) {
         groups[key] = [];
@@ -91,20 +83,15 @@ export default function TransactionList({
 
     const result: TxSection[] = order.map((key) => {
       const groupTxs = groups[key];
-      let title = "Other";
       let cumulativeBalance = 0;
 
       if (key !== "other") {
-        const d = dayjs(key);
-        title = d.format("DD MMM YYYY");
-
         const balanceResult = getBalanceOnDate(key);
         cumulativeBalance = balanceResult.balance;
       }
 
       return {
         key,
-        title,
         data: groupTxs,
         cumulativeBalance,
       };
@@ -147,7 +134,11 @@ export default function TransactionList({
       renderSectionHeader={({ section }) =>
         section.key === "other" ? null : (
           <View style={localStyles.dateHeader}>
-            <Text style={localStyles.dateHeaderTitle}>{section.title}</Text>
+            <LocalizedDateText
+              date={section.key}
+              style={localStyles.dateHeaderTitle}
+              shortMonth
+            />
             <Text
               style={[
                 localStyles.dateHeaderBalance,

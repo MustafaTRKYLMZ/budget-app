@@ -1,3 +1,4 @@
+import { useTranslation } from "@budget/core";
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 
@@ -28,25 +29,27 @@ function TabChip({ label, active, onPress }: TabChipProps) {
 }
 
 export function ViewTabs({ active, onChange }: Props) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.tabsRow}>
       <TabChip
-        label="All"
+        label={t("all")}
         active={active === "all"}
         onPress={() => onChange("all")}
       />
       <TabChip
-        label="Fixed"
+        label={t("fixed")}
         active={active === "fixed"}
         onPress={() => onChange("fixed")}
       />
       <TabChip
-        label="Income"
+        label={t("income")}
         active={active === "income"}
         onPress={() => onChange("income")}
       />
       <TabChip
-        label="Expense"
+        label={t("expense")}
         active={active === "expense"}
         onPress={() => onChange("expense")}
       />

@@ -6,13 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Platform,
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import dayjs from "dayjs";
 import type { SimulationItemType } from "../../../store/useSimulationStore";
+import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
+import { useTranslation } from "@budget/core";
 
 interface Props {
   visible: boolean;
@@ -37,8 +36,8 @@ export function SimulationItemModal({
   const [item, setItem] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(initialDate);
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isFixed, setIsFixed] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (visible) {
@@ -46,7 +45,6 @@ export function SimulationItemModal({
       setItem("");
       setAmount("");
       setDate(initialDate);
-      setShowDatePicker(false);
     }
   }, [visible, initialDate]);
 
@@ -89,7 +87,7 @@ export function SimulationItemModal({
 
         {/* HEADER ROW */}
         <View style={styles.headerRow}>
-          <Text style={styles.title}>Add simulation item</Text>
+          <Text style={styles.title}>{t("add_simulation_item")}</Text>
           <TouchableOpacity
             onPress={onClose}
             style={styles.closeButton}
@@ -101,22 +99,23 @@ export function SimulationItemModal({
 
         {/* CONTENT */}
         <View style={styles.content}>
-          <Text style={styles.smallLabel}>Type</Text>
+          <Text style={styles.smallLabel}>{t("type")}</Text>
           <View style={styles.typeRow}>
             <TypeChip
-              label="Expense"
+              label={t("expense")}
               active={type === "Expense"}
               onPress={() => setType("Expense")}
             />
             <TypeChip
-              label="Income"
+              label={t("income")}
               active={type === "Income"}
               onPress={() => setType("Income")}
             />
           </View>
+
           {/* FIXED? */}
           <View style={styles.field}>
-            <Text style={styles.label}>Fixed?</Text>
+            <Text style={styles.label}>{t("fixed")}?</Text>
             <View style={styles.segmentRow}>
               <TouchableOpacity
                 style={[
@@ -131,7 +130,7 @@ export function SimulationItemModal({
                     !isFixed && styles.segmentTextActive,
                   ]}
                 >
-                  No
+                  {t("no")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -144,22 +143,22 @@ export function SimulationItemModal({
                     isFixed && styles.segmentTextActive,
                   ]}
                 >
-                  Yes (recurring)
+                  {t("yes")} ({t("recurring")})
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          <Text style={styles.smallLabel}>Item</Text>
+          <Text style={styles.smallLabel}>{t("item")}</Text>
           <TextInput
-            placeholder="e.g. New sofa"
+            placeholder={t("new_sofa")}
             placeholderTextColor="#6b7280"
             value={item}
             onChangeText={setItem}
             style={styles.input}
           />
 
-          <Text style={styles.smallLabel}>Amount</Text>
+          <Text style={styles.smallLabel}>{t("amount")}</Text>
           <TextInput
             placeholder="e.g. 1200"
             placeholderTextColor="#6b7280"
@@ -168,41 +167,18 @@ export function SimulationItemModal({
             keyboardType="numeric"
             style={styles.input}
           />
-
-          <Text style={styles.smallLabel}>Date</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Ionicons
-              name="calendar-outline"
-              size={16}
-              color="#9ca3af"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.dateButtonText}>
-              {dayjs(date).format("DD MMM YYYY")}
-            </Text>
-          </TouchableOpacity>
-
-          {showDatePicker && (
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              date={dayjs(date).toDate()}
-              mode="date"
-              onCancel={() => setShowDatePicker(false)}
-              onConfirm={(selectedDate) => {
-                setDate(dayjs(selectedDate).format("YYYY-MM-DD"));
-                setShowDatePicker(false);
-              }}
-            />
-          )}
+          {/* localized, reusable picker */}
+          <LocalizedDatePicker
+            value={date}
+            onChange={setDate}
+            label={t("date")}
+          />
         </View>
 
         {/* BUTTONS */}
         <View style={styles.footerRow}>
           <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={styles.cancelText}>{t("cancel")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
@@ -212,7 +188,7 @@ export function SimulationItemModal({
               color="#0f172a"
               style={{ marginRight: 6 }}
             />
-            <Text style={styles.addButtonText}>Add to scenario</Text>
+            <Text style={styles.addButtonText}>{t("to_scenario")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -362,20 +338,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 4,
     marginTop: 6,
-  },
-  dateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  dateButtonText: {
-    color: "#e5e7eb",
-    fontSize: 14,
-    fontWeight: "500",
   },
   footerRow: {
     flexDirection: "row",
