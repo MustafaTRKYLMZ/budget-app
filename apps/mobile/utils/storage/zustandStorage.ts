@@ -1,4 +1,4 @@
-// apps/mobile/store/storage.ts
+// apps/mobile/utils/storage/zustandStorage.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { StateStorage } from "zustand/middleware";
 
@@ -18,9 +18,6 @@ const createMemoryStorage = (): StateStorage => {
   };
 };
 
-/**
- * common Zustand storage helper.
- */
 export const getZustandStorage = (): StateStorage => {
   return isServer ? createMemoryStorage() : AsyncStorage;
 };

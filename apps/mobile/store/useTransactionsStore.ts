@@ -3,46 +3,14 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-import {
-  createTransactionWithSeries,
-  updateTransactionSeries,
-  deleteTransactionSeries,
-  type LocalTransaction,
-  type BalanceOnDate,
-  type TransactionDraft,
-  Scope,
-  computeBalanceOnDate,
-} from "@budget/core";
 
-import { useSettingsStore } from "./useSettingsStore";
-import { getZustandStorage } from "./store";
+import type { TransactionsStore } from "./types";
+import { createTransactionAction } from "./transactions/createTransaction";
+import { updateTransactionScopedAction } from "./transactions/updateTransactionScoped";
+import { deleteTransactionScopedAction } from "./transactions/deleteTransactionScoped";
+import { getBalanceOnDateSelector } from "./transactions/getBalanceOnDate";
+import { getZustandStorage } from "@/utils/storage/zustandStorage";
 
-interface TransactionsStore {
-  transactions: LocalTransaction[];
-  lastSyncAt: string | null;
-  isHydrated: boolean;
-
-  loadFromStorage: () => Promise<void>;
-
-  createTransaction: (
-    tx: TransactionDraft,
-    options?: { fixedEndMonth?: string | null }
-  ) => Promise<void>;
-
-  updateTransactionScoped: (
-    id: number | string,
-    body: Partial<LocalTransaction>,
-    scope: Scope,
-    options?: { fixedEndMonth?: string | null }
-  ) => Promise<void>;
-
-  deleteTransactionScoped: (
-    id: number | string,
-    scope: Scope
-  ) => Promise<void>;
-
-  getBalanceOnDate: (date: string) => BalanceOnDate;
-}
 
 const STORAGE_KEY = "transactions_v1";
 
@@ -59,63 +27,27 @@ export const useTransactionsStore = create(
         }
       },
 
-      async createTransaction(
-        tx: TransactionDraft,
-        options?: { fixedEndMonth?: string | null }
-      ) {
-        const now = new Date().toISOString();
-
-        set((state) => ({
-          ...state,
-          transactions: createTransactionWithSeries(
-            state.transactions,
-            tx,
-            now,
-            options
-          ),
-        }));
+      async createTransaction(tx, options) {
+        await createTransactionAction(set, get, tx, options);
       },
 
-      async updateTransactionScoped(
-        id: number | string,
-        body: Partial<LocalTransaction>,
-        scope: Scope,
-        options?: { fixedEndMonth?: string | null }
-      ) {
-        const now = new Date().toISOString();
-        const all = get().transactions;
-
-        const updated = updateTransactionSeries(
-          all,
+      async updateTransactionScoped(id, body, scope, options) {
+        await updateTransactionScopedAction(
+          set,
+          get,
           id,
           body,
           scope,
-          now,
           options
         );
-        if (!updated) return;
-
-        set({ transactions: updated });
       },
 
-      async deleteTransactionScoped(
-        id: number | string,
-        scope: Scope
-      ) {
-        const now = new Date().toISOString();
-        const all = get().transactions;
-
-        const updated = deleteTransactionSeries(all, id, scope, now);
-        if (!updated) return;
-
-        set({ transactions: updated });
+      async deleteTransactionScoped(id, scope) {
+        await deleteTransactionScopedAction(set, get, id, scope);
       },
 
-      getBalanceOnDate(date: string): BalanceOnDate {
-        const { transactions } = get();
-        const { initialBalance } = useSettingsStore.getState();
-
-        return computeBalanceOnDate(transactions, date, initialBalance);
+      getBalanceOnDate(date) {
+        return getBalanceOnDateSelector(get, date);
       },
     }),
     {

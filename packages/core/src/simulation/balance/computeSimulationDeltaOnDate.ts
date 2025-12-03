@@ -2,7 +2,7 @@
 
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import { SimulationBalanceDelta, SimulationBalanceItem } from "../types/simulation";
+import { SimulationBalanceItem, SimulationBalanceDelta } from "../../types/simulation";
 
 dayjs.extend(isSameOrBefore);
 

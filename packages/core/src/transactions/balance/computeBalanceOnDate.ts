@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import { LocalTransaction } from "../types/transaction";
-import { BalanceOnDate, InitialBalance } from "../types/balance";
+import { LocalTransaction } from "../../types/transaction";
+import { InitialBalance, BalanceOnDate } from "../../types/balance";
+
 dayjs.extend(isSameOrBefore);
 
 /**

@@ -1,15 +1,15 @@
 // apps/mobile/store/useSettingsStore.ts
 
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { getZustandStorage } from "./store";
+import { getZustandStorage } from "@/utils/storage/zustandStorage";
 import { normalizeDate } from "@budget/core";
 
-export type InitialBalance = {
+interface InitialBalance {
   amount: number;
-  date: string; // "YYYY-MM-DD"
-  updatedAt?: string; // optional, useful if you later sync settings
-};
+  date: string;
+  updatedAt: string;
+}
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface SettingsStore {
   initialBalance: InitialBalance | null;

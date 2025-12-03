@@ -1,14 +1,18 @@
 import dayjs from "dayjs";
-import { SimulationItem } from "../types/simulation";
-import { BalanceOnDate } from "../types/balance";
+import { BalanceOnDate } from "../../types/balance";
+import { SimulationItem } from "../../types/simulation";
 
-export const computeBalanceOnDateWithSimulation=(
+/**
+ * Merges base balance with simulated items up to a given date.
+ */
+export function computeBalanceOnDateWithSimulation(
   base: BalanceOnDate,
   items: SimulationItem[],
   date: string
-): BalanceOnDate =>{
+): BalanceOnDate {
   const target = dayjs(date);
 
+  // Only include items up to the selected date
   const relevantItems = items.filter((it) =>
     dayjs(it.date).isSameOrBefore(target, "day")
   );

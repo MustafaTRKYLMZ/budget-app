@@ -3,14 +3,18 @@ export * from "./i18n";
 export { useTranslation } from "./i18n/useTranslation";
 export * from "./theme";
 
-export * from "./transactions/series";
 //utils
-export * from "./utils/computeBalanceOnDateWithSimulation";
-export * from "./utils/computeSeriesDateForMonthChange";
-export * from "./utils/computeSimulationDeltaOnDate";
-export * from "./utils/generateFutureFixedTransactions";
-export * from "./utils/computeSimulationDeltaOnDate";
-export * from "./utils/computeBalanceOnDate";
+export * from "./transactions/series/computeSeriesDateForMonthChange";
+export * from "./utils/date";
+
+//transactions
+export * from "./transactions/series/createTransactionWithSeries";
+export * from "./transactions/series/updateTransactionSeries";
+export * from "./transactions/series/deleteTransactionSeries";
+export * from "./transactions/balance/computeBalanceOnDate";
+//simulation
+export * from "./simulation/balance/computeBalanceOnDateWithSimulation";
+export * from "./simulation/balance/computeSimulationDeltaOnDate";
 //types 
 export * from "./types/transaction";
 export * from "./types/simulation";
