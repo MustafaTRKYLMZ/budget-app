@@ -14,17 +14,17 @@ import dayjs from "dayjs";
 import {
   useSimulationStore,
   type SimulationScenario,
-} from "../../store/useSimulationStore";
-import { useTransactionsStore } from "../../store/useTransactionsStore";
-import { SimulationItemModal } from "../../components/ui/modals/SimulationItemModal";
+} from "../../../store/useSimulationStore";
+import { useTransactionsStore } from "../../../store/useTransactionsStore";
+import { SimulationItemModal } from "../../../components/ui/modals/SimulationItemModal";
 import { RenameScenarioModal } from "@/components/ui/modals/RenameScenarioModal";
 import { DailyBalanceSection } from "@/features/transactions";
 import { CashflowTotals } from "@/components/ui/CashflowTotals";
-import { SimulationList } from "./components/SimulationList";
+import { SimulationList } from "../components/SimulationList";
 import { getOccurrencesUntilDate } from "@/helper/getOccurrencesUntilDate";
 import { useTranslation } from "@budget/core";
 
-export default function SimulationScreen() {
+export function SimulationScreen() {
   const {
     scenarios,
     activeScenarioId,
@@ -46,6 +46,7 @@ export default function SimulationScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showScenarioSidebar, setShowScenarioSidebar] = useState(false);
   const { t } = useTranslation();
+
   // rename modal state
   const [renameTarget, setRenameTarget] = useState<SimulationScenario | null>(
     null
@@ -98,6 +99,7 @@ export default function SimulationScreen() {
   const simNetTotalForDate = simIncomeTotalForDate - simExpenseTotalForDate;
 
   const withSimulationBalance = baseBalance.balance + simNetTotalForDate;
+
   const openRename = (scenario: SimulationScenario) => {
     setRenameTarget(scenario);
     setRenameDraft(scenario.name);
@@ -142,7 +144,7 @@ export default function SimulationScreen() {
       >
         <Text style={styles.description}>{t("simulation.description")}</Text>
 
-        {/* 🔹 Scenario header row ⋮) */}
+        {/* 🔹 Scenario header row */}
         <View style={styles.futureSection}>
           <Text style={styles.sectionTitle}>{t("scenario")}</Text>
 
@@ -172,6 +174,7 @@ export default function SimulationScreen() {
             />
           </TouchableOpacity>
         </View>
+
         <DailyBalanceSection
           isTransaction={false}
           title={t("real_balance_on")}
@@ -255,7 +258,7 @@ export default function SimulationScreen() {
         <Ionicons name="add" size={28} color="#020617" />
       </TouchableOpacity>
 
-      {/* ADD ITEM MODAL */}
+      {/* ADD ITEM MODAL (şimdilik lokal, birazdan route’a çekeceğiz) */}
       <SimulationItemModal
         visible={showAddModal}
         initialDate={targetDate}
@@ -369,7 +372,6 @@ export default function SimulationScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
