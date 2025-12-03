@@ -2,11 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useTranslation, type LocalTransaction } from "@budget/core";
-import {
-  useTransactionsStore,
-  type UpdateScope,
-} from "@/store/useTransactionsStore";
+import { Scope, useTranslation, type LocalTransaction } from "@budget/core";
+import { useTransactionsStore } from "@/store/useTransactionsStore";
 import { AppModal } from "@/components/ui/AppModal";
 import { ScopeSheet } from "@/features/transactions/components/ScopeSheet";
 import TransactionForm from "@/features/transactions/components/TransactionForm";
@@ -39,7 +36,6 @@ export function TransactionModalScreen() {
     [mode, id, transactions]
   );
 
-  // 🔹 plan-based tx için son ayı bul
   const planEndMonth: string | null = useMemo(() => {
     if (!existing || !existing.isFixed || !existing.planId) return null;
 
@@ -80,13 +76,12 @@ export function TransactionModalScreen() {
       handleClose();
       return;
     }
-
     setDraftUpdate(tx);
     setDraftOptions(options);
     setScopeSheetOpen(true);
   };
 
-  const applyScope = async (scope: UpdateScope) => {
+  const applyScope = async (scope: Scope) => {
     if (!existing || !draftUpdate) return;
 
     await updateTransactionScoped(
@@ -127,7 +122,7 @@ export function TransactionModalScreen() {
           },
         ]}
         cancelLabel={t("cancel")}
-        onSelect={(scope) => void applyScope(scope as UpdateScope)}
+        onSelect={(scope) => void applyScope(scope as Scope)}
         onCancel={() => setScopeSheetOpen(false)}
       />
     </>

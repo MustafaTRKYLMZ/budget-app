@@ -1,4 +1,4 @@
-import { LocalTransaction } from "../types";
+import { LocalTransaction } from "../types/transaction";
 
 type GenerateFutureOptions =
   | number

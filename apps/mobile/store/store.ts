@@ -2,32 +2,25 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { StateStorage } from "zustand/middleware";
 
-
 const isServer = typeof window === "undefined";
-
 
 const createMemoryStorage = (): StateStorage => {
   let store: Record<string, string> = {};
 
   return {
-    getItem: async (name: string) => {
-      return store[name] ?? null;
-    },
-    setItem: async (name: string, value: string) => {
+    getItem: async (name) => store[name] ?? null,
+    setItem: async (name, value) => {
       store[name] = value;
     },
-    removeItem: async (name: string) => {
+    removeItem: async (name) => {
       delete store[name];
     },
   };
 };
 
+/**
+ * common Zustand storage helper.
+ */
 export const getZustandStorage = (): StateStorage => {
-  if (isServer) {
-   
-    return createMemoryStorage();
-  }
-
- 
-  return AsyncStorage;
+  return isServer ? createMemoryStorage() : AsyncStorage;
 };

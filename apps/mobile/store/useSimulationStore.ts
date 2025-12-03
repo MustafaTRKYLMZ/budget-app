@@ -3,62 +3,14 @@ import { create } from "zustand";
 import dayjs from "dayjs";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { nanoid } from "nanoid/non-secure";
+import { SimulationItem, SimulationScenario, SimulationStore } from "@budget/core";
+import { useTransactionsStore } from "./useTransactionsStore";
 
-import {
-  useTransactionsStore,
-  type BalanceOnDate,
-} from "./useTransactionsStore";
+
 
 const STORAGE_KEY = "simulationStore_v1";
 
 export type SimulationItemType = "Income" | "Expense";
-
-export type SimulationItem = {
-  id: string;
-  type: SimulationItemType;
-  item: string;
-  category?: string;
-  amount: number;
-  date: string; // "YYYY-MM-DD"
-  isFixed?: boolean;          
-  planId?: string | number; 
-};
-
-export type SimulationScenario = {
-  id: string;
-  name: string;
-  createdAt: string;
-  items: SimulationItem[];
-  // Optional scenario-specific target date (kept for backward compatibility)
-  targetDate?: string;
-};
-
-interface SimulationStore {
-  scenarios: SimulationScenario[];
-  activeScenarioId: string | null;
-
-  // persistence
-  loadFromStorage: () => Promise<void>;
-
-  // scenario management
-  addScenario: (name: string) => void;
-  renameScenario: (id: string, name: string) => void;
-  deleteScenario: (id: string) => void;
-  duplicateScenario: (id: string) => void;
-  setActiveScenario: (id: string | null) => void;
-  setScenarioTargetDate: (id: string, date: string) => void;
-
-  // helpers
-  getActiveScenario: () => SimulationScenario | null;
-
-  // item management for the active scenario
-  addItemToActive: (payload: Omit<SimulationItem, "id">) => void;
-  removeItemFromActive: (itemId: string) => void;
-  clearActiveItems: () => void;
-
-  // calculation
-  getBalanceOnDateWithSimulation: (date: string) => BalanceOnDate;
-}
 
 // Only scenarios + activeScenarioId are persisted
 async function persistState(partial: {
@@ -349,6 +301,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
   },
 
+ 
   getBalanceOnDateWithSimulation(date) {
     const base = useTransactionsStore.getState().getBalanceOnDate(date);
     const active = get().getActiveScenario();
@@ -357,24 +310,6 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       return base;
     }
 
-    const target = dayjs(date);
-
-    const relevantItems = active.items.filter((it) =>
-      dayjs(it.date).isSameOrBefore(target, "day")
-    );
-
-    const simIncome = relevantItems
-      .filter((it) => it.type === "Income")
-      .reduce((sum, it) => sum + it.amount, 0);
-
-    const simExpense = relevantItems
-      .filter((it) => it.type === "Expense")
-      .reduce((sum, it) => sum + it.amount, 0);
-
-    return {
-      income: base.income + simIncome,
-      expense: base.expense + simExpense,
-      balance: base.balance + simIncome - simExpense,
-    };
+    return computeBalanceOnDateWithSimulation(base, active.items, date);
   },
 }));
