@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 import { View, StyleSheet, SectionList, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -13,12 +19,16 @@ interface TransactionListProps {
   onDelete: (tx: LocalTransaction) => void;
   onEdit: (tx: LocalTransaction) => void;
   onPressRefresh?: () => void | Promise<void>;
+  scrollToDateKey?: string;
 }
+
+type SectionPosition = "past" | "today" | "future" | "other";
 
 type TxSection = {
   key: string; // "YYYY-MM-DD" veya "other"
   data: LocalTransaction[];
   cumulativeBalance: number;
+  position: SectionPosition;
 };
 
 function getTxDate(tx: LocalTransaction): dayjs.Dayjs | null {
@@ -32,8 +42,11 @@ export default function TransactionList({
   onDelete,
   onEdit,
   onPressRefresh,
+  scrollToDateKey,
 }: TransactionListProps) {
   const [refreshing, setRefreshing] = useState(false);
+  const listRef = useRef<SectionList<LocalTransaction, TxSection> | null>(null);
+  const initialScrollDoneRef = useRef(false);
 
   const handleRefresh = useCallback(async () => {
     if (!onPressRefresh) return;
@@ -49,6 +62,7 @@ export default function TransactionList({
     if (!transactions.length) return [];
 
     const getBalanceOnDate = useTransactionsStore.getState().getBalanceOnDate;
+    const today = dayjs().startOf("day");
 
     const sorted = [...transactions].sort((a, b) => {
       const da = getTxDate(a);
@@ -75,24 +89,96 @@ export default function TransactionList({
       groups[key].push(tx);
     }
 
-    const result: TxSection[] = order.map((key) => {
+    const rawSections: TxSection[] = order.map((key) => {
       const groupTxs = groups[key];
       let cumulativeBalance = 0;
+      let position: SectionPosition = "other";
 
       if (key !== "other") {
+        const sectionDate = dayjs(key).startOf("day");
         const balanceResult = getBalanceOnDate(key);
         cumulativeBalance = balanceResult.balance;
+
+        if (sectionDate.isSame(today, "day")) {
+          position = "today";
+        } else if (sectionDate.isBefore(today, "day")) {
+          position = "past";
+        } else {
+          position = "future";
+        }
       }
 
       return {
         key,
         data: groupTxs,
         cumulativeBalance,
+        position,
       };
     });
 
-    return result;
+    const todaySections = rawSections.filter((s) => s.position === "today");
+
+    const pastSections = rawSections
+      .filter((s) => s.position === "past")
+      .sort((a, b) => dayjs(b.key).valueOf() - dayjs(a.key).valueOf());
+
+    const futureSections = rawSections
+      .filter((s) => s.position === "future")
+      .sort((a, b) => dayjs(b.key).valueOf() - dayjs(a.key).valueOf());
+
+    const otherSections = rawSections.filter((s) => s.position === "other");
+
+    return [
+      ...futureSections,
+      ...todaySections,
+      ...pastSections,
+      ...otherSections,
+    ];
   }, [transactions]);
+
+  const scrollToDate = useCallback(
+    (targetKey?: string) => {
+      if (!sections.length) return;
+      if (!listRef.current) return;
+
+      let sectionIndex = -1;
+
+      if (targetKey) {
+        sectionIndex = sections.findIndex((s) => s.key === targetKey);
+      }
+
+      if (sectionIndex === -1) {
+        sectionIndex = sections.findIndex((s) => s.position === "today");
+      }
+
+      if (sectionIndex === -1) return;
+
+      listRef.current.scrollToLocation({
+        sectionIndex,
+        itemIndex: 0,
+        animated: true,
+        viewPosition: 0,
+      });
+    },
+    [sections]
+  );
+
+  useEffect(() => {
+    if (!sections.length) return;
+    if (initialScrollDoneRef.current) return;
+
+    initialScrollDoneRef.current = true;
+
+    const target = scrollToDateKey;
+    requestAnimationFrame(() => {
+      scrollToDate(target);
+    });
+  }, [sections, scrollToDate, scrollToDateKey]);
+
+  useEffect(() => {
+    if (!scrollToDateKey) return;
+    scrollToDate(scrollToDateKey);
+  }, [scrollToDateKey, scrollToDate]);
 
   if (!transactions.length) {
     return (
@@ -135,8 +221,16 @@ export default function TransactionList({
 
   return (
     <SectionList
+      ref={listRef}
       sections={sections}
       keyExtractor={(item) => String(item.id)}
+      contentContainerStyle={styles.listContent}
+      stickySectionHeadersEnabled={false}
+      onScrollToIndexFailed={() => {
+        setTimeout(() => {
+          scrollToDate(scrollToDateKey);
+        }, 50);
+      }}
       renderSectionHeader={({ section }) =>
         section.key === "other" ? null : (
           <View style={styles.dateHeader}>
@@ -160,26 +254,22 @@ export default function TransactionList({
           </View>
         )
       }
-      renderItem={({ item }) => {
-        return (
-          <View style={[styles.cardRow]}>
-            <CashflowRow
-              title={item.item}
-              type={item.type}
-              amount={item.amount}
-              date={item.date}
-              category={item.category}
-              isFixed={item.isFixed}
-              onPress={() => onEdit(item)}
-              onDelete={() => onDelete(item)}
-            />
-          </View>
-        );
-      }}
-      contentContainerStyle={styles.listContent}
+      renderItem={({ item }) => (
+        <View style={styles.cardRow}>
+          <CashflowRow
+            title={item.item}
+            type={item.type}
+            amount={item.amount}
+            date={item.date}
+            category={item.category}
+            isFixed={item.isFixed}
+            onPress={() => onEdit(item)}
+            onDelete={() => onDelete(item)}
+          />
+        </View>
+      )}
       refreshing={refreshing}
       onRefresh={onPressRefresh ? handleRefresh : undefined}
-      stickySectionHeadersEnabled={false}
     />
   );
 }
@@ -211,7 +301,6 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
   },
 
-  // section header
   dateHeader: {
     marginTop: spacing.lg,
     marginBottom: spacing.xs,

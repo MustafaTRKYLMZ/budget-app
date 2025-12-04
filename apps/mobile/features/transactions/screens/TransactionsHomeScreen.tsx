@@ -1,7 +1,12 @@
 // apps/mobile/features/transactions/screens/TransactionsHomeScreen.tsx
 
-import React, { useEffect, useState, useMemo } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  PanResponder,
+  Animated, // 🔹 animasyon için
+} from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -26,7 +31,6 @@ import { DeleteTransactionSheet } from "../components/DeleteTransactionSheet";
 import { syncTransactions } from "../../../services/syncTransactions";
 import { CustomAlert } from "@/components/CustomAlert";
 
-// 🔹 yeni: design system importları
 import { FAB, Screen, colors, spacing } from "@budget/ui-native";
 
 const getCurrentMonth = () => dayjs().format("YYYY-MM");
@@ -52,6 +56,9 @@ export function TransactionsHomeScreen() {
     dayjs().format("YYYY-MM-DD")
   );
 
+  // 🔹 value of the animation (-1, 0, 1)
+  const monthAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     void loadInitialBalance();
     void loadFromStorage();
@@ -63,7 +70,6 @@ export function TransactionsHomeScreen() {
     [allTransactions]
   );
 
-  const currentDate = dayjs(`${month}-01`);
   const { month: monthName, year } = getLocalizedDateParts(month, language);
 
   const filteredByMonth = useMemo(
@@ -115,17 +121,44 @@ export function TransactionsHomeScreen() {
   const monthNet = income - expense;
   const dailySummary = getBalanceOnDate(selectedDate);
 
-  const goPrevMonth = () => {
-    const prevMoment = currentDate.subtract(1, "month");
-    setMonth(prevMoment.format("YYYY-MM"));
-    setSelectedDate(prevMoment.endOf("month").format("YYYY-MM-DD"));
+  // 🔹when date change, update day and month
+  const handleChangeDate = (newDate: string) => {
+    setSelectedDate(newDate);
+    const newMonth = newDate.slice(0, 7);
+    setMonth(newMonth);
   };
 
-  const goNextMonth = () => {
-    const nextMoment = currentDate.add(1, "month");
-    setMonth(nextMoment.format("YYYY-MM"));
-    setSelectedDate(nextMoment.endOf("month").format("YYYY-MM-DD"));
+  // 🔹 when month changed animation
+  const animateMonthChange = (direction: 1 | -1) => {
+    monthAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(monthAnim, {
+        toValue: direction,
+        duration: 140,
+        useNativeDriver: true,
+      }),
+      Animated.timing(monthAnim, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
+
+  const shiftMonth = (delta: number) => {
+    setMonth((prevMonth) => {
+      const base = dayjs(`${prevMonth}-01`).add(delta, "month");
+      const newMonthStr = base.format("YYYY-MM");
+
+      setSelectedDate(base.endOf("month").format("YYYY-MM-DD"));
+
+      return newMonthStr;
+    });
+    animateMonthChange(delta > 0 ? 1 : -1);
+  };
+
+  const goPrevMonth = () => shiftMonth(-1);
+  const goNextMonth = () => shiftMonth(1);
 
   const handleOpenSimulation = () => {
     router.push("/simulation");
@@ -133,6 +166,46 @@ export function TransactionsHomeScreen() {
 
   const handleRefresh = () => {
     void syncTransactions();
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_evt, gestureState) => {
+        const { dx, dy } = gestureState;
+        return Math.abs(dx) > 16 && Math.abs(dx) > Math.abs(dy);
+      },
+      onPanResponderRelease: (_evt, gestureState) => {
+        const { dx } = gestureState;
+        if (Math.abs(dx) < 40) return;
+
+        if (dx < 0) {
+          goNextMonth();
+        } else {
+          goPrevMonth();
+        }
+      },
+    })
+  ).current;
+
+  const animatedSwipeStyle = {
+    transform: [
+      {
+        translateX: monthAnim.interpolate({
+          inputRange: [-1, 0, 1],
+          outputRange: [30, 0, -30],
+        }),
+      },
+      {
+        scale: monthAnim.interpolate({
+          inputRange: [-1, 0, 1],
+          outputRange: [0.98, 1, 0.98],
+        }),
+      },
+    ],
+    opacity: monthAnim.interpolate({
+      inputRange: [-1, 0, 1],
+      outputRange: [0.4, 1, 0.4],
+    }),
   };
 
   return (
@@ -143,34 +216,39 @@ export function TransactionsHomeScreen() {
           onOpenSimulation={handleOpenSimulation}
           onLanguageChange={setAlertMessage}
         />
-
-        <DailyBalanceSection
-          title={t("balance_as")}
-          selectedDate={selectedDate}
-          currentMonth={month}
-          balance={dailySummary.balance}
-          onChangeDate={setSelectedDate}
-        />
-
-        <ViewTabs active={viewTab} onChange={setViewTab} />
-
-        <MonthNavigator
-          monthName={monthName}
-          year={year}
-          onPrev={goPrevMonth}
-          onNext={goNextMonth}
-        />
-
-        <View style={styles.listWrapper}>
-          <TransactionList
-            transactions={filtered}
-            onDelete={handleDelete}
-            onEdit={handleEdit}
-            onPressRefresh={handleRefresh}
+        {/* swipe area */}
+        <Animated.View
+          style={[styles.swipeArea, animatedSwipeStyle]}
+          {...panResponder.panHandlers}
+        >
+          <DailyBalanceSection
+            title={t("balance_as")}
+            selectedDate={selectedDate}
+            currentMonth={month}
+            balance={dailySummary.balance}
+            onChangeDate={handleChangeDate}
           />
-        </View>
 
-        <MonthlyBalanceBar income={income} expense={expense} net={monthNet} />
+          <ViewTabs active={viewTab} onChange={setViewTab} />
+
+          <MonthNavigator
+            monthName={monthName}
+            year={year}
+            onPrev={goPrevMonth}
+            onNext={goNextMonth}
+          />
+
+          <View style={styles.listWrapper}>
+            <TransactionList
+              transactions={filtered}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onPressRefresh={handleRefresh}
+            />
+          </View>
+
+          <MonthlyBalanceBar income={income} expense={expense} net={monthNet} />
+        </Animated.View>
       </View>
 
       {/* FLOATING + BUTTON */}
@@ -205,6 +283,10 @@ const styles = StyleSheet.create({
   screen: {},
   content: {
     flex: 1,
+  },
+  swipeArea: {
+    flex: 1,
+    paddingHorizontal: spacing.md,
   },
   listWrapper: {
     flex: 1,
