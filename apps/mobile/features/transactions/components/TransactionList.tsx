@@ -19,7 +19,10 @@ interface TransactionListProps {
   onDelete: (tx: LocalTransaction) => void;
   onEdit: (tx: LocalTransaction) => void;
   onPressRefresh?: () => void | Promise<void>;
+  /** Today / tarih butonundan gelen key: "YYYY-MM-DD" */
   scrollToDateKey?: string;
+  /** Her Today tıklamasında artırdığın sayac */
+  scrollToDateTrigger?: number;
 }
 
 type SectionPosition = "past" | "today" | "future" | "other";
@@ -43,6 +46,7 @@ export default function TransactionList({
   onEdit,
   onPressRefresh,
   scrollToDateKey,
+  scrollToDateTrigger,
 }: TransactionListProps) {
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<SectionList<LocalTransaction, TxSection> | null>(null);
@@ -128,6 +132,7 @@ export default function TransactionList({
 
     const otherSections = rawSections.filter((s) => s.position === "other");
 
+    // future (üstte) → today → past → other
     return [
       ...futureSections,
       ...todaySections,
@@ -143,10 +148,12 @@ export default function TransactionList({
 
       let sectionIndex = -1;
 
+      // 1) Önce spesifik tarih varsa onu dene
       if (targetKey) {
         sectionIndex = sections.findIndex((s) => s.key === targetKey);
       }
 
+      // 2) Bulunamazsa today'e git
       if (sectionIndex === -1) {
         sectionIndex = sections.findIndex((s) => s.position === "today");
       }
@@ -157,28 +164,33 @@ export default function TransactionList({
         sectionIndex,
         itemIndex: 0,
         animated: true,
-        viewPosition: 0,
+        viewPosition: 0, // hedef section ekranın tepesine
       });
     },
     [sections]
   );
 
+  // 1) İlk açılışta bir kez bugüne kaydır
   useEffect(() => {
     if (!sections.length) return;
     if (initialScrollDoneRef.current) return;
 
     initialScrollDoneRef.current = true;
 
-    const target = scrollToDateKey;
+    const target = scrollToDateKey; // varsa önce onu dener
     requestAnimationFrame(() => {
       scrollToDate(target);
     });
-  }, [sections, scrollToDate, scrollToDateKey]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections]); // burada scrollToDateKey'e bağımlı olmak zorunlu değil
 
+  // 2) Today butonuna her basıldığında tekrar kaydır
   useEffect(() => {
     if (!scrollToDateKey) return;
+    if (scrollToDateTrigger == null) return;
+    // sections dependency'si de olsun ki filtre değişince en güncel listeye göre scroll etsin
     scrollToDate(scrollToDateKey);
-  }, [scrollToDateKey, scrollToDate]);
+  }, [scrollToDateKey, scrollToDateTrigger, sections, scrollToDate]);
 
   if (!transactions.length) {
     return (
@@ -227,6 +239,7 @@ export default function TransactionList({
       contentContainerStyle={styles.listContent}
       stickySectionHeadersEnabled={false}
       onScrollToIndexFailed={() => {
+        // içerik daha tam ölçülmemiş olabilir, biraz sonra tekrar dene
         setTimeout(() => {
           scrollToDate(scrollToDateKey);
         }, 50);

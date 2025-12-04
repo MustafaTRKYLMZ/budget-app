@@ -50,6 +50,9 @@ export function TransactionsHomeScreen() {
   const [deleteTarget, setDeleteTarget] = useState<LocalTransaction | null>(
     null
   );
+  const [scrollToDateKey, setScrollToDateKey] = useState<string | undefined>();
+  const [scrollToDateTrigger, setScrollToDateTrigger] = useState(0);
+
   const { t, language } = useTranslation();
 
   const [selectedDate, setSelectedDate] = useState(
@@ -123,6 +126,11 @@ export function TransactionsHomeScreen() {
 
   // 🔹when date change, update day and month
   const handleChangeDate = (newDate: string) => {
+    const today = dayjs().format("YYYY-MM-DD");
+
+    // tarih aynı kalsa bile trigger'ı artır
+    setScrollToDateKey(today);
+    setScrollToDateTrigger((x) => x + 1);
     setSelectedDate(newDate);
     const newMonth = newDate.slice(0, 7);
     setMonth(newMonth);
@@ -207,7 +215,6 @@ export function TransactionsHomeScreen() {
       outputRange: [0.4, 1, 0.4],
     }),
   };
-
   return (
     <Screen style={styles.screen}>
       <View style={styles.content}>
@@ -244,6 +251,8 @@ export function TransactionsHomeScreen() {
               onDelete={handleDelete}
               onEdit={handleEdit}
               onPressRefresh={handleRefresh}
+              scrollToDateKey={scrollToDateKey}
+              scrollToDateTrigger={scrollToDateTrigger}
             />
           </View>
 
