@@ -22,7 +22,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.mustafa123_1.mobile"
+      "package": "com.mustafa123_1.mobile",
+       "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "static",
