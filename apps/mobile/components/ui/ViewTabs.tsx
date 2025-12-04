@@ -1,6 +1,7 @@
 import { useTranslation } from "@budget/core";
 import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 export type ViewTab = "all" | "fixed" | "income" | "expense";
 
@@ -21,9 +22,12 @@ function TabChip({ label, active, onPress }: TabChipProps) {
       onPress={onPress}
       style={[styles.tabChip, active && styles.tabChipActive]}
     >
-      <Text style={[styles.tabChipText, active && styles.tabChipTextActive]}>
+      <MText
+        variant="bodyStrong"
+        color={active ? "textInverse" : "textSecondary"}
+      >
         {label}
-      </Text>
+      </MText>
     </TouchableOpacity>
   );
 }
@@ -60,31 +64,22 @@ export function ViewTabs({ active, onChange }: Props) {
 const styles = StyleSheet.create({
   tabsRow: {
     flexDirection: "row",
-    backgroundColor: "#020617",
-    borderRadius: 999,
+    backgroundColor: colors.surface,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#1e293b",
-    padding: 4,
-    marginTop: 10,
-    marginBottom: 12,
+    borderColor: colors.borderSubtle,
+    padding: spacing.xs,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
   },
   tabChip: {
     flex: 1,
-    paddingVertical: 8,
-    borderRadius: 999,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.full,
     alignItems: "center",
     justifyContent: "center",
   },
   tabChipActive: {
-    backgroundColor: "#22c55e",
-  },
-  tabChipText: {
-    color: "#9ca3af",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  tabChipTextActive: {
-    color: "#0f172a",
-    fontWeight: "700",
+    backgroundColor: colors.success,
   },
 });

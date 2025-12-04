@@ -2,13 +2,12 @@
 
 import React, { useState } from "react";
 import dayjs from "dayjs";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useTranslation, type LocalTransaction } from "@budget/core";
-import { styles } from "../styles";
 import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 type TransactionType = "Income" | "Expense";
-
 type Transaction = LocalTransaction;
 
 interface TransactionFormProps {
@@ -27,10 +26,11 @@ export default function TransactionForm({
   initialFixedEndMonth,
   onSubmit,
 }: TransactionFormProps) {
+  const { t } = useTranslation();
+
   const [date, setDate] = useState(
     initialTransaction?.date ?? dayjs().format("YYYY-MM-DD")
   );
-  const { t } = useTranslation();
   const [type, setType] = useState<TransactionType>(
     (initialTransaction?.type as TransactionType) ?? "Expense"
   );
@@ -42,7 +42,6 @@ export default function TransactionForm({
   const [amount, setAmount] = useState(
     initialTransaction ? String(initialTransaction.amount) : ""
   );
-
   const [fixedEndMonth, setFixedEndMonth] = useState<string | null>(
     initialFixedEndMonth ?? null
   );
@@ -77,12 +76,14 @@ export default function TransactionForm({
 
   return (
     <View style={styles.form}>
-      {/* DATE */}
       <LocalizedDatePicker value={date} onChange={setDate} label={t("date")} />
 
       {/* TYPE */}
       <View style={styles.field}>
-        <Text style={styles.label}>{t("type")}</Text>
+        <MText variant="caption" color="textSecondary" style={styles.label}>
+          {t("type")}
+        </MText>
+
         <View style={styles.segmentRow}>
           <TouchableOpacity
             style={[
@@ -91,14 +92,13 @@ export default function TransactionForm({
             ]}
             onPress={() => setType("Income")}
           >
-            <Text
-              style={[
-                styles.segmentText,
-                type === "Income" && styles.segmentTextActive,
-              ]}
+            <MText
+              variant="bodyStrong"
+              color={type === "Income" ? "textPrimary" : "textSecondary"}
+              style={styles.segmentText}
             >
               {t("income")}
-            </Text>
+            </MText>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -108,21 +108,23 @@ export default function TransactionForm({
             ]}
             onPress={() => setType("Expense")}
           >
-            <Text
-              style={[
-                styles.segmentText,
-                type === "Expense" && styles.segmentTextActive,
-              ]}
+            <MText
+              variant="bodyStrong"
+              color={type === "Expense" ? "textPrimary" : "textSecondary"}
+              style={styles.segmentText}
             >
               {t("expense")}
-            </Text>
+            </MText>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* FIXED? */}
       <View style={styles.field}>
-        <Text style={styles.label}>{t("fixed")}?</Text>
+        <MText variant="caption" color="textSecondary" style={styles.label}>
+          {t("fixed")}?
+        </MText>
+
         <View style={styles.segmentRow}>
           <TouchableOpacity
             style={[styles.segment, !isFixed && styles.segmentActiveNeutral]}
@@ -131,22 +133,26 @@ export default function TransactionForm({
               setFixedEndMonth(null);
             }}
           >
-            <Text
-              style={[styles.segmentText, !isFixed && styles.segmentTextActive]}
+            <MText
+              variant="bodyStrong"
+              color={!isFixed ? "textPrimary" : "textSecondary"}
+              style={styles.segmentText}
             >
               {t("no")}
-            </Text>
+            </MText>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
             onPress={() => setIsFixed(true)}
           >
-            <Text
-              style={[styles.segmentText, isFixed && styles.segmentTextActive]}
+            <MText
+              variant="bodyStrong"
+              color={isFixed ? "textPrimary" : "textSecondary"}
+              style={styles.segmentText}
             >
               {t("yes")} ({t("recurring")})
-            </Text>
+            </MText>
           </TouchableOpacity>
         </View>
       </View>
@@ -162,44 +168,122 @@ export default function TransactionForm({
 
       {/* ITEM */}
       <View style={styles.field}>
-        <Text style={styles.label}>{t("item")}</Text>
+        <MText variant="caption" color="textSecondary" style={styles.label}>
+          {t("item")}
+        </MText>
         <TextInput
           value={item}
           onChangeText={setItem}
           placeholder={`${t("rent")}, ${t("insurance")}, ${t("salary")}...`}
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={colors.textMuted}
           style={styles.input}
         />
       </View>
 
       {/* CATEGORY */}
       <View style={styles.field}>
-        <Text style={styles.label}>{t("category")}</Text>
+        <MText variant="caption" color="textSecondary" style={styles.label}>
+          {t("category")}
+        </MText>
         <TextInput
           value={category}
           onChangeText={setCategory}
           placeholder={`${t("transport")}, ${t("food")}...`}
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={colors.textMuted}
           style={styles.input}
         />
       </View>
 
       {/* AMOUNT */}
       <View style={styles.field}>
-        <Text style={styles.label}>{t("amount")} (€)</Text>
+        <MText variant="caption" color="textSecondary" style={styles.label}>
+          {t("amount")} (€)
+        </MText>
         <TextInput
           value={amount}
           onChangeText={setAmount}
           keyboardType="decimal-pad"
           placeholder="0.00"
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={colors.textMuted}
           style={styles.input}
         />
       </View>
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>{titlePrefix}</Text>
+        <MText variant="bodyStrong" color="textInverse">
+          {titlePrefix}
+        </MText>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  form: {
+    gap: spacing.sm,
+  },
+
+  field: {
+    gap: spacing.xs,
+  },
+
+  label: {
+    marginBottom: spacing.xs * 0.3,
+  },
+
+  input: {
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    color: colors.textPrimary,
+    fontSize: 14,
+  },
+
+  segmentRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+
+  segment: {
+    flex: 1,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    paddingVertical: spacing.sm * 0.7,
+    alignItems: "center",
+    backgroundColor: colors.surfaceStrong,
+  },
+
+  // Income
+  segmentActiveIncome: {
+    borderColor: colors.success,
+    backgroundColor: "rgba(34,197,94,0.18)",
+  },
+
+  // Expense
+  segmentActiveExpense: {
+    borderColor: colors.danger,
+    backgroundColor: "rgba(239,68,68,0.18)",
+  },
+
+  // Fixed yes/no (neutral)
+  segmentActiveNeutral: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primary,
+  },
+
+  segmentText: {
+    textAlign: "center",
+  },
+
+  submitButton: {
+    marginTop: spacing.sm,
+    borderRadius: radii.full,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    alignItems: "center",
+  },
+});

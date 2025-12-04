@@ -126,7 +126,8 @@ export const en = {
     "transactions": "Transactions",
     "transaction.create": "New Transaction",
     "transaction.edit": "Edit Transaction",
-  "transaction.delete": "Delete Transaction",
+    "transaction.delete": "Delete Transaction",
     "transaction_fixed_delete": "Delete Fixed Transaction",
+    "update_fixed_transaction": "Update fixed transaction",
   };
   

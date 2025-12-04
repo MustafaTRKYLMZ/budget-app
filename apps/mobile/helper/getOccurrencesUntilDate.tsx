@@ -1,4 +1,4 @@
-import { SimulationItem } from "@/store/useSimulationStore";
+import { SimulationItem } from "@budget/core";
 import dayjs from "dayjs";
 
 export const getOccurrencesUntilDate = (

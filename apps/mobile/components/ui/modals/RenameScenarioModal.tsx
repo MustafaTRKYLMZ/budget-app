@@ -1,15 +1,9 @@
 import { useTranslation } from "@budget/core";
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-} from "react-native";
+import React from "react";
+import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { AppModal } from "@/components/ui/AppModal";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
-/**
- * rename modal – cross-platform, simple implementation
- */
 interface RenameScenarioModalProps {
   visible: boolean;
   value: string;
@@ -25,99 +19,73 @@ function RenameScenarioModal({
   onCancel,
   onSave,
 }: RenameScenarioModalProps) {
-  if (!visible) return null;
   const { t } = useTranslation();
 
+  if (!visible) return null;
+
   return (
-    <View style={styles.renameOverlay}>
-      <View style={styles.renameCard}>
-        <Text style={styles.renameTitle}>{t("rename_scenario")}</Text>
+    <AppModal visible={visible} title={t("rename_scenario")} onClose={onCancel}>
+      <View>
         <TextInput
           value={value}
           onChangeText={onChangeValue}
           style={styles.renameInput}
           placeholder={t("scenario_name")}
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={colors.textMuted}
         />
+
         <View style={styles.renameActions}>
           <TouchableOpacity
             onPress={onCancel}
             style={[styles.renameButton, styles.renameCancelButton]}
           >
-            <Text style={styles.renameCancelText}>{t("cancel")}</Text>
+            <MText variant="bodyStrong" color="textSecondary">
+              {t("cancel")}
+            </MText>
           </TouchableOpacity>
+
           <TouchableOpacity
             onPress={onSave}
             style={[styles.renameButton, styles.renameSaveButton]}
           >
-            <Text style={styles.renameSaveText}>{t("save")}</Text>
+            <MText variant="bodyStrong" color="textInverse">
+              {t("save")}
+            </MText>
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </AppModal>
   );
 }
 
 export { RenameScenarioModal };
 
 const styles = StyleSheet.create({
-  // Rename modal
-  renameOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(15,23,42,0.8)",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 50,
-  },
-  renameCard: {
-    width: "80%",
-    backgroundColor: "#020617",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-  },
-  renameTitle: {
-    color: "#e5e7eb",
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
   renameInput: {
     borderWidth: 1,
-    borderColor: "#1f2937",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    color: "#e5e7eb",
+    borderColor: colors.borderSubtle,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    color: colors.textPrimary,
     fontSize: 14,
-    marginBottom: 12,
+    marginBottom: spacing.sm,
+    backgroundColor: colors.surface,
   },
   renameActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
   },
   renameButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    marginLeft: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radii.full,
+    marginLeft: spacing.xs,
   },
   renameCancelButton: {
     backgroundColor: "transparent",
   },
   renameSaveButton: {
-    backgroundColor: "#22c55e",
-  },
-  renameCancelText: {
-    color: "#9ca3af",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  renameSaveText: {
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: "600",
+    backgroundColor: colors.success,
   },
 });

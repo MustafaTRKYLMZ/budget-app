@@ -1,14 +1,15 @@
 // apps/mobile/store/useSettingsStore.ts
 
+import { getZustandStorage } from "@/utils/storage/zustandStorage";
+import { normalizeDate } from "@budget/core";
+
+interface InitialBalance {
+  amount: number;
+  date: string;
+  updatedAt: string;
+}
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export type InitialBalance = {
-  amount: number;
-  date: string; // "YYYY-MM-DD"
-  updatedAt?: string; // optional, useful if you later sync settings
-};
 
 interface SettingsStore {
   initialBalance: InitialBalance | null;
@@ -25,26 +26,6 @@ interface SettingsStore {
 
 const STORAGE_KEY = "settings_v1";
 
-// ---- Node ortamında AsyncStorage yüzünden crash olmaması için helper ----
-const isServer = typeof window === "undefined";
-
-const createMemoryStorage = () => {
-  let store: Record<string, string> = {};
-
-  return {
-    getItem: async (name: string) => {
-      return store[name] ?? null;
-    },
-    setItem: async (name: string, value: string) => {
-      store[name] = value;
-    },
-    removeItem: async (name: string) => {
-      delete store[name];
-    },
-  };
-};
-// ------------------------------------------------------------------------
-
 export const useSettingsStore = create(
   persist<SettingsStore>(
     (set, get) => ({
@@ -53,17 +34,13 @@ export const useSettingsStore = create(
       isHydrated: false,
 
       async loadInitialBalance() {
-        // With Zustand persist, state is already rehydrated from storage.
         const { isHydrated } = get();
-
         if (!isHydrated) {
           set({ isLoading: true });
-          // Rehydration bittikten sonra onRehydrateStorage flag'i set edecek.
+          
           set({ isLoading: false, isHydrated: true });
           return;
         }
-
-        // Already hydrated, simply ensure loading is false.
         set({ isLoading: false });
       },
 
@@ -72,11 +49,7 @@ export const useSettingsStore = create(
           set({ isLoading: true });
 
           const now = new Date().toISOString();
-
-          const normalizedDate =
-            payload.date && payload.date.length >= 10
-              ? payload.date.slice(0, 10)
-              : payload.date;
+          const normalizedDate = normalizeDate(payload.date);
 
           const next: InitialBalance = {
             amount: payload.amount,
@@ -96,11 +69,9 @@ export const useSettingsStore = create(
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() =>
-        isServer ? createMemoryStorage() : AsyncStorage
-      ),
+      storage: createJSONStorage(() => getZustandStorage()),
       onRehydrateStorage: () => (state) => {
-        // When rehydration completes, mark the store as hydrated.
+       
         if (state) {
           state.isHydrated = true;
           state.isLoading = false;

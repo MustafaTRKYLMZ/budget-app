@@ -1,6 +1,7 @@
 // apps/mobile/components/ui/CashflowTotals.tsx
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 interface CashflowTotalsProps {
   income: number;
@@ -19,26 +20,37 @@ export const CashflowTotals: React.FC<CashflowTotalsProps> = ({
 }) => {
   const net = income - expense;
 
-  const netColor = net > 0 ? "#4ade80" : net < 0 ? "#fb7185" : "#e5e7eb";
+  const netColorKey: keyof typeof colors =
+    net > 0 ? "success" : net < 0 ? "danger" : "textSecondary";
 
   return (
     <View style={styles.container}>
       <View style={styles.column}>
-        <Text style={styles.label}>{incomeLabel}</Text>
-        <Text style={styles.incomeValue}>{income.toFixed(2)} €</Text>
+        <MText variant="caption" color="textSecondary">
+          {incomeLabel}
+        </MText>
+        <MText variant="bodyStrong" color="success">
+          {income.toFixed(2)} €
+        </MText>
       </View>
 
       <View style={styles.column}>
-        <Text style={styles.label}>{expenseLabel}</Text>
-        <Text style={styles.expenseValue}>{expense.toFixed(2)} €</Text>
+        <MText variant="caption" color="textSecondary">
+          {expenseLabel}
+        </MText>
+        <MText variant="bodyStrong" color="danger">
+          {expense.toFixed(2)} €
+        </MText>
       </View>
 
       <View style={styles.column}>
-        <Text style={styles.label}>{netLabel}</Text>
-        <Text style={[styles.netValue, { color: netColor }]}>
+        <MText variant="caption" color="textSecondary">
+          {netLabel}
+        </MText>
+        <MText variant="bodyStrong" color={netColorKey}>
           {net >= 0 ? "+" : ""}
           {net.toFixed(2)} €
-        </Text>
+        </MText>
       </View>
     </View>
   );
@@ -48,35 +60,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 8,
-    borderRadius: 10,
+    marginTop: spacing.sm,
+    borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: "#020819",
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.surface,
   },
   column: {
     flex: 1,
-    marginRight: 12,
-  },
-  label: {
-    color: "#9ca3af",
-    fontSize: 13,
-    marginBottom: 2,
-  },
-  incomeValue: {
-    color: "#4ade80",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  expenseValue: {
-    color: "#fb7185",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  netValue: {
-    fontSize: 14,
-    fontWeight: "700",
+    marginRight: spacing.sm,
   },
 });
