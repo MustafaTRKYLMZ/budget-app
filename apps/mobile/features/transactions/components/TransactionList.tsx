@@ -5,7 +5,13 @@ import React, {
   useRef,
   useEffect,
 } from "react";
-import { View, StyleSheet, SectionList, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  SectionList,
+  TouchableOpacity,
+  ViewToken,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { LocalizedDateText, type LocalTransaction } from "@budget/core";
@@ -14,6 +20,7 @@ import { MText, colors, spacing, radii } from "@budget/ui-native";
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { CashflowRow } from "@/components/ui/CashflowRow";
 import { findSectionIndexForDate } from "@/utils/findSectionIndexForDate";
+import { AnimatedFutureRow } from "../../../components/ui/AnimatedFutureRow";
 
 interface TransactionListProps {
   transactions: LocalTransaction[];
@@ -50,6 +57,9 @@ export default function TransactionList({
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<SectionList<LocalTransaction, TxSection> | null>(null);
   const initialScrollDoneRef = useRef(false);
+  const [visibleFutureIds, setVisibleFutureIds] = useState<
+    Record<string, boolean>
+  >({});
 
   const handleRefresh = useCallback(async () => {
     if (!onPressRefresh) return;
@@ -60,6 +70,32 @@ export default function TransactionList({
       setRefreshing(false);
     }
   }, [onPressRefresh]);
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 40,
+  }).current;
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
+      setVisibleFutureIds((prev) => {
+        const next = { ...prev };
+
+        for (const v of viewableItems) {
+          const section = v.section as TxSection | undefined;
+          if (!section || section.position !== "future") continue;
+
+          const item = v.item as LocalTransaction;
+          const id = String(item.id);
+
+          if (v.isViewable) {
+            next[id] = true;
+          }
+        }
+
+        return next;
+      });
+    }
+  ).current;
 
   const sections: TxSection[] = useMemo(() => {
     if (!transactions.length) return [];
@@ -213,13 +249,14 @@ export default function TransactionList({
       </View>
     );
   }
-
+  console.log("isVisibleFutureIds", visibleFutureIds);
   return (
     <SectionList
       ref={listRef}
       sections={sections}
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={styles.listContent}
+      onViewableItemsChanged={onViewableItemsChanged}
       stickySectionHeadersEnabled={false}
       onScrollToIndexFailed={() => {
         setTimeout(() => {
@@ -251,8 +288,10 @@ export default function TransactionList({
       }
       renderItem={({ item, section }) => {
         const isFuture = section.position === "future";
-
-        return (
+        const id = String(item.id);
+        const isVisible = !!visibleFutureIds[id];
+        console.log("isVisible", id, isVisible);
+        const content = (
           <View style={[styles.cardRow, isFuture && styles.cardRowFuture]}>
             <CashflowRow
               title={item.item}
@@ -265,6 +304,14 @@ export default function TransactionList({
               onDelete={() => onDelete(item)}
             />
           </View>
+        );
+
+        if (!isFuture) {
+          return content;
+        }
+
+        return (
+          <AnimatedFutureRow visible={isVisible}>{content}</AnimatedFutureRow>
         );
       }}
       refreshing={refreshing}
