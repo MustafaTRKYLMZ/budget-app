@@ -13,6 +13,7 @@ import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { CashflowRow } from "@/components/ui/CashflowRow";
+import { findSectionIndexForDate } from "@/utils/findSectionIndexForDate";
 
 interface TransactionListProps {
   transactions: LocalTransaction[];
@@ -25,7 +26,7 @@ interface TransactionListProps {
 
 type SectionPosition = "past" | "today" | "future" | "other";
 
-type TxSection = {
+export type TxSection = {
   key: string;
   data: LocalTransaction[];
   cumulativeBalance: number;
@@ -143,56 +144,7 @@ export default function TransactionList({
       if (!sections.length) return;
       if (!listRef.current) return;
 
-      let sectionIndex = -1;
-
-      if (targetKey) {
-        const target = dayjs(targetKey).startOf("day");
-
-        sectionIndex = sections.findIndex((s) => s.key === targetKey);
-
-        if (sectionIndex === -1) {
-          let bestBeforeIdx = -1;
-          let bestBeforeDiff = Number.POSITIVE_INFINITY;
-
-          sections.forEach((s, idx) => {
-            if (s.key === "other") return;
-            const d = dayjs(s.key).startOf("day");
-            const diffDays = target.diff(d, "day");
-
-            if (diffDays >= 0 && diffDays < bestBeforeDiff) {
-              bestBeforeDiff = diffDays;
-              bestBeforeIdx = idx;
-            }
-          });
-
-          if (bestBeforeIdx !== -1) {
-            sectionIndex = bestBeforeIdx;
-          } else {
-            let bestAfterIdx = -1;
-            let bestAfterDiff = Number.POSITIVE_INFINITY;
-
-            sections.forEach((s, idx) => {
-              if (s.key === "other") return;
-              const d = dayjs(s.key).startOf("day");
-              const diffDays = d.diff(target, "day");
-
-              if (diffDays >= 0 && diffDays < bestAfterDiff) {
-                bestAfterDiff = diffDays;
-                bestAfterIdx = idx;
-              }
-            });
-
-            if (bestAfterIdx !== -1) {
-              sectionIndex = bestAfterIdx;
-            }
-          }
-        }
-      }
-
-      if (sectionIndex === -1) {
-        sectionIndex = sections.findIndex((s) => s.position === "today");
-      }
-
+      const sectionIndex = findSectionIndexForDate(sections, targetKey);
       if (sectionIndex === -1) return;
 
       listRef.current.scrollToLocation({
@@ -297,20 +249,24 @@ export default function TransactionList({
           </View>
         )
       }
-      renderItem={({ item }) => (
-        <View style={styles.cardRow}>
-          <CashflowRow
-            title={item.item}
-            type={item.type}
-            amount={item.amount}
-            date={item.date}
-            category={item.category}
-            isFixed={item.isFixed}
-            onPress={() => onEdit(item)}
-            onDelete={() => onDelete(item)}
-          />
-        </View>
-      )}
+      renderItem={({ item, section }) => {
+        const isFuture = section.position === "future";
+
+        return (
+          <View style={[styles.cardRow, isFuture && styles.cardRowFuture]}>
+            <CashflowRow
+              title={item.item}
+              type={item.type}
+              amount={item.amount}
+              date={item.date}
+              category={item.category}
+              isFixed={item.isFixed}
+              onPress={() => onEdit(item)}
+              onDelete={() => onDelete(item)}
+            />
+          </View>
+        );
+      }}
       refreshing={refreshing}
       onRefresh={onPressRefresh ? handleRefresh : undefined}
     />
@@ -365,5 +321,10 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
     paddingHorizontal: spacing.md,
     marginBottom: spacing.xs,
+  },
+
+  cardRowFuture: {
+    backgroundColor: colors.surfaceStrong,
+    opacity: 0.75,
   },
 });
