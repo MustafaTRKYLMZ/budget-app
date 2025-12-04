@@ -19,16 +19,14 @@ interface TransactionListProps {
   onDelete: (tx: LocalTransaction) => void;
   onEdit: (tx: LocalTransaction) => void;
   onPressRefresh?: () => void | Promise<void>;
-  /** Today / tarih butonundan gelen key: "YYYY-MM-DD" */
   scrollToDateKey?: string;
-  /** Her Today tıklamasında artırdığın sayac */
   scrollToDateTrigger?: number;
 }
 
 type SectionPosition = "past" | "today" | "future" | "other";
 
 type TxSection = {
-  key: string; // "YYYY-MM-DD" veya "other"
+  key: string;
   data: LocalTransaction[];
   cumulativeBalance: number;
   position: SectionPosition;
@@ -132,7 +130,6 @@ export default function TransactionList({
 
     const otherSections = rawSections.filter((s) => s.position === "other");
 
-    // future (üstte) → today → past → other
     return [
       ...futureSections,
       ...todaySections,
@@ -148,12 +145,50 @@ export default function TransactionList({
 
       let sectionIndex = -1;
 
-      // 1) Önce spesifik tarih varsa onu dene
       if (targetKey) {
+        const target = dayjs(targetKey).startOf("day");
+
         sectionIndex = sections.findIndex((s) => s.key === targetKey);
+
+        if (sectionIndex === -1) {
+          let bestBeforeIdx = -1;
+          let bestBeforeDiff = Number.POSITIVE_INFINITY;
+
+          sections.forEach((s, idx) => {
+            if (s.key === "other") return;
+            const d = dayjs(s.key).startOf("day");
+            const diffDays = target.diff(d, "day");
+
+            if (diffDays >= 0 && diffDays < bestBeforeDiff) {
+              bestBeforeDiff = diffDays;
+              bestBeforeIdx = idx;
+            }
+          });
+
+          if (bestBeforeIdx !== -1) {
+            sectionIndex = bestBeforeIdx;
+          } else {
+            let bestAfterIdx = -1;
+            let bestAfterDiff = Number.POSITIVE_INFINITY;
+
+            sections.forEach((s, idx) => {
+              if (s.key === "other") return;
+              const d = dayjs(s.key).startOf("day");
+              const diffDays = d.diff(target, "day");
+
+              if (diffDays >= 0 && diffDays < bestAfterDiff) {
+                bestAfterDiff = diffDays;
+                bestAfterIdx = idx;
+              }
+            });
+
+            if (bestAfterIdx !== -1) {
+              sectionIndex = bestAfterIdx;
+            }
+          }
+        }
       }
 
-      // 2) Bulunamazsa today'e git
       if (sectionIndex === -1) {
         sectionIndex = sections.findIndex((s) => s.position === "today");
       }
@@ -164,31 +199,27 @@ export default function TransactionList({
         sectionIndex,
         itemIndex: 0,
         animated: true,
-        viewPosition: 0, // hedef section ekranın tepesine
+        viewPosition: 0,
       });
     },
     [sections]
   );
 
-  // 1) İlk açılışta bir kez bugüne kaydır
   useEffect(() => {
     if (!sections.length) return;
     if (initialScrollDoneRef.current) return;
 
     initialScrollDoneRef.current = true;
 
-    const target = scrollToDateKey; // varsa önce onu dener
+    const target = scrollToDateKey;
     requestAnimationFrame(() => {
       scrollToDate(target);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sections]); // burada scrollToDateKey'e bağımlı olmak zorunlu değil
+  }, [sections]);
 
-  // 2) Today butonuna her basıldığında tekrar kaydır
   useEffect(() => {
     if (!scrollToDateKey) return;
     if (scrollToDateTrigger == null) return;
-    // sections dependency'si de olsun ki filtre değişince en güncel listeye göre scroll etsin
     scrollToDate(scrollToDateKey);
   }, [scrollToDateKey, scrollToDateTrigger, sections, scrollToDate]);
 
@@ -239,7 +270,6 @@ export default function TransactionList({
       contentContainerStyle={styles.listContent}
       stickySectionHeadersEnabled={false}
       onScrollToIndexFailed={() => {
-        // içerik daha tam ölçülmemiş olabilir, biraz sonra tekrar dene
         setTimeout(() => {
           scrollToDate(scrollToDateKey);
         }, 50);

@@ -126,14 +126,12 @@ export function TransactionsHomeScreen() {
 
   // 🔹when date change, update day and month
   const handleChangeDate = (newDate: string) => {
-    const today = dayjs().format("YYYY-MM-DD");
-
-    // tarih aynı kalsa bile trigger'ı artır
-    setScrollToDateKey(today);
-    setScrollToDateTrigger((x) => x + 1);
     setSelectedDate(newDate);
+
     const newMonth = newDate.slice(0, 7);
     setMonth(newMonth);
+    setScrollToDateKey(newDate);
+    setScrollToDateTrigger((x) => x + 1);
   };
 
   // 🔹 when month changed animation
