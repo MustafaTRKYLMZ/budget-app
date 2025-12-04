@@ -57,9 +57,10 @@ export default function TransactionList({
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<SectionList<LocalTransaction, TxSection> | null>(null);
   const initialScrollDoneRef = useRef(false);
-  const [visibleFutureIds, setVisibleFutureIds] = useState<
-    Record<string, boolean>
-  >({});
+
+  const [visibleItemIds, setVisibleItemIds] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const handleRefresh = useCallback(async () => {
     if (!onPressRefresh) return;
@@ -71,25 +72,19 @@ export default function TransactionList({
     }
   }, [onPressRefresh]);
 
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 40,
-  }).current;
-
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
-      setVisibleFutureIds((prev) => {
-        const next = { ...prev };
+      setVisibleItemIds(() => {
+        const next: Record<string, boolean> = {};
 
         for (const v of viewableItems) {
-          const section = v.section as TxSection | undefined;
-          if (!section || section.position !== "future") continue;
+          if (!v.isViewable) continue;
 
-          const item = v.item as LocalTransaction;
+          const item = v.item as LocalTransaction | null;
+          if (!item) continue;
+
           const id = String(item.id);
-
-          if (v.isViewable) {
-            next[id] = true;
-          }
+          next[id] = true;
         }
 
         return next;
@@ -249,7 +244,6 @@ export default function TransactionList({
       </View>
     );
   }
-  console.log("isVisibleFutureIds", visibleFutureIds);
   return (
     <SectionList
       ref={listRef}
@@ -257,6 +251,7 @@ export default function TransactionList({
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={styles.listContent}
       onViewableItemsChanged={onViewableItemsChanged}
+      viewabilityConfig={{ itemVisiblePercentThreshold: 40 }}
       stickySectionHeadersEnabled={false}
       onScrollToIndexFailed={() => {
         setTimeout(() => {
@@ -286,11 +281,11 @@ export default function TransactionList({
           </View>
         )
       }
-      renderItem={({ item, section }) => {
+      renderItem={({ item, section, index }) => {
         const isFuture = section.position === "future";
         const id = String(item.id);
-        const isVisible = !!visibleFutureIds[id];
-        console.log("isVisible", id, isVisible);
+        const isVisible = !!visibleItemIds[id];
+
         const content = (
           <View style={[styles.cardRow, isFuture && styles.cardRowFuture]}>
             <CashflowRow
@@ -306,12 +301,16 @@ export default function TransactionList({
           </View>
         );
 
-        if (!isFuture) {
-          return content;
-        }
+        if (!isFuture) return content;
 
         return (
-          <AnimatedFutureRow visible={isVisible}>{content}</AnimatedFutureRow>
+          <AnimatedFutureRow
+            visible={isVisible}
+            variant="softPop"
+            index={index}
+          >
+            {content}
+          </AnimatedFutureRow>
         );
       }}
       refreshing={refreshing}
