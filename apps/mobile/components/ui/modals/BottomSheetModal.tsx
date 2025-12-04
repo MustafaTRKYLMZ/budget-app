@@ -1,7 +1,8 @@
 // apps/mobile/components/ui/BottomSheetModal.tsx
 import React, { ReactNode } from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Modal, View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { MText, colors, spacing, radii, iconSizes } from "@budget/ui-native";
 
 type BottomSheetModalProps = {
   visible: boolean;
@@ -23,29 +24,31 @@ export function BottomSheetModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      {/* Backdrop */}
+      {/* BACKDROP */}
       <TouchableOpacity
         activeOpacity={1}
         style={styles.backdrop}
         onPress={onClose}
       />
 
-      {/* Bottom sheet */}
+      {/* SHEET */}
       <View style={styles.sheet}>
-        {/* Handle bar */}
         <View style={styles.handle} />
 
-        {/* HEADER ROW */}
         <View style={styles.headerRow}>
-          <Text style={styles.title}>{title}</Text>
+          <MText variant="heading4" color="textPrimary" style={styles.title}>
+            {title}
+          </MText>
+
           <TouchableOpacity
             onPress={onClose}
             style={styles.closeButton}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons name="close" size={18} color="#e5e7eb" />
+            <Ionicons name="close" size={iconSizes.lg} color={colors.danger} />
           </TouchableOpacity>
         </View>
+
         {children}
       </View>
     </Modal>
@@ -55,47 +58,49 @@ export function BottomSheetModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(15,23,42,0.7)",
+    backgroundColor: "rgba(2,6,23,0.65)",
   },
+
   sheet: {
     position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: "#020617",
+    borderTopLeftRadius: radii.xl,
+    borderTopRightRadius: radii.xl,
+    backgroundColor: colors.surfaceStrong,
     borderTopWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 16,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
+
   handle: {
     alignSelf: "center",
-    width: 40,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "#4b5563",
-    marginBottom: 8,
+    width: 44,
+    height: 5,
+    borderRadius: radii.full,
+    backgroundColor: colors.borderSubtle,
+    marginBottom: spacing.sm,
   },
+
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
+
   title: {
     flex: 1,
-    color: "#f9fafb",
-    fontSize: 16,
-    fontWeight: "700",
   },
+
   closeButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: colors.borderSubtle,
     alignItems: "center",
     justifyContent: "center",
   },

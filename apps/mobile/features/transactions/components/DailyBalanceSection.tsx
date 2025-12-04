@@ -1,16 +1,14 @@
-// apps/mobile/features/transactions/components/DailyBalanceSection.tsx
-
 import React from "react";
-import { View, Text } from "react-native";
+import { View, StyleSheet } from "react-native";
 import dayjs from "dayjs";
-import { styles } from "../styles";
 import { QuickChip } from "./QuickChip";
 import { useTranslation } from "@budget/core";
 import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
+import { MText, colors, spacing } from "@budget/ui-native";
 
 interface Props {
-  selectedDate: string | undefined; // "YYYY-MM-DD"
-  currentMonth: string; // "YYYY-MM"
+  selectedDate: string | undefined;
+  currentMonth: string;
   balance: number;
   onChangeDate: (dateStr: string) => void;
   title: string;
@@ -32,33 +30,36 @@ export function DailyBalanceSection({
 
   const endOfMonthStr = dayjs(`${currentMonth}-01`)
     .endOf("month")
-    .endOf("month")
     .format("YYYY-MM-DD");
+
+  const balanceColor: keyof typeof colors =
+    balance > 0 ? "success" : balance < 0 ? "danger" : "textSecondary";
 
   return (
     <>
       <View style={styles.dailyRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.dailyLabel}>{title}</Text>
+        <View style={styles.leftCol}>
+          <MText
+            style={styles.dailyLabel}
+            variant="bodyStrong"
+            color="textSecondary"
+          >
+            {title}
+          </MText>
 
-          {/* lokalize date picker */}
           <LocalizedDatePicker
             value={effectiveSelectedDate}
             onChange={onChangeDate}
           />
         </View>
 
-        <Text
-          style={[
-            styles.dailyAmount,
-            {
-              color:
-                balance > 0 ? "#4ade80" : balance < 0 ? "#fb7185" : "#e5e7eb",
-            },
-          ]}
+        <MText
+          style={styles.dailyAmount}
+          variant="heading3"
+          color={balanceColor}
         >
           {balance.toFixed(2)} €
-        </Text>
+        </MText>
       </View>
 
       {isTransaction && (
@@ -78,3 +79,26 @@ export function DailyBalanceSection({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  dailyRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing.xs,
+    gap: spacing.sm,
+  },
+  leftCol: {
+    flex: 1,
+  },
+  dailyLabel: {
+    marginBottom: spacing.xs * 0.5,
+  },
+  dailyAmount: {
+    textAlign: "right",
+  },
+  quickRow: {
+    flexDirection: "row",
+    marginBottom: spacing.sm,
+    gap: spacing.xs,
+  },
+});

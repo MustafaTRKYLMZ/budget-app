@@ -1,11 +1,10 @@
 import React from "react";
-import { useTranslation, type LocalTransaction } from "@budget/core";
-import type { DeleteScope } from "../../../store/useTransactionsStore";
-import { ScopeSheet, type Scope, type ScopeOption } from "./ScopeSheet";
+import { Scope, useTranslation, type LocalTransaction } from "@budget/core";
+import { ScopeOption, ScopeSheet } from "./ScopeSheet";
 
 interface Props {
   target: LocalTransaction | null;
-  onConfirm: (scope: DeleteScope) => void;
+  onConfirm: (scope: Scope) => void;
   onClose: () => void;
 }
 
@@ -35,7 +34,7 @@ export function DeleteTransactionSheet({ target, onConfirm, onClose }: Props) {
       ];
 
   const handleSelect = (scope: Scope) => {
-    onConfirm(scope as DeleteScope);
+    onConfirm(scope as Scope);
   };
 
   return (

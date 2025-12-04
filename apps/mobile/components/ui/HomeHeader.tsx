@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@budget/core";
 import LanguageSelector from "../LanguageSelector";
+import { MText, colors, spacing, radii, iconSizes } from "@budget/ui-native";
 
 interface Props {
   onOpenMenu: () => void;
@@ -18,82 +19,88 @@ export function HomeHeader({
   const { t } = useTranslation();
 
   return (
-    <View style={styles.headerRow}>
+    <View style={localStyles.headerRow}>
       {/* LEFT SIDE: hamburger + title / subtitle */}
-      <View style={styles.leftContainer}>
+      <View style={localStyles.leftContainer}>
         <TouchableOpacity
           onPress={onOpenMenu}
-          style={styles.menuButton}
+          style={localStyles.menuButton}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="menu" size={24} color="#e5e7eb" />
+          <Ionicons name="menu" size={22} color={colors.textInverse} />
         </TouchableOpacity>
-        <View style={styles.headerTextBlock}>
-          <Text style={styles.screenTitle}>{t("budget")}</Text>
-          <Text style={styles.screenSubtitle}>{t("budget.desc")}</Text>
+
+        <View style={localStyles.headerTextBlock}>
+          <MText
+            variant="heading1"
+            color="textPrimary"
+            style={localStyles.screenTitle}
+          >
+            {t("budget")}
+          </MText>
+          <MText
+            variant="body"
+            color="textSecondary"
+            style={localStyles.screenSubtitle}
+          >
+            {t("budget.desc")}
+          </MText>
         </View>
       </View>
+
       {/* RIGHT SIDE: simulation + language */}
-      <View style={styles.rightContainer}>
+      <View style={localStyles.rightContainer}>
         <TouchableOpacity
           onPress={onOpenSimulation}
-          style={styles.simButton}
+          style={localStyles.simButton}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="flask-outline" size={22} color="#a5b4fc" />
+          <Ionicons
+            name="flask-outline"
+            size={iconSizes.lg}
+            color={colors.textPrimary}
+          />
         </TouchableOpacity>
+
         <LanguageSelector onLanguageChange={onLanguageChange} />
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const localStyles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
-
   leftContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
     flexShrink: 1,
   },
-
   rightContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-
   menuButton: {
-    padding: 6,
-    borderRadius: 999,
+    padding: spacing.xs,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#1f2937",
-    marginRight: 10,
+    borderColor: colors.borderSubtle,
+    marginRight: spacing.sm,
   },
-
   headerTextBlock: {
     flexShrink: 1,
   },
-
-  screenTitle: {
-    color: "#f9fafb",
-    fontSize: 24,
-    fontWeight: "800",
-  },
-
+  screenTitle: {},
   screenSubtitle: {
-    color: "#9ca3af",
-    fontSize: 14,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
-
   simButton: {
-    padding: 6,
-    borderRadius: 999,
-    marginRight: 6,
+    padding: spacing.xs,
+    borderRadius: radii.full,
+    marginRight: spacing.xs,
   },
 });

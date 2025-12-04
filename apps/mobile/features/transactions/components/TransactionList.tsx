@@ -1,17 +1,11 @@
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SectionList,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, SectionList, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { LocalizedDateText, type LocalTransaction } from "@budget/core";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
-import { styles } from "../styles";
 import { CashflowRow } from "@/components/ui/CashflowRow";
 
 interface TransactionListProps {
@@ -103,11 +97,21 @@ export default function TransactionList({
   if (!transactions.length) {
     return (
       <View style={styles.emptyState}>
-        <Ionicons name="wallet-outline" size={40} color="#4b5563" />
-        <Text style={styles.emptyTitle}>No transactions yet</Text>
-        <Text style={styles.emptySubtitle}>
+        <Ionicons
+          name="wallet-outline"
+          size={40}
+          color={colors.textSecondary}
+        />
+        <MText variant="bodyStrong" color="textPrimary">
+          No transactions yet
+        </MText>
+        <MText
+          variant="body"
+          color="textSecondary"
+          style={styles.emptySubtitle}
+        >
           Add a new one with the + button or refresh.
-        </Text>
+        </MText>
 
         {onPressRefresh && (
           <TouchableOpacity
@@ -117,10 +121,12 @@ export default function TransactionList({
             <Ionicons
               name="refresh-outline"
               size={16}
-              color="#e5e7eb"
-              style={{ marginRight: 6 }}
+              color={colors.textMuted}
+              style={{ marginRight: spacing.xs }}
             />
-            <Text style={styles.emptyRefreshText}>Refresh</Text>
+            <MText variant="bodyStrong" color="primary">
+              Refresh
+            </MText>
           </TouchableOpacity>
         )}
       </View>
@@ -133,42 +139,30 @@ export default function TransactionList({
       keyExtractor={(item) => String(item.id)}
       renderSectionHeader={({ section }) =>
         section.key === "other" ? null : (
-          <View style={localStyles.dateHeader}>
+          <View style={styles.dateHeader}>
             <LocalizedDateText
               date={section.key}
-              style={localStyles.dateHeaderTitle}
+              style={styles.dateHeaderTitle}
               shortMonth
             />
-            <Text
-              style={[
-                localStyles.dateHeaderBalance,
-                {
-                  color:
-                    section.cumulativeBalance > 0
-                      ? "#4ade80"
-                      : section.cumulativeBalance < 0
-                      ? "#fb7185"
-                      : "#9ca3af",
-                },
-              ]}
+            <MText
+              variant="bodyStrong"
+              color={
+                section.cumulativeBalance > 0
+                  ? "success"
+                  : section.cumulativeBalance < 0
+                  ? "danger"
+                  : "textMuted"
+              }
             >
               {section.cumulativeBalance.toFixed(2)} €
-            </Text>
+            </MText>
           </View>
         )
       }
-      renderItem={({ item, index, section }) => {
-        const isFirst = index === 0;
-        const isLast = index === section.data.length - 1;
-
+      renderItem={({ item }) => {
         return (
-          <View
-            style={[
-              localStyles.cardRow,
-              isFirst && localStyles.cardFirst,
-              isLast && localStyles.cardLast,
-            ]}
-          >
+          <View style={[styles.cardRow]}>
             <CashflowRow
               title={item.item}
               type={item.type}
@@ -190,43 +184,54 @@ export default function TransactionList({
   );
 }
 
-const localStyles = StyleSheet.create({
+const styles = StyleSheet.create({
+  listContent: {
+    paddingVertical: spacing.xs,
+  },
+
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: spacing["2xl"],
+    gap: spacing.xs,
+  },
+  emptySubtitle: {
+    textAlign: "center",
+    marginTop: spacing.xs / 2,
+  },
+  emptyRefreshButton: {
+    marginTop: spacing.sm,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+
+  // section header
   dateHeader: {
-    marginTop: 16,
-    marginBottom: 4,
-    paddingHorizontal: 4,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
+    paddingHorizontal: spacing.xs,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   dateHeaderTitle: {
-    color: "#f3f4f6",
+    color: colors.textPrimary,
     fontSize: 15,
     fontWeight: "700",
   },
-  dateHeaderBalance: {
-    fontSize: 15,
-    fontWeight: "600",
-  },
 
   cardRow: {
-    backgroundColor: "#020819",
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 12,
-  },
-
-  cardFirst: {
-    borderTopWidth: 1,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
-  },
-
-  cardLast: {
-    borderBottomWidth: 1,
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-    marginBottom: 14,
+    backgroundColor: colors.surface,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.xs,
   },
 });

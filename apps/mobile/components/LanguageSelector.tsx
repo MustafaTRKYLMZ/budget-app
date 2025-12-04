@@ -1,12 +1,9 @@
+// apps/mobile/components/LanguageSelector.tsx
 import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-} from "react-native";
-import { useTranslation, theme } from "@budget/core";
+import { View, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import { useTranslation } from "@budget/core";
+import { colors, spacing, radii } from "@budget/ui-native";
+import { FlagIcon, type LangCode } from "@/components/ui/FlagIcon";
 
 type Props = {
   onLanguageChange?: (msg: string) => void;
@@ -15,13 +12,9 @@ type Props = {
 export default function LanguageSelector({ onLanguageChange }: Props) {
   const { language, setLanguage } = useTranslation();
   const [open, setOpen] = useState(false);
-
   const dropdownAnim = useRef(new Animated.Value(0)).current;
 
-  const flags = {
-    en: "🇬🇧",
-    tr: "🇹🇷",
-  };
+  const currentLang: LangCode = language === "tr" ? "tr" : "en";
 
   const toggleDropdown = () => {
     setOpen((prev) => !prev);
@@ -33,16 +26,15 @@ export default function LanguageSelector({ onLanguageChange }: Props) {
       duration: 160,
       useNativeDriver: true,
     }).start();
-  }, [open]);
+  }, [open, dropdownAnim]);
 
-  const changeLanguage = (lng: "en" | "tr") => {
+  const changeLanguage = (lng: LangCode) => {
     setLanguage(lng);
     if (onLanguageChange) {
       onLanguageChange(
         lng === "en" ? "Language changed to English" : "Dil Türkçe yapıldı"
       );
     }
-
     setOpen(false);
   };
 
@@ -60,27 +52,29 @@ export default function LanguageSelector({ onLanguageChange }: Props) {
 
   return (
     <View style={styles.wrapper}>
+      {/* MAIN BUTTON */}
       <TouchableOpacity style={styles.flagButton} onPress={toggleDropdown}>
-        <Text style={styles.flagText}>{flags[language]}</Text>
+        <FlagIcon code={currentLang} size={34} />
       </TouchableOpacity>
 
+      {/* DROPDOWN */}
       {open && (
         <Animated.View style={[styles.dropdown, dropdownStyle]}>
-          {language !== "en" && (
+          {currentLang !== "en" && (
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => changeLanguage("en")}
             >
-              <Text style={styles.dropdownFlag}>🇬🇧</Text>
+              <FlagIcon code="en" size={30} />
             </TouchableOpacity>
           )}
 
-          {language !== "tr" && (
+          {currentLang !== "tr" && (
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => changeLanguage("tr")}
             >
-              <Text style={styles.dropdownFlag}>🇹🇷</Text>
+              <FlagIcon code="tr" size={30} />
             </TouchableOpacity>
           )}
         </Animated.View>
@@ -91,49 +85,36 @@ export default function LanguageSelector({ onLanguageChange }: Props) {
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginLeft: 10,
+    marginLeft: spacing.sm,
     position: "relative",
   },
-
   flagButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1,
-    borderColor: theme.colors.borderSubtle,
+    width: 40,
+    height: 40,
+    borderRadius: radii.full,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: theme.colors.surface,
   },
-  flagText: {
-    fontSize: 22,
-  },
-
   dropdown: {
     position: "absolute",
     top: 46,
     right: 0,
-    paddingVertical: 6,
-    backgroundColor: theme.colors.primaryDark,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: theme.colors.borderSubtle,
+
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    backgroundColor: "transparent",
+    borderWidth: 0,
     zIndex: 20,
-    minWidth: 48,
+    minWidth: 0,
     alignItems: "center",
-    elevation: 6,
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    elevation: 0,
+    shadowColor: "transparent",
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    shadowOffset: { width: 0, height: 0 },
   },
-
   dropdownItem: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-
-  dropdownFlag: {
-    fontSize: 22,
+    paddingVertical: spacing.xs / 2,
+    paddingHorizontal: spacing.xs / 2,
   },
 });

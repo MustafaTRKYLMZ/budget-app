@@ -1,26 +1,18 @@
 // apps/mobile/components/ui/CashflowRow.tsx
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LocalizedDateText } from "@budget/core";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 export interface CashflowRowProps {
   title: string;
   type: "Income" | "Expense";
   amount: number;
   date?: string;
-
-  // Optional fields — simulation sometimes won't send them
   category?: string;
   isFixed?: boolean;
   planId?: string | number;
-
   onPress?: () => void;
   onDelete?: () => void;
   multiplier?: number;
@@ -39,29 +31,33 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
 }) => {
   const isIncome = type === "Income";
   const isExpense = type === "Expense";
-  const amountColor = isIncome ? "#4ade80" : "#fb7185";
+
+  const amountColor = isIncome ? colors.success : colors.danger;
   const arrowIconName = isIncome ? "arrow-up" : "arrow-down";
 
   const statusIconName = isFixed ? "repeat" : undefined;
-  const statusIconColor = isFixed ? "#bfdbfe" : "#6b7280";
+  const statusIconColor = isFixed ? colors.primaryLight : colors.textMuted;
 
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+      style={({ pressed }) => [
+        localStyles.row,
+        pressed && localStyles.rowPressed,
+      ]}
     >
       {/* LEFT */}
-      <View style={styles.leftCol}>
-        <Text style={styles.title} numberOfLines={1}>
+      <View style={localStyles.leftCol}>
+        <MText variant="bodyStrong" color="textPrimary" numberOfLines={1}>
           {title}
-        </Text>
+        </MText>
 
-        <View style={styles.metaRow}>
+        <View style={localStyles.metaRow}>
           {date ? (
             <LocalizedDateText
               date={date}
-              style={styles.dateText}
-              shortMonth={true}
+              shortMonth
+              style={localStyles.dateText}
             />
           ) : null}
 
@@ -70,34 +66,42 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
               name={statusIconName}
               size={13}
               color={statusIconColor}
-              style={{ marginRight: 6 }}
+              style={{ marginRight: 4 }}
             />
           )}
 
           {category && (
-            <Text style={styles.categoryText} numberOfLines={1}>
+            <MText variant="caption" color="textMuted" numberOfLines={1}>
               {category}
-            </Text>
+            </MText>
           )}
         </View>
       </View>
 
       {/* RIGHT */}
-      <View style={styles.rightCol}>
-        <View style={styles.amountRow}>
+      <View style={localStyles.rightCol}>
+        <View style={localStyles.amountRow}>
           <Ionicons
             name={arrowIconName}
             size={16}
             color={amountColor}
             style={{ marginRight: 4, marginTop: 1 }}
           />
-          <Text style={[styles.amount, { color: amountColor }]}>
+
+          <MText
+            variant="bodyStrong"
+            color={isIncome ? "success" : "danger"}
+            style={localStyles.amount}
+          >
             {isExpense && "-"}
             {Math.abs(amount).toFixed(2)} €
-          </Text>
+          </MText>
+
           {multiplier && multiplier > 1 && (
-            <View style={styles.multiplierPill}>
-              <Text style={styles.multiplierText}>×{multiplier}</Text>
+            <View style={localStyles.multiplierPill}>
+              <MText variant="caption" color="textMuted">
+                ×{multiplier}
+              </MText>
             </View>
           )}
         </View>
@@ -105,10 +109,10 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
         {onDelete && (
           <TouchableOpacity
             onPress={onDelete}
-            style={styles.iconButton}
+            style={localStyles.iconButton}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons name="trash-outline" size={18} color="#fca5a5" />
+            <Ionicons name="trash-outline" size={18} color={colors.danger} />
           </TouchableOpacity>
         )}
       </View>
@@ -116,35 +120,12 @@ export const CashflowRow: React.FC<CashflowRowProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  amountRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  multiplierPill: {
-    marginLeft: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#4b5563",
-  },
-  multiplierText: {
-    color: "#9ca3af",
-    fontSize: 11,
-    fontWeight: "500",
-  },
-  dateText: {
-    color: "#9ca3af",
-    fontSize: 12,
-    marginLeft: 8,
-  },
+const localStyles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    paddingVertical: 10,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: "#1e293b",
+    borderBottomColor: colors.borderSubtle,
   },
   rowPressed: {
     opacity: 0.8,
@@ -152,19 +133,14 @@ const styles = StyleSheet.create({
   leftCol: {
     flex: 1,
   },
-  title: {
-    color: "#f9fafb",
-    fontSize: 14,
-    fontWeight: "600",
-  },
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
+    marginTop: spacing.xs,
     gap: 6,
   },
-  categoryText: {
-    color: "#9ca3af",
+  dateText: {
+    color: colors.textMuted,
     fontSize: 12,
   },
   rightCol: {
@@ -172,12 +148,24 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     gap: 6,
   },
-
+  amountRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: spacing.md,
+  },
   amount: {
     fontSize: 14,
     fontWeight: "600",
   },
+  multiplierPill: {
+    marginLeft: spacing.xs,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: colors.textMuted,
+  },
   iconButton: {
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
   },
 });

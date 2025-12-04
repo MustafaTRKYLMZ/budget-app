@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   Modal,
@@ -11,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 import { getLocalizedDateParts, useTranslation } from "@budget/core";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 interface Props {
   value: string; // "YYYY-MM-DD"
@@ -26,19 +26,25 @@ export function LocalizedDatePicker({ value, label, onChange }: Props) {
 
   return (
     <>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && (
+        <View style={styles.labelWrapper}>
+          <MText variant="caption" color="textSecondary">
+            {label}
+          </MText>
+        </View>
+      )}
 
       {/* MAIN BUTTON */}
       <TouchableOpacity style={styles.button} onPress={() => setOpen(true)}>
         <Ionicons
           name="calendar-outline"
           size={18}
-          color="#94a3b8"
+          color={colors.textMuted}
           style={{ marginRight: 6 }}
         />
-        <Text style={styles.buttonText}>
+        <MText variant="bodyStrong" color="textPrimary">
           {day} {monthShort} {year}
-        </Text>
+        </MText>
       </TouchableOpacity>
 
       {/* CUSTOM HEADER + PICKER */}
@@ -46,6 +52,7 @@ export function LocalizedDatePicker({ value, label, onChange }: Props) {
         {/* BACKDROP */}
         <TouchableOpacity
           style={styles.backdrop}
+          activeOpacity={1}
           onPress={() => setOpen(false)}
         />
 
@@ -53,6 +60,7 @@ export function LocalizedDatePicker({ value, label, onChange }: Props) {
         <View style={styles.sheet}>
           <DateTimePickerModal
             isVisible={true}
+            themeVariant="dark"
             date={dayjs(value).toDate()}
             mode="date"
             display={Platform.OS === "ios" ? "spinner" : "default"}
@@ -69,48 +77,35 @@ export function LocalizedDatePicker({ value, label, onChange }: Props) {
 }
 
 const styles = StyleSheet.create({
-  label: {
-    color: "#cbd5e1",
-    fontSize: 13,
-    marginBottom: 4,
+  labelWrapper: {
+    marginBottom: spacing.xs,
   },
   button: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 10,
+    borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: "#334155",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: "#0f172a",
-  },
-  buttonText: {
-    color: "#f8fafc",
-    fontSize: 15,
-    fontWeight: "500",
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.surface,
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(15,23,42,0.65)",
+    backgroundColor: "rgba(2,6,23,0.7)",
   },
   sheet: {
     position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
-    paddingTop: 16,
-    paddingBottom: 24,
-    backgroundColor: "#0f172a",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+    backgroundColor: colors.surfaceStrong,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
     borderWidth: 1,
-    borderColor: "#1e293b",
+    borderColor: colors.borderSubtle,
     alignItems: "center",
-  },
-  sheetTitle: {
-    color: "#f1f5f9",
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
   },
 });

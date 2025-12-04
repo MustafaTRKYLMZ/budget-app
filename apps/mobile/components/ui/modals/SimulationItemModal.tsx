@@ -1,23 +1,17 @@
 // apps/mobile/components/modals/SimulationItemModal.tsx
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
-import type { SimulationItemType } from "../../../store/useSimulationStore";
+import { View, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
-import { useTranslation } from "@budget/core";
+import { BalanceType, useTranslation } from "@budget/core";
 import { BottomSheetModal } from "./BottomSheetModal";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 interface Props {
   visible: boolean;
   initialDate: string; // "YYYY-MM-DD"
   onClose: () => void;
   onSubmit: (payload: {
-    type: SimulationItemType;
+    type: BalanceType;
     item: string;
     amount: number;
     date: string; // "YYYY-MM-DD"
@@ -31,7 +25,7 @@ export function SimulationItemModal({
   onClose,
   onSubmit,
 }: Props) {
-  const [type, setType] = useState<SimulationItemType>("Expense");
+  const [type, setType] = useState<BalanceType>("Expense");
   const [item, setItem] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(initialDate);
@@ -74,7 +68,12 @@ export function SimulationItemModal({
     >
       {/* CONTENT */}
       <View style={styles.content}>
-        <Text style={styles.smallLabel}>{t("type")}</Text>
+        {/* TYPE */}
+        <View style={styles.smallLabelWrapper}>
+          <MText variant="caption" color="textSecondary">
+            {t("type")}
+          </MText>
+        </View>
         <View style={styles.typeRow}>
           <TypeChip
             label={t("expense")}
@@ -90,72 +89,89 @@ export function SimulationItemModal({
 
         {/* FIXED? */}
         <View style={styles.field}>
-          <Text style={styles.label}>{t("fixed")}?</Text>
+          <View style={styles.labelWrapper}>
+            <MText variant="caption" color="textSecondary">
+              {t("fixed")}?
+            </MText>
+          </View>
+
           <View style={styles.segmentRow}>
             <TouchableOpacity
               style={[styles.segment, !isFixed && styles.segmentActiveNeutral]}
               onPress={() => setIsFixed(false)}
             >
-              <Text
-                style={[
-                  styles.segmentText,
-                  !isFixed && styles.segmentTextActive,
-                ]}
+              <MText
+                variant="bodyStrong"
+                color={!isFixed ? "textInverse" : "textMuted"}
               >
                 {t("no")}
-              </Text>
+              </MText>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.segment, isFixed && styles.segmentActiveNeutral]}
               onPress={() => setIsFixed(true)}
             >
-              <Text
-                style={[
-                  styles.segmentText,
-                  isFixed && styles.segmentTextActive,
-                ]}
+              <MText
+                variant="bodyStrong"
+                color={isFixed ? "textInverse" : "textMuted"}
               >
                 {t("yes")} ({t("recurring")})
-              </Text>
+              </MText>
             </TouchableOpacity>
           </View>
         </View>
 
-        <Text style={styles.smallLabel}>{t("item")}</Text>
+        {/* ITEM */}
+        <View style={styles.smallLabelWrapper}>
+          <MText variant="caption" color="textSecondary">
+            {t("item")}
+          </MText>
+        </View>
         <TextInput
           placeholder={t("new_sofa")}
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={colors.textMuted}
           value={item}
           onChangeText={setItem}
           style={styles.input}
         />
 
-        <Text style={styles.smallLabel}>{t("amount")}</Text>
+        {/* AMOUNT */}
+        <View style={styles.smallLabelWrapper}>
+          <MText variant="caption" color="textSecondary">
+            {t("amount")}
+          </MText>
+        </View>
         <TextInput
           placeholder="e.g. 1200"
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={colors.textMuted}
           value={amount}
           onChangeText={setAmount}
           keyboardType="numeric"
           style={styles.input}
         />
 
-        {/* localized, reusable picker */}
-        <LocalizedDatePicker
-          value={date}
-          onChange={setDate}
-          label={t("date")}
-        />
+        {/* DATE */}
+        <View style={{ marginTop: spacing.sm }}>
+          <LocalizedDatePicker
+            value={date}
+            onChange={setDate}
+            label={t("date")}
+          />
+        </View>
       </View>
 
       {/* BUTTONS */}
       <View style={styles.footerRow}>
         <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-          <Text style={styles.cancelText}>{t("cancel")}</Text>
+          <MText variant="bodyStrong" color="textSecondary">
+            {t("cancel")}
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
-          <Text style={styles.addButtonText}>{t("to_scenario")}</Text>
+          <MText variant="bodyStrong" color="textInverse">
+            {t("to_scenario")}
+          </MText>
         </TouchableOpacity>
       </View>
     </BottomSheetModal>
@@ -174,120 +190,98 @@ function TypeChip({ label, active, onPress }: TypeChipProps) {
       onPress={onPress}
       style={[styles.typeChip, active && styles.typeChipActive]}
     >
-      <Text style={[styles.typeChipText, active && styles.typeChipTextActive]}>
+      <MText variant="caption" color={active ? "background" : "textSecondary"}>
         {label}
-      </Text>
+      </MText>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
+  content: {
+    marginTop: spacing.xs,
+  },
+
+  // Labels
+  smallLabelWrapper: {
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  labelWrapper: {
+    marginBottom: spacing.xs,
+  },
+
+  // Type chips
+  typeRow: {
+    flexDirection: "row",
+    marginBottom: spacing.xs,
+  },
+  typeChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    marginRight: spacing.xs,
+  },
+  typeChipActive: {
+    backgroundColor: colors.success,
+    borderColor: colors.success,
+  },
+
+  // Fixed segment
+  field: {
+    marginTop: spacing.sm,
+  },
   segmentRow: {
     flexDirection: "row",
-    gap: 8,
-  },
-  label: {
-    color: "#e5e7eb",
-    fontSize: 13,
-    fontWeight: "500",
+    gap: spacing.xs,
   },
   segment: {
     flex: 1,
-    borderRadius: 999,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#374151",
-    paddingVertical: 6,
+    borderColor: colors.borderSubtle,
+    paddingVertical: spacing.sm / 1.5,
     alignItems: "center",
-    backgroundColor: "#020617",
+    backgroundColor: colors.surfaceStrong,
   },
   segmentActiveNeutral: {
-    borderColor: "#0ea5e9",
-    backgroundColor: "#082f49",
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryDark ?? colors.surfaceStrong,
   },
-  segmentText: {
-    color: "#9ca3af",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  segmentTextActive: {
-    color: "#f9fafb",
-  },
-  field: {
-    gap: 4,
-    marginTop: 8,
-  },
-  content: {
-    marginTop: 4,
-  },
-  typeRow: {
-    flexDirection: "row",
-    marginBottom: 4,
-  },
-  typeChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    marginRight: 8,
-  },
-  typeChipActive: {
-    backgroundColor: "#22c55e",
-    borderColor: "#22c55e",
-  },
-  typeChipText: {
-    color: "#9ca3af",
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  typeChipTextActive: {
-    color: "#0f172a",
-    fontWeight: "600",
-  },
+
+  // Inputs
   input: {
     borderWidth: 1,
-    borderColor: "#1f2937",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    color: "#e5e7eb",
+    borderColor: colors.borderSubtle,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    color: colors.textPrimary,
     fontSize: 14,
   },
-  smallLabel: {
-    color: "#9ca3af",
-    fontSize: 12,
-    marginBottom: 4,
-    marginTop: 6,
-  },
+
+  // Footer buttons
   footerRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   cancelButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#374151",
-    marginRight: 8,
-  },
-  cancelText: {
-    color: "#e5e7eb",
-    fontSize: 13,
-    fontWeight: "500",
+    borderColor: colors.borderSubtle,
+    marginRight: spacing.sm,
   },
   addButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#22c55e",
-  },
-  addButtonText: {
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: "600",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.full,
+    backgroundColor: colors.success,
   },
 });

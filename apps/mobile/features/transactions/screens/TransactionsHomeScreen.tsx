@@ -2,21 +2,18 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import {
   getLocalizedDateParts,
+  Scope,
   useTranslation,
   type LocalTransaction,
 } from "@budget/core";
 
 import TransactionList from "../components/TransactionList";
-import {
-  useTransactionsStore,
-  type DeleteScope,
-} from "../../../store/useTransactionsStore";
+import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { useSettingsStore } from "../../../store/useSettingsStore";
 
 import { HomeHeader } from "../../../components/ui/HomeHeader";
@@ -28,6 +25,9 @@ import { SidebarMenu } from "../../../components/ui/SidebarMenu";
 import { DeleteTransactionSheet } from "../components/DeleteTransactionSheet";
 import { syncTransactions } from "../../../services/syncTransactions";
 import { CustomAlert } from "@/components/CustomAlert";
+
+// 🔹 yeni: design system importları
+import { FAB, Screen, colors, spacing } from "@budget/ui-native";
 
 const getCurrentMonth = () => dayjs().format("YYYY-MM");
 
@@ -95,7 +95,7 @@ export function TransactionsHomeScreen() {
     setDeleteTarget(t);
   };
 
-  const confirmDelete = (scope: DeleteScope) => {
+  const confirmDelete = (scope: Scope) => {
     if (!deleteTarget) return;
     void deleteScoped(deleteTarget.id as any, scope);
     setDeleteTarget(null);
@@ -136,7 +136,7 @@ export function TransactionsHomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen style={styles.screen}>
       <View style={styles.content}>
         <HomeHeader
           onOpenMenu={() => setSidebarOpen(true)}
@@ -151,7 +151,9 @@ export function TransactionsHomeScreen() {
           balance={dailySummary.balance}
           onChangeDate={setSelectedDate}
         />
+
         <ViewTabs active={viewTab} onChange={setViewTab} />
+
         <MonthNavigator
           monthName={monthName}
           year={year}
@@ -172,18 +174,15 @@ export function TransactionsHomeScreen() {
       </View>
 
       {/* FLOATING + BUTTON */}
-      <TouchableOpacity
-        style={styles.fab}
-        activeOpacity={0.8}
+      <FAB
         onPress={() =>
           router.push({
             pathname: "/(modals)/transaction",
             params: { mode: "create" },
           })
         }
-      >
-        <Ionicons name="add" size={30} color="#020617" />
-      </TouchableOpacity>
+        icon={<Ionicons name="add" size={30} color={colors.textInverse} />}
+      />
 
       <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -198,38 +197,32 @@ export function TransactionsHomeScreen() {
         message={alertMessage}
         onHide={() => setAlertMessage("")}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#020617",
-  },
+  screen: {},
   content: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 28,
-    paddingBottom: 12,
   },
   listWrapper: {
     flex: 1,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   fab: {
     position: "absolute",
-    right: 24,
-    bottom: 130,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#22c55e",
+    right: spacing.xl,
+    bottom: spacing["2xl"] * 3,
+    width: 56,
+    height: 56,
+    borderRadius: 24,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },

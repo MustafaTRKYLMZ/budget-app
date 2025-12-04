@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "@budget/core";
+import { MText, colors, spacing, radii } from "@budget/ui-native";
 
 interface Props {
   open: boolean;
@@ -10,8 +11,9 @@ interface Props {
 }
 
 export function SidebarMenu({ open, onClose }: Props) {
-  if (!open) return null;
   const { t } = useTranslation();
+
+  if (!open) return null;
 
   const go = (path: string) => {
     onClose();
@@ -20,25 +22,41 @@ export function SidebarMenu({ open, onClose }: Props) {
 
   return (
     <View style={styles.sidebarOverlay}>
+      {/* Panel */}
       <View style={styles.sidebarPanel}>
         <View style={styles.sidebarHeaderRow}>
-          <Text style={styles.sidebarTitle}>Menu</Text>
-          <TouchableOpacity onPress={onClose} style={styles.sidebarCloseButton}>
-            <Ionicons name="close" size={22} color="#e5e7eb" />
+          <MText variant="heading3" color="textPrimary">
+            Menu
+          </MText>
+
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.sidebarCloseButton}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Ionicons name="close" size={22} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
         {/* MONEY */}
-        <Text style={styles.sectionLabel}>{t("money")}</Text>
+        <MText
+          variant="caption"
+          color="textSecondary"
+          style={styles.sectionLabel}
+        >
+          {t("money")}
+        </MText>
 
         <TouchableOpacity style={styles.sidebarItem} onPress={() => go("/")}>
           <Ionicons
             name="wallet-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("transactions")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("transactions")}
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -48,10 +66,12 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="repeat-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("fixed_expenses")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("fixed_expenses")}
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -61,16 +81,22 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="flask-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("simulation.title")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("simulation.title")}
+          </MText>
         </TouchableOpacity>
 
         {/* GROCERIES */}
-        <Text style={styles.sectionLabel}>
+        <MText
+          variant="caption"
+          color="textSecondary"
+          style={styles.sectionLabel}
+        >
           {t("grocies")} & {t("products")}
-        </Text>
+        </MText>
 
         <TouchableOpacity
           style={styles.sidebarItem}
@@ -79,10 +105,12 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="storefront-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("markets")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("markets")}
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -92,10 +120,12 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="cube-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("products")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("products")}
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -105,14 +135,22 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="list-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("shopping_list")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("shopping_list")}
+          </MText>
         </TouchableOpacity>
 
         {/* INSIGHTS */}
-        <Text style={styles.sectionLabel}>{t("insights")}</Text>
+        <MText
+          variant="caption"
+          color="textSecondary"
+          style={styles.sectionLabel}
+        >
+          {t("insights")}
+        </MText>
 
         <TouchableOpacity
           style={styles.sidebarItem}
@@ -121,12 +159,12 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="analytics-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>
+          <MText variant="body" color="textPrimary">
             {t("analytics")} / {t("reports")}
-          </Text>
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -136,16 +174,22 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="pricetags-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("price_history")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("price_history")}
+          </MText>
         </TouchableOpacity>
 
         {/* SYSTEM */}
-        <Text style={styles.sectionLabel}>
+        <MText
+          variant="caption"
+          color="textSecondary"
+          style={styles.sectionLabel}
+        >
           {t("data")} & {t("system")}
-        </Text>
+        </MText>
 
         <TouchableOpacity
           style={styles.sidebarItem}
@@ -154,10 +198,12 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="cloudy-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("sysnc")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("sysnc")}
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -167,12 +213,12 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="download-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>
+          <MText variant="body" color="textPrimary">
             {t("import")} / {t("export")}
-          </Text>
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -182,10 +228,12 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="settings-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("settings.title")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("settings.title")}
+          </MText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -195,14 +243,21 @@ export function SidebarMenu({ open, onClose }: Props) {
           <Ionicons
             name="information-circle-outline"
             size={22}
-            color="#e5e7eb"
+            color={colors.textPrimary}
             style={styles.sidebarItemIcon}
           />
-          <Text style={styles.sidebarItemText}>{t("about")}</Text>
+          <MText variant="body" color="textPrimary">
+            {t("about")}
+          </MText>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.sidebarBackdrop} onPress={onClose} />
+      {/* Backdrop */}
+      <TouchableOpacity
+        style={styles.sidebarBackdrop}
+        activeOpacity={1}
+        onPress={onClose}
+      />
     </View>
   );
 }
@@ -211,55 +266,43 @@ const styles = StyleSheet.create({
   sidebarOverlay: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
-    zIndex: 30,
+    zIndex: 40,
   },
   sidebarPanel: {
     width: 260,
-    backgroundColor: "#020617",
-    paddingHorizontal: 16,
-    paddingTop: 56,
-    paddingBottom: 32,
+    backgroundColor: colors.surfaceStrong,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing["3xl"],
+    paddingBottom: spacing.lg,
     borderRightWidth: 1,
-    borderRightColor: "#1f2937",
+    borderRightColor: colors.borderSubtle,
   },
   sidebarBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(15,23,42,0.6)",
+    backgroundColor: "rgba(2,6,23,0.65)",
   },
   sidebarHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 24,
-  },
-  sidebarTitle: {
-    color: "#e5e7eb",
-    fontSize: 18,
-    fontWeight: "700",
+    marginBottom: spacing.lg,
   },
   sidebarCloseButton: {
-    padding: 6,
-    borderRadius: 999,
+    padding: spacing.xs,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: colors.borderSubtle,
   },
   sectionLabel: {
-    color: "#64748b",
-    fontSize: 13,
-    marginTop: 20,
-    marginBottom: 6,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
   },
   sidebarItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   sidebarItemIcon: {
-    marginRight: 10,
-  },
-  sidebarItemText: {
-    color: "#e5e7eb",
-    fontSize: 15,
-    fontWeight: "500",
+    marginRight: spacing.sm,
   },
 });

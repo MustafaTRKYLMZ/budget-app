@@ -1,20 +1,12 @@
+// apps/mobile/features/transactions/screens/SimulationScreen.tsx
+
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import dayjs from "dayjs";
 
-import {
-  useSimulationStore,
-  type SimulationScenario,
-} from "../../../store/useSimulationStore";
 import { useTransactionsStore } from "../../../store/useTransactionsStore";
 import { SimulationItemModal } from "../../../components/ui/modals/SimulationItemModal";
 import { RenameScenarioModal } from "@/components/ui/modals/RenameScenarioModal";
@@ -22,7 +14,9 @@ import { DailyBalanceSection } from "@/features/transactions";
 import { CashflowTotals } from "@/components/ui/CashflowTotals";
 import { SimulationList } from "../components/SimulationList";
 import { getOccurrencesUntilDate } from "@/helper/getOccurrencesUntilDate";
-import { useTranslation } from "@budget/core";
+import { SimulationScenario, useTranslation } from "@budget/core";
+import { MText, colors, spacing, radii, FAB } from "@budget/ui-native";
+import { useSimulationStore } from "@/store/useSimulationStore";
 
 export function SimulationScreen() {
   const {
@@ -47,7 +41,6 @@ export function SimulationScreen() {
   const [showScenarioSidebar, setShowScenarioSidebar] = useState(false);
   const { t } = useTranslation();
 
-  // rename modal state
   const [renameTarget, setRenameTarget] = useState<SimulationScenario | null>(
     null
   );
@@ -64,9 +57,8 @@ export function SimulationScreen() {
       const newPlan = t("new_future_plan");
       addScenario(newPlan);
     }
-  }, [scenarios.length, addScenario]);
+  }, [scenarios.length, addScenario, t]);
 
-  // 🔹 if scenario changed, take target date from active scenario
   useEffect(() => {
     if (activeScenario?.targetDate) {
       setTargetDate(activeScenario.targetDate);
@@ -79,7 +71,6 @@ export function SimulationScreen() {
     router.back();
   };
 
-  // base (real) balance for target date
   const baseBalance = getBalanceOnDate(targetDate);
 
   const simIncomeTotalForDate =
@@ -122,6 +113,13 @@ export function SimulationScreen() {
       ? `${activeScenarioName.slice(0, 18)}…`
       : activeScenarioName;
 
+  const withSimColor: keyof typeof colors =
+    withSimulationBalance > 0
+      ? "success"
+      : withSimulationBalance < 0
+      ? "danger"
+      : "textSecondary";
+
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER */}
@@ -131,9 +129,19 @@ export function SimulationScreen() {
           style={styles.backButton}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons name="chevron-back" size={22} color="#e5e7eb" />
+          <Ionicons
+            name="chevron-back"
+            size={22}
+            color={colors.textSecondary}
+          />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t("simulation.title")}</Text>
+
+        <View style={styles.headerTitleContainer}>
+          <MText variant="heading3" color="textPrimary">
+            {t("simulation.title")}
+          </MText>
+        </View>
+
         <View style={{ width: 32 }} />
       </View>
 
@@ -142,11 +150,19 @@ export function SimulationScreen() {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.description}>{t("simulation.description")}</Text>
+        <View style={styles.descriptionWrapper}>
+          <MText variant="body" color="textSecondary">
+            {t("simulation.description")}
+          </MText>
+        </View>
 
-        {/* 🔹 Scenario header row */}
+        {/* Scenario header row */}
         <View style={styles.futureSection}>
-          <Text style={styles.sectionTitle}>{t("scenario")}</Text>
+          <View>
+            <MText variant="bodyStrong" color="textPrimary">
+              {t("scenario")}
+            </MText>
+          </View>
 
           <TouchableOpacity
             style={styles.activeScenarioButton}
@@ -156,20 +172,21 @@ export function SimulationScreen() {
             <Ionicons
               name="flask-outline"
               size={14}
-              color="#9ca3af"
+              color={colors.textMuted}
               style={{ marginRight: 6 }}
             />
-            <Text
-              style={styles.activeScenarioText}
+            <MText
+              variant="body"
+              color="textPrimary"
               numberOfLines={1}
               ellipsizeMode="tail"
             >
               {activeScenarioDisplayName}
-            </Text>
+            </MText>
             <Ionicons
               name="ellipsis-vertical"
               size={16}
-              color="#6b7280"
+              color={colors.textMuted}
               style={{ marginLeft: 4 }}
             />
           </TouchableOpacity>
@@ -191,7 +208,12 @@ export function SimulationScreen() {
 
         {/* Items list */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("planned_transactions")}</Text>
+          <View style={styles.sectionTitleContainer}>
+            <MText variant="bodyStrong" color="textPrimary">
+              {t("planned_transactions")}
+            </MText>
+          </View>
+
           {activeScenario && activeScenario.items.length > 0 ? (
             <>
               <View style={styles.simListCard}>
@@ -202,7 +224,6 @@ export function SimulationScreen() {
                 />
               </View>
 
-              {/* Planned items totals (ALL items of scenario) */}
               <CashflowTotals
                 income={simIncomeTotalForDate}
                 expense={simExpenseTotalForDate}
@@ -212,53 +233,23 @@ export function SimulationScreen() {
               />
             </>
           ) : (
-            <Text style={styles.emptySimText}>{t("no_sumalation_data")}</Text>
+            <View style={styles.emptySimTextWrapper}>
+              <MText variant="body" color="textMuted">
+                {t("no_sumalation_data")}
+              </MText>
+            </View>
           )}
         </View>
       </ScrollView>
 
-      {/* WITH SIMULATION FOOTER  */}
-      <View style={styles.withSimFooter}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons
-            name="sparkles-outline"
-            size={16}
-            color="#9ca3af"
-            style={{ marginRight: 6 }}
-          />
-          <Text style={styles.withSimLabel}>
-            {t("with_simulation_balance")}{" "}
-            {dayjs(targetDate).format("DD MMM YYYY")}
-          </Text>
-        </View>
-
-        <Text
-          style={[
-            styles.withSimAmount,
-            {
-              color:
-                withSimulationBalance > 0
-                  ? "#4ade80"
-                  : withSimulationBalance < 0
-                  ? "#fb7185"
-                  : "#e5e7eb",
-            },
-          ]}
-        >
-          {withSimulationBalance.toFixed(2)} €
-        </Text>
-      </View>
-
       {/* FAB */}
-      <TouchableOpacity
-        style={styles.fab}
-        activeOpacity={0.85}
+      <FAB
         onPress={() => setShowAddModal(true)}
-      >
-        <Ionicons name="add" size={28} color="#020617" />
-      </TouchableOpacity>
+        icon={<Ionicons name="add" size={28} color={colors.textInverse} />}
+        offsetBottom={spacing["3xl"] * 2}
+      />
 
-      {/* ADD ITEM MODAL (şimdilik lokal, birazdan route’a çekeceğiz) */}
+      {/* ADD ITEM MODAL */}
       <SimulationItemModal
         visible={showAddModal}
         initialDate={targetDate}
@@ -268,7 +259,7 @@ export function SimulationScreen() {
         }}
       />
 
-      {/* 🔹 Scenario sidebar  */}
+      {/* Scenario sidebar */}
       {showScenarioSidebar && (
         <View style={styles.sidebarOverlay}>
           <TouchableOpacity
@@ -276,15 +267,19 @@ export function SimulationScreen() {
             activeOpacity={1}
             onPress={() => setShowScenarioSidebar(false)}
           />
+
           <View style={styles.sidebarPanel}>
             <View style={styles.sidebarHeaderRow}>
-              <Text style={styles.sidebarTitle}>{t("scenarios")}</Text>
+              <MText variant="heading3" color="textPrimary">
+                {t("scenarios")}
+              </MText>
+
               <TouchableOpacity
                 onPress={() => setShowScenarioSidebar(false)}
                 style={styles.sidebarCloseButton}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Ionicons name="close" size={18} color="#e5e7eb" />
+                <Ionicons name="close" size={18} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -296,13 +291,14 @@ export function SimulationScreen() {
                 <Ionicons
                   name="add-circle-outline"
                   size={18}
-                  color="#22c55e"
+                  color={colors.success}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={styles.sidebarNewScenarioText}>
+                <MText variant="bodyStrong" color="success">
                   {t("new_scenario")}
-                </Text>
+                </MText>
               </TouchableOpacity>
+
               {scenarios.map((s) => {
                 const isActive = s.id === activeScenarioId;
                 return (
@@ -323,23 +319,21 @@ export function SimulationScreen() {
                       <Ionicons
                         name="flask-outline"
                         size={16}
-                        color={isActive ? "#0f172a" : "#9ca3af"}
+                        color={isActive ? colors.background : colors.textMuted}
                         style={{ marginRight: 8 }}
                       />
                       <View style={{ flex: 1 }}>
-                        <Text
-                          style={[
-                            styles.sidebarScenarioName,
-                            isActive && styles.sidebarScenarioNameActive,
-                          ]}
+                        <MText
+                          variant="bodyStrong"
+                          color={isActive ? "success" : "textPrimary"}
                           numberOfLines={1}
                           ellipsizeMode="tail"
                         >
                           {s.name}
-                        </Text>
-                        <Text style={styles.sidebarScenarioMeta}>
+                        </MText>
+                        <MText variant="caption" color="textSecondary">
                           {s.items.length} {t("items")}
-                        </Text>
+                        </MText>
                       </View>
                     </View>
 
@@ -350,7 +344,7 @@ export function SimulationScreen() {
                       <Ionicons
                         name="trash-outline"
                         size={16}
-                        color={"#6b7280"}
+                        color={colors.textMuted}
                       />
                     </TouchableOpacity>
                   </TouchableOpacity>
@@ -369,233 +363,135 @@ export function SimulationScreen() {
         onCancel={() => setRenameTarget(null)}
         onSave={handleConfirmRename}
       />
+      {/* WITH SIMULATION FOOTER */}
+      <View style={styles.withSimFooter}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Ionicons
+            name="sparkles-outline"
+            size={16}
+            color={colors.textMuted}
+            style={{ marginRight: 6 }}
+          />
+          <MText variant="caption" color="textSecondary">
+            {t("with_simulation_balance")}{" "}
+            {dayjs(targetDate).format("DD MMM YYYY")}
+          </MText>
+        </View>
+
+        <MText variant="bodyStrong" color={withSimColor}>
+          {withSimulationBalance.toFixed(2)} €
+        </MText>
+      </View>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#020617",
+    backgroundColor: colors.background,
+    marginTop: spacing.lg,
+    gap: spacing.md,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
   },
   backButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#1f2937",
+    borderColor: colors.borderSubtle,
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: {
+  headerTitleContainer: {
     flex: 1,
-    textAlign: "center",
-    color: "#f9fafb",
-    fontSize: 20,
-    fontWeight: "700",
+    alignItems: "center",
   },
   content: {
-    paddingHorizontal: 16,
-    paddingBottom: 140,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing["4xl"],
   },
-  description: {
-    color: "#9ca3af",
-    fontSize: 13,
-    marginBottom: 12,
+  descriptionWrapper: {
+    marginBottom: spacing.sm,
   },
 
   baseBox: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#020819",
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: colors.surface,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderWidth: 1,
-    borderColor: "#1f2937",
-    marginBottom: 12,
-  },
-  baseLabel: {
-    color: "#9ca3af",
-    fontSize: 12,
-  },
-  baseDateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
-  baseDateText: {
-    color: "#e5e7eb",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  baseAmount: {
-    fontSize: 20,
-    fontWeight: "700",
+    borderColor: colors.borderSubtle,
+    marginBottom: spacing.sm,
   },
 
   section: {
-    marginTop: 12,
+    marginTop: spacing.sm,
+  },
+  sectionTitleContainer: {
+    marginBottom: spacing.xs,
   },
   futureSection: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#020819",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderColor: "#1f2937",
-    marginBottom: 12,
-    borderRadius: 14,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderColor: colors.borderSubtle,
+    marginBottom: spacing.sm,
+    borderRadius: radii.md,
     borderWidth: 1,
-  },
-  sectionTitle: {
-    color: "#e5e7eb",
-    fontSize: 15,
-    fontWeight: "700",
-    marginBottom: 8,
   },
 
   activeScenarioButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 999,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     maxWidth: 180,
-  },
-  activeScenarioText: {
-    color: "#e5e7eb",
-    fontSize: 13,
-    fontWeight: "500",
   },
 
   simListCard: {
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    backgroundColor: "#020819",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: radii.md,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
-  simRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: "#0f172a",
-  },
-  simItemTitle: {
-    color: "#f9fafb",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  simItemMeta: {
-    color: "#9ca3af",
-    fontSize: 12,
-    marginTop: 2,
-  },
-  simItemAmount: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  simDeleteButton: {
-    padding: 4,
-    marginLeft: 4,
-  },
-  emptySimText: {
-    color: "#6b7280",
-    fontSize: 13,
-  },
-
-  simTotalsBox: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: "#020819",
-  },
-  simTotalsColumn: {
-    flex: 1,
-    marginRight: 12,
-  },
-  simTotalsLabel: {
-    color: "#9ca3af",
-    fontSize: 13,
-    marginBottom: 2,
-  },
-  simTotalsIncome: {
-    color: "#4ade80",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  simTotalsExpense: {
-    color: "#fb7185",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  simTotalsBalance: {
-    fontSize: 14,
-    fontWeight: "700",
+  emptySimTextWrapper: {
+    marginTop: spacing.xs,
   },
 
   withSimFooter: {
     position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 24,
-    borderRadius: 16,
+    left: spacing.md,
+    right: spacing.md,
+    bottom: spacing.lg,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: "#1f2937",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: "#020819",
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surfaceStrong,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  withSimLabel: {
-    color: "#9ca3af",
-    fontSize: 12,
-  },
-  withSimAmount: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-
-  fab: {
-    position: "absolute",
-    right: 24,
-    bottom: 96,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#22c55e",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
   },
 
   // Sidebar
@@ -610,69 +506,45 @@ const styles = StyleSheet.create({
   },
   sidebarPanel: {
     width: 260,
-    backgroundColor: "#020617",
+    backgroundColor: colors.background,
     borderLeftWidth: 1,
-    borderLeftColor: "#1f2937",
-    paddingHorizontal: 16,
+    borderLeftColor: colors.borderSubtle,
+    paddingHorizontal: spacing.md,
     marginTop: 40,
-    paddingTop: 20,
-    paddingBottom: 24,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   sidebarHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  sidebarTitle: {
-    color: "#e5e7eb",
-    fontSize: 18,
-    fontWeight: "700",
+    marginBottom: spacing.md,
   },
   sidebarCloseButton: {
-    padding: 6,
-    borderRadius: 999,
+    padding: spacing.xs,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: colors.borderSubtle,
   },
   sidebarScenarioRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: "#0f172a",
+    borderBottomColor: colors.borderSubtle,
   },
   sidebarScenarioRowActive: {
-    backgroundColor: "#22c55e22",
+    backgroundColor: "rgba(34,197,94,0.15)",
   },
   sidebarScenarioLeft: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 8,
-  },
-  sidebarScenarioName: {
-    color: "#e5e7eb",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  sidebarScenarioNameActive: {
-    color: "#22c55e",
-    fontWeight: "600",
-  },
-  sidebarScenarioMeta: {
-    color: "#6b7280",
-    fontSize: 11,
-    marginTop: 2,
+    marginRight: spacing.sm,
   },
   sidebarNewScenarioRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-  },
-  sidebarNewScenarioText: {
-    color: "#22c55e",
-    fontSize: 14,
-    fontWeight: "500",
+    paddingVertical: spacing.sm,
   },
 });

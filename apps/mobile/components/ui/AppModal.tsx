@@ -2,13 +2,13 @@
 import React, { ReactNode } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { MText, colors, spacing, radii, iconSizes } from "@budget/ui-native";
 
 type AppModalProps = {
   visible: boolean;
@@ -22,23 +22,32 @@ export function AppModal({ visible, title, onClose, children }: AppModalProps) {
 
   return (
     <View style={styles.root} pointerEvents="box-none">
-      {/* BACKDROP */}
       <TouchableOpacity
         style={styles.backdrop}
         activeOpacity={1}
         onPress={onClose}
       />
 
-      {/* CENTERED CARD */}
       <KeyboardAvoidingView
         style={styles.centerWrapper}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.modalCard}>
           <View style={styles.headerRow}>
-            <Text style={styles.title}>{title}</Text>
+            <View style={styles.titleWrapper}>
+              {!!title && (
+                <MText variant="heading3" color="textPrimary">
+                  {title}
+                </MText>
+              )}
+            </View>
+
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={18} color="#e5e7eb" />
+              <Ionicons
+                name="close"
+                size={iconSizes.lg}
+                color={colors.danger}
+              />
             </TouchableOpacity>
           </View>
 
@@ -57,44 +66,41 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(15,23,42,0.55)",
+    backgroundColor: "rgba(2,6,23,0.65)",
   },
   centerWrapper: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   modalCard: {
     width: "100%",
     maxWidth: 380,
-    backgroundColor: "#020617",
-    borderRadius: 18,
+    backgroundColor: colors.surfaceStrong,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: "#1e293b",
-    paddingHorizontal: 18,
-    paddingVertical: 14,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
-  title: {
+  titleWrapper: {
     flex: 1,
-    color: "#f9fafb",
-    fontSize: 18,
-    fontWeight: "600",
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   closeButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xs / 1.5,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: colors.borderSubtle,
   },
   body: {
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
 });
