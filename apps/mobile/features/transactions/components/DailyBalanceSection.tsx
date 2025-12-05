@@ -103,6 +103,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     margin: spacing.sm,
     gap: spacing.lg,
-    backgroundColor: "red",
   },
 });

@@ -31,7 +31,7 @@ export function BottomSheetModal({
       visible={visible}
       animationType="fade"
       onRequestClose={onClose}
-      presentationStyle={isIOS ? "overFullScreen" : "fullScreen"}
+      presentationStyle="overFullScreen"
     >
       <KeyboardAvoidingView
         style={styles.root}

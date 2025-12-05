@@ -73,7 +73,6 @@ export function SimulationItemModal({
       title={t("add_simulation_item")}
       onClose={onClose}
     >
-      {/*  */}
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
@@ -187,7 +186,7 @@ export function SimulationItemModal({
 
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
           <MText variant="bodyStrong" color="textInverse">
-            {t("to_scenario")}{" "}
+            {t("to_scenario")}
           </MText>
         </TouchableOpacity>
       </View>
