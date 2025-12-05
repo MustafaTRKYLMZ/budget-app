@@ -19,7 +19,7 @@ import { useTransactionsStore } from "../../store/useTransactionsStore";
 import { syncTransactions } from "../../services/syncTransactions";
 import { useTranslation } from "@budget/core";
 import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
-import { MText, colors, typography, spacing, radii } from "@budget/ui-native";
+import { MText, colors, typography, spacing, radii, iconSizes } from "@budget/ui-native";
 
 export default function SettingsScreen() {
   const handleClose = () => router.back();
@@ -90,7 +90,7 @@ export default function SettingsScreen() {
           style={styles.closeButton}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons name="close" size={22} color={colors.danger} />
+          <Ionicons name="close" size={iconSizes.lg} color={colors.danger} />
         </TouchableOpacity>
 
         <MText style={styles.headerTitle}>{t("settings.title")}</MText>
@@ -151,7 +151,7 @@ export default function SettingsScreen() {
           >
             <Ionicons
               name={isSyncing ? "sync" : "cloud-upload-outline"}
-              size={16}
+              size={iconSizes.sm}
               color={colors.textInverse}
               style={styles.syncIcon}
             />
