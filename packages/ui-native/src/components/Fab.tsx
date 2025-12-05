@@ -22,7 +22,7 @@ export const FAB: React.FC<FABProps> = ({
   icon,
   style,
   placement = "bottom-right",
-  offsetBottom = spacing["2xl"] * 3,
+  offsetBottom = spacing["xl"] * 3,
   offsetHorizontal = spacing.xl,
 }) => {
   const positionStyle: ViewStyle =

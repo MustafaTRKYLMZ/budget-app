@@ -287,32 +287,16 @@ export function TransactionsHomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {},
+  screen: { gap: spacing.lg, backgroundColor: colors.background },
   content: {
     flex: 1,
   },
   swipeArea: {
     flex: 1,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
   },
   listWrapper: {
     flex: 1,
     marginBottom: spacing.md,
-  },
-  fab: {
-    position: "absolute",
-    right: spacing.xl,
-    bottom: spacing["2xl"] * 3,
-    width: 56,
-    height: 56,
-    borderRadius: 24,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
   },
 });

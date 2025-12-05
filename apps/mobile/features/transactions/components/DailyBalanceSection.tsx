@@ -58,7 +58,7 @@ export function DailyBalanceSection({
           variant="heading3"
           color={balanceColor}
         >
-          {balance.toFixed(2)} €
+          € {balance.toFixed(2)}
         </MText>
       </View>
 
@@ -83,22 +83,25 @@ export function DailyBalanceSection({
 const styles = StyleSheet.create({
   dailyRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
+    justifyContent: "center",
     marginBottom: spacing.xs,
     gap: spacing.sm,
   },
   leftCol: {
     flex: 1,
+    gap: spacing.md,
   },
   dailyLabel: {
     marginBottom: spacing.xs * 0.5,
   },
   dailyAmount: {
     textAlign: "right",
+    marginBottom: spacing.md,
   },
   quickRow: {
     flexDirection: "row",
-    marginBottom: spacing.sm,
-    gap: spacing.xs,
+    margin: spacing.sm,
+    gap: spacing.lg,
   },
 });

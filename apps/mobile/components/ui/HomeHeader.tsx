@@ -76,20 +76,21 @@ const localStyles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   leftContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-start",
     flexShrink: 1,
+    marginLeft: spacing.sm,
+    gap: spacing.sm,
   },
   rightContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
+    height: "100%",
   },
   menuButton: {
-    padding: spacing.xs,
     borderRadius: radii.full,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    marginRight: spacing.sm,
   },
   headerTextBlock: {
     flexShrink: 1,

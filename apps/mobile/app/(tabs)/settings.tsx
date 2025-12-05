@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -18,16 +17,9 @@ import dayjs from "dayjs";
 import { useSettingsStore } from "../../store/useSettingsStore";
 import { useTransactionsStore } from "../../store/useTransactionsStore";
 import { syncTransactions } from "../../services/syncTransactions";
-import LanguageSelector from "@/components/LanguageSelector";
 import { useTranslation } from "@budget/core";
 import { LocalizedDatePicker } from "@/components/ui/LocalizedDatePicker";
-
-const PRIMARY = "#0A1A4F";
-const PRIMARY_DARK = "#050C2C";
-const PRIMARY_LIGHT = "#132868";
-const TEXT_PRIMARY = "#FFFFFF";
-const TEXT_MUTED = "#D1D5DB";
-const BORDER = "rgba(255,255,255,0.22)";
+import { MText, colors, typography, spacing, radii, iconSizes } from "@budget/ui-native";
 
 export default function SettingsScreen() {
   const handleClose = () => router.back();
@@ -98,24 +90,26 @@ export default function SettingsScreen() {
           style={styles.closeButton}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons name="close" size={22} color={TEXT_MUTED} />
+          <Ionicons name="close" size={iconSizes.lg} color={colors.danger} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t("settings.title")}</Text>
-        <View style={{ width: 32 }} />
+
+        <MText style={styles.headerTitle}>{t("settings.title")}</MText>
+
+        <View style={styles.headerRightPlaceholder} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* SECTION: Opening Balance */}
         <View>
-          <Text style={styles.sectionTitle}>{t("starting_balance")}</Text>
+          <MText style={styles.sectionTitle}>{t("starting_balance")}</MText>
 
           {/* Amount Input */}
-          <Text style={styles.itemLabel}>{t("initial_amount")}</Text>
+          <MText style={styles.itemLabel}>{t("initial_amount")}</MText>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
             placeholder="0"
-            placeholderTextColor={TEXT_MUTED}
+            placeholderTextColor={colors.textMuted}
             value={amount}
             onChangeText={setAmount}
           />
@@ -130,40 +124,40 @@ export default function SettingsScreen() {
 
         {/* Save Button */}
         <TouchableOpacity
-          style={[styles.saveButton, isLoading && { opacity: 0.5 }]}
+          style={[styles.saveButton, isLoading && styles.disabled]}
           onPress={handleSave}
           disabled={isLoading}
         >
-          <Text style={styles.saveButtonText}>{t("save")}</Text>
+          <MText style={styles.saveButtonText}>{t("save")}</MText>
         </TouchableOpacity>
 
         {/* SECTION: Sync */}
-        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+        <MText style={[styles.sectionTitle, styles.sectionTitleSpacing]}>
           {t("sysnc")}
-        </Text>
+        </MText>
 
         <View style={styles.syncInfoBox}>
           <View>
-            <Text style={styles.syncLabel}>{t("last_sync")}</Text>
-            <Text style={styles.syncValue}>{lastSyncLabel}</Text>
+            <MText style={styles.syncLabel}>{t("last_sync")}</MText>
+            <MText style={styles.syncValue}>{lastSyncLabel}</MText>
           </View>
           <TouchableOpacity
             style={[
               styles.syncButton,
-              (isSyncing || isLoading) && { opacity: 0.6 },
+              (isSyncing || isLoading) && styles.disabled,
             ]}
             onPress={handleSyncNow}
             disabled={isSyncing || isLoading}
           >
             <Ionicons
               name={isSyncing ? "sync" : "cloud-upload-outline"}
-              size={16}
-              color={TEXT_PRIMARY}
-              style={{ marginRight: 6 }}
+              size={iconSizes.sm}
+              color={colors.textInverse}
+              style={styles.syncIcon}
             />
-            <Text style={styles.syncButtonText}>
+            <MText style={styles.syncButtonText}>
               {isSyncing ? `${t("syncing")}...` : t("now_sync")}
-            </Text>
+            </MText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -174,102 +168,130 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: PRIMARY,
+    backgroundColor: colors.background,
+    marginTop: spacing.lg,
   },
+
+  // Header
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: spacing.xl,
+    height: spacing.xl,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: BORDER,
+    borderColor: colors.borderSubtle,
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    color: TEXT_PRIMARY,
-    fontSize: 20,
+    color: colors.textPrimary,
+    fontSize: typography.heading2.fontSize,
     fontWeight: "700",
   },
+  headerRightPlaceholder: {
+    width: spacing.xl,
+  },
+
+  // Content
   content: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 40,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
+
+  // Sections
   sectionTitle: {
-    color: TEXT_PRIMARY,
-    fontSize: 16,
+    color: colors.textPrimary,
+    fontSize: typography.heading3.fontSize,
     fontWeight: "700",
-    marginBottom: 12,
-    marginTop: 16,
+    marginBottom: spacing.sm,
+    marginTop: spacing.md,
   },
+  sectionTitleSpacing: {
+    marginTop: spacing.lg,
+  },
+
   itemLabel: {
-    color: TEXT_MUTED,
-    fontSize: 14,
-    marginBottom: 4,
-    marginTop: 8,
+    color: colors.textMuted,
+    fontSize: typography.body.fontSize,
+    marginBottom: spacing.xs,
+    marginTop: spacing.sm,
   },
+
   input: {
-    backgroundColor: PRIMARY_DARK,
-    color: TEXT_PRIMARY,
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
+    backgroundColor: colors.primaryDark,
+    color: colors.textPrimary,
+    padding: spacing.md,
+    borderRadius: radii.md,
+    fontSize: typography.body.fontSize,
     borderWidth: 1,
-    borderColor: BORDER,
+    borderColor: colors.borderSubtle,
   },
+
+  // Save button
   saveButton: {
-    backgroundColor: PRIMARY_LIGHT,
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: colors.primaryLight,
+    paddingVertical: spacing.md,
+    borderRadius: radii.md,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   saveButtonText: {
-    color: TEXT_PRIMARY,
-    fontSize: 16,
+    color: colors.textPrimary,
+    fontSize: typography.body.fontSize,
     fontWeight: "600",
   },
+
+  // Sync box
   syncInfoBox: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: PRIMARY_DARK,
-    borderRadius: 12,
+    backgroundColor: colors.primaryDark,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: BORDER,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   syncLabel: {
-    color: TEXT_MUTED,
-    fontSize: 13,
-    marginBottom: 4,
+    color: colors.textMuted,
+    fontSize: typography.body.fontSize,
+    marginBottom: spacing.xs,
   },
   syncValue: {
-    color: TEXT_PRIMARY,
-    fontSize: 14,
+    color: colors.textPrimary,
+    fontSize: typography.body.fontSize,
     fontWeight: "500",
   },
+
   syncButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: PRIMARY_LIGHT,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.full,
+  },
+  syncIcon: {
+    marginRight: spacing.xs,
   },
   syncButtonText: {
-    color: TEXT_PRIMARY,
-    fontSize: 14,
+    color: colors.textPrimary,
+    fontSize: typography.body.fontSize,
     fontWeight: "600",
+  },
+
+  // Common
+  disabled: {
+    opacity: 0.5,
   },
 });
