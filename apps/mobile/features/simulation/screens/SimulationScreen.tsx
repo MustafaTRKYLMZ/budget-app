@@ -15,7 +15,15 @@ import { CashflowTotals } from "@/components/ui/CashflowTotals";
 import { SimulationList } from "../components/SimulationList";
 import { getOccurrencesUntilDate } from "@/helper/getOccurrencesUntilDate";
 import { SimulationScenario, useTranslation } from "@budget/core";
-import { MText, colors, spacing, radii, FAB } from "@budget/ui-native";
+import {
+  MText,
+  colors,
+  spacing,
+  radii,
+  FAB,
+  shadows,
+  iconSizes,
+} from "@budget/ui-native";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 export function SimulationScreen() {
@@ -245,8 +253,14 @@ export function SimulationScreen() {
       {/* FAB */}
       <FAB
         onPress={() => setShowAddModal(true)}
-        icon={<Ionicons name="add" size={28} color={colors.textInverse} />}
-        offsetBottom={spacing["3xl"] * 2}
+        icon={
+          <Ionicons
+            name="add"
+            size={iconSizes["xl"]}
+            color={colors.textInverse}
+          />
+        }
+        offsetBottom={spacing["4xl"] * 2}
       />
 
       {/* ADD ITEM MODAL */}
@@ -379,7 +393,7 @@ export function SimulationScreen() {
         </View>
 
         <MText variant="bodyStrong" color={withSimColor}>
-          {withSimulationBalance.toFixed(2)} €
+          €{withSimulationBalance.toFixed(2)}
         </MText>
       </View>
     </SafeAreaView>
@@ -391,6 +405,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     marginTop: spacing.lg,
+    padding: spacing.md,
     gap: spacing.md,
   },
   headerRow: {
@@ -403,7 +418,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: radii.full,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     alignItems: "center",
@@ -483,12 +498,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.lg,
+    marginBottom: spacing.lg,
     backgroundColor: colors.surfaceStrong,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    shadowColor: "#000",
+    shadowColor: shadows.card.shadowColor,
     shadowOpacity: 0.4,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },

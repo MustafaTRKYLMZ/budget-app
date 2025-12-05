@@ -9,9 +9,9 @@ interface QuickChipProps {
 
 export const QuickChip = ({ label, active, onPress }: QuickChipProps) => {
   const chipStyle: ViewStyle = {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xs,
-    borderRadius: radii.full,
+    borderRadius: radii.md,
     backgroundColor: active ? colors.primary : "transparent",
     borderWidth: 1,
     borderColor: active ? colors.primary : colors.borderSubtle,

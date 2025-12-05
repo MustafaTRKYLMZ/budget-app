@@ -29,7 +29,6 @@ export function BottomSheetModal({
   return (
     <Modal
       visible={visible}
-      transparent
       animationType="fade"
       onRequestClose={onClose}
       presentationStyle={isIOS ? "overFullScreen" : "fullScreen"}

@@ -187,7 +187,7 @@ export function SimulationItemModal({
 
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
           <MText variant="bodyStrong" color="textInverse">
-            {t("to_scenario")}
+            {t("to_scenario")}{" "}
           </MText>
         </TouchableOpacity>
       </View>

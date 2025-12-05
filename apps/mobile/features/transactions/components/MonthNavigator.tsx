@@ -1,7 +1,7 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { MText, colors, spacing, radii } from "@budget/ui-native";
+import { MText, colors, spacing, radii, iconSizes } from "@budget/ui-native";
 
 interface Props {
   monthName: string;
@@ -18,7 +18,11 @@ export function MonthNavigator({ monthName, year, onPrev, onNext }: Props) {
         style={styles.monthNavIcon}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
       >
-        <Ionicons name="chevron-back" size={22} color={colors.textSecondary} />
+        <Ionicons
+          name="chevron-back"
+          size={iconSizes["xl"]}
+          color={colors.textSecondary}
+        />
       </TouchableOpacity>
 
       <View style={styles.monthTitleBlock}>
@@ -41,7 +45,7 @@ export function MonthNavigator({ monthName, year, onPrev, onNext }: Props) {
       >
         <Ionicons
           name="chevron-forward"
-          size={22}
+          size={iconSizes["xl"]}
           color={colors.textSecondary}
         />
       </TouchableOpacity>
